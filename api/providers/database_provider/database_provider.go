@@ -1,10 +1,24 @@
 package database_provider
 
+import (
+	stdcsv "encoding/csv"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
+)
+
+const (
+	ProjectDir  = "/Users/rob/ws/go/src/inventory"
+	CSVFileName = "inventory.csv"
+)
+
 type DatabaseProviderInterface interface {
 	Save(item InventoryItem) error
 	List() ([]InventoryItem, error)
 	ListByCategory(category string) ([]InventoryItem, error)
 	TotalsByCategory(category string) (map[string]int, error)
+	ExportCSV(fileName string) error
 }
 type DatabaseProvider struct {
 	Repository []InventoryItem
@@ -34,6 +48,41 @@ func (p *DatabaseProvider) TotalByCategory(category string) (int, error) {
 		}
 	}
 	return totals, nil
+}
+func (p *DatabaseProvider) ExportCSV(dirName string) error {
+	csvPath := filepath.Join(ProjectDir, dirName, CSVFileName)
+	file, err := os.Create(csvPath)
+	if err != nil {
+		return fmt.Errorf("error creating file %s: %w", csvPath, err)
+	}
+	defer file.Close()
+
+	w := stdcsv.NewWriter(file)
+	// Quantity	Name	Manufacturer	Model	Value	Category	Purchase Date	Serial Number
+	record := []string{"Qty", "Name", "Manufacturer", "Model", "Value", "Category", "Purchase Date", "Serial Num"}
+	if err := w.Write(record); err != nil {
+		return fmt.Errorf("error writing to file: %w", err)
+	}
+	for _, t := range p.Repository {
+		record = []string{
+			strconv.Itoa(t.Quantity),
+			t.Name,
+			t.Manufacturer,
+			t.Model,
+			strconv.Itoa(t.Value * t.Quantity),
+			t.Category,
+			t.PurchaseDate,
+			t.SerialNumber,
+		}
+		if err := w.Write(record); err != nil {
+			return fmt.Errorf("error writing to file: %w", err)
+		}
+	}
+	w.Flush()
+	if err := w.Error(); err != nil {
+		return fmt.Errorf("error writing to file: %w", err)
+	}
+	return nil
 }
 
 type InventoryItem struct {
