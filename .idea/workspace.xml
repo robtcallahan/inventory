@@ -5,33 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2ea41eb-36d9-46d1-a81a-fc83c6726bf2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/59741437-9d23-4ae6-bef8-5025dc965acc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/59741437-9d23-4ae6-bef8-5025dc965acc/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/59741437-9d23-4ae6-bef8-5025dc965acc/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/data_sources_history.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/go.imports.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inventory.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cmd/migrate.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cmd/root.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrations/00001_baseline_schema.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/config/config.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/models/models.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/repository/connect.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/repository/repository.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cmd/export.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/csv/csv.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/repository/mysql/mysql.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/providers/database_provider/database_provider.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/providers/database_provider/database_provider.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/providers/database_provider/database_provider_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/providers/database_provider/database_provider_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/Project Plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Project Plan.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inventory" beforeDir="false" afterPath="$PROJECT_DIR$/inventory" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/repository/repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/repository.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,6 +67,11 @@
     "onboarding.tips.debug.path": "/Users/rob/ws/go/src/inventory/main.go"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/pkg/repository" />
+    </key>
+  </component>
   <component name="RunManager" selected="Go Test.go test inventory">
     <configuration name="go build inventory" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
       <module name="inventory" />

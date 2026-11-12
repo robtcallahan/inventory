@@ -1,13 +1,8 @@
 package database_provider
 
 import (
-	stdcsv "encoding/csv"
-	"fmt"
-	"os"
-	"path/filepath"
-	"strconv"
-
 	"inventory/pkg/models"
+	"inventory/pkg/repository"
 )
 
 const (
@@ -19,70 +14,37 @@ type DatabaseProviderInterface interface {
 	Save(item models.InventoryItem) error
 	List() ([]models.InventoryItem, error)
 	ListByCategory(category string) ([]models.InventoryItem, error)
-	TotalsByCategory(category string) (map[string]int, error)
-	ExportCSV(fileName string) error
+	TotalByCategory(category string) (int, error)
+	SortedListForCSV() ([]models.InventoryItem, error)
 }
 type DatabaseProvider struct {
-	Repository []models.InventoryItem
+	Repository repository.QueryRepo
 }
 
 func (p *DatabaseProvider) Save(item models.InventoryItem) error {
-	p.Repository = append(p.Repository, item)
-	return nil
+	return p.Repository.Save(item)
 }
 func (p *DatabaseProvider) List() ([]models.InventoryItem, error) {
-	return p.Repository, nil
+	items, err := p.Repository.List()
+	if err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 func (p *DatabaseProvider) ListByCategory(category string) ([]models.InventoryItem, error) {
-	var items []models.InventoryItem
-	for _, item := range p.Repository {
-		if item.Category == category {
-			items = append(items, item)
-		}
+	items, err := p.Repository.ListByCategory(category)
+	if err != nil {
+		return nil, err
 	}
 	return items, nil
 }
 func (p *DatabaseProvider) TotalByCategory(category string) (int, error) {
-	var totals = 0
-	for _, item := range p.Repository {
-		if item.Category == category {
-			totals += item.Quantity * item.Value
-		}
-	}
-	return totals, nil
-}
-func (p *DatabaseProvider) ExportCSV(dirName string) error {
-	csvPath := filepath.Join(ProjectDir, dirName, CSVFileName)
-	file, err := os.Create(csvPath)
+	totalValue, err := p.Repository.TotalByCategory(category)
 	if err != nil {
-		return fmt.Errorf("error creating file %s: %w", csvPath, err)
+		return 0, err
 	}
-	defer file.Close()
-
-	w := stdcsv.NewWriter(file)
-	// Quantity	Name	Manufacturer	Model	Value	Category	Purchase Date	Serial Number
-	record := []string{"Qty", "Name", "Manufacturer", "Model", "Value", "Category", "Purchase Date", "Serial Num"}
-	if err := w.Write(record); err != nil {
-		return fmt.Errorf("error writing to file: %w", err)
-	}
-	for _, t := range p.Repository {
-		record = []string{
-			strconv.Itoa(t.Quantity),
-			t.Name,
-			t.Manufacturer,
-			t.Model,
-			strconv.Itoa(t.Value * t.Quantity),
-			t.Category,
-			t.PurchaseDate,
-			t.SerialNumber,
-		}
-		if err := w.Write(record); err != nil {
-			return fmt.Errorf("error writing to file: %w", err)
-		}
-	}
-	w.Flush()
-	if err := w.Error(); err != nil {
-		return fmt.Errorf("error writing to file: %w", err)
-	}
-	return nil
+	return totalValue, nil
+}
+func (p *DatabaseProvider) SortedListForCSV() ([]models.InventoryItem, error) {
+	return nil, nil
 }

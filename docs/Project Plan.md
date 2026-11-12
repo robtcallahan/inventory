@@ -47,7 +47,7 @@ done, green, and pushed.
 
 - [ ] MySQL provider implementing the same interface (Save, List,
   ListByCategory, Totals, Export)
-- [ ] Schema: items table with an auto-increment PK and fields matching
+- [X] Schema: items table with an auto-increment PK and fields matching
   the Item struct
 - [ ] Swap the in-memory provider for MySQL behind the interface; all
   tests still green
