@@ -5,20 +5,8 @@ import (
 	"testing"
 )
 
-type mockProvider struct {
-	items []InventoryItem
-}
-
-func (mp *mockProvider) Save(item InventoryItem) error {
-	mp.items = append(mp.items, item)
-	return nil
-}
-func (mp *mockProvider) List() ([]InventoryItem, error) {
-	return mp.items, nil
-}
-
 func Test_SaveAndList(t *testing.T) {
-	mp := &mockProvider{}
+	provider := &DatabaseProvider{}
 	item := InventoryItem{
 		Quantity:     1,
 		Name:         "Item 1",
@@ -31,11 +19,11 @@ func Test_SaveAndList(t *testing.T) {
 		Value:        100,
 	}
 
-	err := mp.Save(item)
+	err := provider.Save(item)
 	if err != nil {
 		fmt.Errorf("got error %v, want nil", err)
 	}
-	items, err := mp.List()
+	items, err := provider.List()
 	if err != nil {
 		fmt.Errorf("got error %v, want nil", err)
 	}
@@ -44,5 +32,24 @@ func Test_SaveAndList(t *testing.T) {
 	}
 	if items[0] != item {
 		t.Errorf("got item = %v, want %v", item, item)
+	}
+}
+
+func Test_ListByCategory(t *testing.T) {
+	provider := &DatabaseProvider{
+		Repository: []InventoryItem{
+			{Name: "Taylor 610CE", Category: "Guitars"},
+			{Name: "Paradym Loud", Category: "Entertainment"},
+		},
+	}
+	got, err := provider.ListByCategory("Guitars")
+	if err != nil {
+		t.Errorf("got error %v, want nil", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("got len(items) = %d, want 1", len(got))
+	}
+	if got[0] != provider.Repository[0] {
+		t.Errorf("got item = %v, want %v", got, provider.Repository[0])
 	}
 }
