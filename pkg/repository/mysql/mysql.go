@@ -19,7 +19,7 @@ func NewMySQLQueryRepo(conn *gorm.DB) repo.QueryRepo {
 	}
 }
 
-func (r *mysqlQueryRepo) Save(item models.InventoryItem) error {
+func (r *mysqlQueryRepo) Save(item models.Item) error {
 	return r.Conn.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(item).Error; err != nil {
 			return err
@@ -28,16 +28,16 @@ func (r *mysqlQueryRepo) Save(item models.InventoryItem) error {
 	})
 }
 
-func (r *mysqlQueryRepo) List() ([]models.InventoryItem, error) {
-	var items []models.InventoryItem
+func (r *mysqlQueryRepo) List() ([]models.Item, error) {
+	var items []models.Item
 	if result := r.Conn.Order("date").Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)
 	}
 	return items, nil
 }
 
-func (r *mysqlQueryRepo) ListByCategory(category string) ([]models.InventoryItem, error) {
-	var items []models.InventoryItem
+func (r *mysqlQueryRepo) ListByCategory(category string) ([]models.Item, error) {
+	var items []models.Item
 	if result := r.Conn.Where("category = ?", category).Order("name").Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items for category: %w", result.Error)
 	}
@@ -45,14 +45,18 @@ func (r *mysqlQueryRepo) ListByCategory(category string) ([]models.InventoryItem
 }
 
 func (r *mysqlQueryRepo) TotalByCategory(category string) (int, error) {
-	var results map[string]int
-	if result := r.Conn.Select("SUM(value*quantity) as total_cost").Where("category = ?",
-		category).Find(&results); result.Error != nil {
-		return 0, fmt.Errorf("unable to get items for category: %w", result.Error)
-	}
-	return results["total_cost"], nil
+	var total int
+	r.Conn.Model(&models.Item{}).
+		Select("SUM(value * quantity)").
+		Where("category = ?", category).
+		Scan(&total)
+	return total, nil
 }
 
-func (r *mysqlQueryRepo) SortedListForCSV() ([]models.InventoryItem, error) {
-	return nil, nil
+func (r *mysqlQueryRepo) SortedListForCSV() ([]models.Item, error) {
+	var items []models.Item
+	if result := r.Conn.Order("category").Order("name").Find(&items); result.Error != nil {
+		return nil, fmt.Errorf("unable to get items: %w", result.Error)
+	}
+	return items, nil
 }

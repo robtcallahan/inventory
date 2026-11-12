@@ -3,10 +3,30 @@ package csv
 import (
 	stdcsv "encoding/csv"
 	"fmt"
+	"inventory/pkg/models"
 	"os"
 	"reflect"
 	"strings"
+
+	"github.com/gocarina/gocsv"
 )
+
+func ImportCSV(fileName string) ([]models.CSVItem, error) {
+	if err := checkCSVHeaders(fileName, models.CSVItem{}); err != nil {
+		return nil, err
+	}
+	csvFilePtr, err := os.Open(fileName)
+	if err != nil {
+		return nil, fmt.Errorf("could not open file %s: %w", fileName, err)
+	}
+	defer csvFilePtr.Close()
+
+	var items []models.CSVItem
+	if err := gocsv.UnmarshalFile(csvFilePtr, &items); err != nil {
+		return nil, fmt.Errorf("could not unmarshal CSV file %s: %w", fileName, err)
+	}
+	return items, err
+}
 
 // normalizeHeader canonicalizes a CSV header label for matching: surrounding
 // whitespace is ignored and matching is case-insensitive.

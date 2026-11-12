@@ -6,9 +6,9 @@ import (
 
 // QueryRepo represent the repositories
 type QueryRepo interface {
-	Save(item models.InventoryItem) error
-	List() ([]models.InventoryItem, error)
-	ListByCategory(category string) ([]models.InventoryItem, error)
+	Save(item models.Item) error
+	List() ([]models.Item, error)
+	ListByCategory(category string) ([]models.Item, error)
 	TotalByCategory(category string) (int, error)
-	SortedListForCSV() ([]models.InventoryItem, error)
+	SortedListForCSV() ([]models.Item, error)
 }

@@ -5,33 +5,28 @@ import (
 	"inventory/pkg/repository"
 )
 
-const (
-	ProjectDir  = "/Users/rob/ws/go/src/inventory"
-	CSVFileName = "inventory.csv"
-)
-
 type DatabaseProviderInterface interface {
-	Save(item models.InventoryItem) error
-	List() ([]models.InventoryItem, error)
-	ListByCategory(category string) ([]models.InventoryItem, error)
+	Save(item models.Item) error
+	List() ([]models.Item, error)
+	ListByCategory(category string) ([]models.Item, error)
 	TotalByCategory(category string) (int, error)
-	SortedListForCSV() ([]models.InventoryItem, error)
+	SortedListForCSV() ([]models.Item, error)
 }
 type DatabaseProvider struct {
 	Repository repository.QueryRepo
 }
 
-func (p *DatabaseProvider) Save(item models.InventoryItem) error {
+func (p *DatabaseProvider) Save(item models.Item) error {
 	return p.Repository.Save(item)
 }
-func (p *DatabaseProvider) List() ([]models.InventoryItem, error) {
+func (p *DatabaseProvider) List() ([]models.Item, error) {
 	items, err := p.Repository.List()
 	if err != nil {
 		return nil, err
 	}
 	return items, nil
 }
-func (p *DatabaseProvider) ListByCategory(category string) ([]models.InventoryItem, error) {
+func (p *DatabaseProvider) ListByCategory(category string) ([]models.Item, error) {
 	items, err := p.Repository.ListByCategory(category)
 	if err != nil {
 		return nil, err
@@ -45,6 +40,10 @@ func (p *DatabaseProvider) TotalByCategory(category string) (int, error) {
 	}
 	return totalValue, nil
 }
-func (p *DatabaseProvider) SortedListForCSV() ([]models.InventoryItem, error) {
-	return nil, nil
+func (p *DatabaseProvider) SortedListForCSV() ([]models.Item, error) {
+	items, err := p.Repository.SortedListForCSV()
+	if err != nil {
+		return nil, err
+	}
+	return items, nil
 }
