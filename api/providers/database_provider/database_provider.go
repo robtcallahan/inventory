@@ -4,6 +4,7 @@ type DatabaseProviderInterface interface {
 	Save(item InventoryItem) error
 	List() ([]InventoryItem, error)
 	ListByCategory(category string) ([]InventoryItem, error)
+	TotalsByCategory(category string) (map[string]int, error)
 }
 type DatabaseProvider struct {
 	Repository []InventoryItem
@@ -24,6 +25,15 @@ func (p *DatabaseProvider) ListByCategory(category string) ([]InventoryItem, err
 		}
 	}
 	return items, nil
+}
+func (p *DatabaseProvider) TotalByCategory(category string) (int, error) {
+	var totals = 0
+	for _, item := range p.Repository {
+		if item.Category == category {
+			totals += item.Quantity * item.Value
+		}
+	}
+	return totals, nil
 }
 
 type InventoryItem struct {

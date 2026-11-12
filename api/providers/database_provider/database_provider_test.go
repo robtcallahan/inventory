@@ -53,3 +53,20 @@ func Test_ListByCategory(t *testing.T) {
 		t.Errorf("got item = %v, want %v", got, provider.Repository[0])
 	}
 }
+
+func Test_TotalByCategory(t *testing.T) {
+	provider := &DatabaseProvider{
+		Repository: []InventoryItem{
+			{Name: "KRK Studio Monitors", Value: 179, Quantity: 2, Category: "Music Gear"},
+			{Name: "Macbook Pro", Value: 2070, Quantity: 1, Category: "Computers"},
+		},
+	}
+	want := 358
+	got, err := provider.TotalByCategory("Music Gear")
+	if err != nil {
+		t.Errorf("got error %v, want nil", err)
+	}
+	if got != want {
+		t.Errorf("got = %d, want %d", got, want)
+	}
+}
