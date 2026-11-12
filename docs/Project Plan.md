@@ -1,4 +1,4 @@
-# Home Insurance Inventory — Project Plan
+lk# Home Insurance Inventory — Project Plan
 
 The plan for the inventory app: what it holds, what it can do, and what
 is left. Tick boxes off as slices land. Current state: sheet holds 92

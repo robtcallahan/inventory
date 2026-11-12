@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"inventory/pkg/models"
 )
 
 const (
@@ -14,25 +16,25 @@ const (
 )
 
 type DatabaseProviderInterface interface {
-	Save(item InventoryItem) error
-	List() ([]InventoryItem, error)
-	ListByCategory(category string) ([]InventoryItem, error)
+	Save(item models.InventoryItem) error
+	List() ([]models.InventoryItem, error)
+	ListByCategory(category string) ([]models.InventoryItem, error)
 	TotalsByCategory(category string) (map[string]int, error)
 	ExportCSV(fileName string) error
 }
 type DatabaseProvider struct {
-	Repository []InventoryItem
+	Repository []models.InventoryItem
 }
 
-func (p *DatabaseProvider) Save(item InventoryItem) error {
+func (p *DatabaseProvider) Save(item models.InventoryItem) error {
 	p.Repository = append(p.Repository, item)
 	return nil
 }
-func (p *DatabaseProvider) List() ([]InventoryItem, error) {
+func (p *DatabaseProvider) List() ([]models.InventoryItem, error) {
 	return p.Repository, nil
 }
-func (p *DatabaseProvider) ListByCategory(category string) ([]InventoryItem, error) {
-	var items []InventoryItem
+func (p *DatabaseProvider) ListByCategory(category string) ([]models.InventoryItem, error) {
+	var items []models.InventoryItem
 	for _, item := range p.Repository {
 		if item.Category == category {
 			items = append(items, item)
@@ -83,16 +85,4 @@ func (p *DatabaseProvider) ExportCSV(dirName string) error {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
 	return nil
-}
-
-type InventoryItem struct {
-	Quantity     int
-	Name         string
-	Manufacturer string
-	Model        string
-	Description  string
-	SerialNumber string
-	Category     string
-	PurchaseDate string
-	Value        int
 }

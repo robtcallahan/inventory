@@ -9,12 +9,14 @@ import (
 	"strings"
 	"testing"
 
+	"inventory/pkg/models"
+
 	"github.com/gocarina/gocsv"
 )
 
 func Test_SaveAndList(t *testing.T) {
 	provider := &DatabaseProvider{}
-	item := InventoryItem{
+	item := models.InventoryItem{
 		Quantity:     1,
 		Name:         "Item 1",
 		Manufacturer: "Manufacturer",
@@ -44,7 +46,7 @@ func Test_SaveAndList(t *testing.T) {
 
 func Test_ListByCategory(t *testing.T) {
 	provider := &DatabaseProvider{
-		Repository: []InventoryItem{
+		Repository: []models.InventoryItem{
 			{Name: "Taylor 610CE", Category: "Guitars"},
 			{Name: "Paradym Loud", Category: "Entertainment"},
 		},
@@ -63,7 +65,7 @@ func Test_ListByCategory(t *testing.T) {
 
 func Test_TotalByCategory(t *testing.T) {
 	provider := &DatabaseProvider{
-		Repository: []InventoryItem{
+		Repository: []models.InventoryItem{
 			{Name: "KRK Studio Monitors", Value: 179, Quantity: 2, Category: "Music Gear"},
 			{Name: "Macbook Pro", Value: 2070, Quantity: 1, Category: "Computers"},
 		},
@@ -83,7 +85,7 @@ func Test_ExportCSV(t *testing.T) {
 	csvPath := filepath.Join(ProjectDir, dirName, CSVFileName)
 
 	provider := &DatabaseProvider{
-		Repository: []InventoryItem{
+		Repository: []models.InventoryItem{
 			{Name: "KRK Studio Monitors", Value: 179, Quantity: 2, Category: "Music Gear"},
 			{Name: "Macbook Pro", Value: 2070, Quantity: 1, Category: "Computers"},
 		},
@@ -92,7 +94,7 @@ func Test_ExportCSV(t *testing.T) {
 	if err != nil {
 		t.Fatalf("got error %v, want nil", err)
 	}
-	if err := checkCSVHeaders(csvPath, InventoryItem{}); err != nil {
+	if err := checkCSVHeaders(csvPath, models.InventoryItem{}); err != nil {
 		t.Fatalf("got error %v, want nil", err)
 	}
 	csvFilePtr, err := os.Open(csvPath)
@@ -101,7 +103,7 @@ func Test_ExportCSV(t *testing.T) {
 	}
 	defer csvFilePtr.Close()
 
-	var inventory []*InventoryItem
+	var inventory []*models.InventoryItem
 	if err := gocsv.UnmarshalFile(csvFilePtr, &inventory); err != nil {
 		t.Fatalf("could not unmarshal CSV file %s: %v", csvPath, err)
 	}
