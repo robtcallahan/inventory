@@ -2,10 +2,11 @@
 
 The plan for the inventory app: what it holds, what it can do, and what
 is left. Tick boxes off as items land. Current state: sheet holds 92
-items, ~$26,346 in known values; repo is `inventory`; four slices are
-done, green, and pushed; Phase 6 scaffolding is done (database, user,
-CLI root + migrate, migration, `migrate up` green, committed and
-pushed). Next: the MySQL provider methods (6.3).
+items, ~$26,346 in known values; repo is `inventory`; import/export
+reworked through the provider (SaveItems in a transaction, Description
+back in the export), provider tests green and pushed; PDF export built
+with gpdf (landscape, first version pretty). Next: move the Connect and
+repo construction out of cmd, then the export test rewrite.
 
 ## Phase 1 — Core: an item goes in, the list gives it back (done)
 
@@ -27,15 +28,15 @@ pushed). Next: the MySQL provider methods (6.3).
   parameter, no filter
 - [X] 3.2 Test: Music Gear 358, Computers 2070; green, pushed
 
-## Phase 4 — CSV export (done, one follow-up)
+## Phase 4 — CSV export (done)
 
 - [X] 4.1 Export method on the provider, headers in sheet column order
 - [X] 4.2 Test writes to a file in t.TempDir() and reads it back;
   green, pushed
 - [X] 4.3 Three CSV-reading helpers live in the test file (not needed
   in prod code; can be moved and exported if needed)
-- [ ] 4.4 Put Description back in the export (left out deliberately
-  for length; decided for completeness it should be there)
+- [X] 4.4 Description back in the export (was left out deliberately
+  for length; added 2026-11-12 in the import/export rework)
 
 ## Phase 5 — Photos, serial numbers, URLs (skipped for now)
 
@@ -50,14 +51,14 @@ already in the struct. These items are parked, not dropped.
 ## Phase 6 — Database backend (MySQL)
 
 - [X] 6.1 Schema: items table, auto-increment PK, fields matching the
-  Item struct. No unique keys at this point (duplicates are not a
-  concern now; revisit if others use it). Migration ran, `migrate up`
+  Item struct. Name is a UNIQUE KEY (Rob's call 2026-11-12: same name
+  means one item with quantity > 1). Migration ran, `migrate up`
   green.
 - [X] 6.2 CLI: root + migrate commands (copied from register's
   migrate), pkg config, models, repository. Database and user created.
   Build green, tests green, committed, pushed.
 - [ ] 6.3 MySQL provider implementing the same interface (Save, List,
-  ListByCategory, Totals, Export)
+  ListByCategory, TotalByCategory, SortedListForCSV)
 - [ ] 6.4 Swap the in-memory provider for MySQL behind the interface;
   all tests still green
 - [ ] 6.5 The DB is the reference data source from here on; the sheet
@@ -78,7 +79,9 @@ already in the struct. These items are parked, not dropped.
   cents)
 - [ ] 7.6 No tests for the import (Rob's call — the code is mostly
   written already)
-- [ ] 7.7 No unique keys; duplicates not worried about now
+- [ ] 7.7 Name is a unique key (see 6.1); a duplicate name on import
+  is skipped — the skip must be visible (a count or an error), not
+  silent
 
 ## Phase 8 — Web UI, basic
 
@@ -115,6 +118,20 @@ on it, no converting later.
 - [ ] 12.1 Wallet inventory (card names and last four digits only,
   never full numbers)
 
+## Phase 13 — PDF export (later)
+
+Rob's idea 2026-11-12: an additional export format so output looks
+cleaner and more professional, handling wrapping of long column
+values. PDF is his lean (a learning challenge; he has done PDF before
+and remembers inches-to-points conversion); doc or Google Sheets also
+possible.
+
+- [X] 13.1 Export items to PDF, wrapping long column values (first
+  version built 2026-11-12 with gpdf: landscape, header with
+  name/address/date, Confidential footer; the $ left-alignment is
+  still being tweaked, and Purchase Date / Serial Number were dropped
+  from this version)
+
 ## Standing decisions
 
 - Value is the per-item (unit) price, in whole dollars, no cents. A
@@ -123,8 +140,8 @@ on it, no converting later.
   once into the DB, then code works off the DB. No Sheets API.
 - The DB is the reference data source.
 - Finish capture first, then one import. No re-runnable import. No
-  tests for the import. No unique keys; duplicates deferred until
-  others use it.
+  tests for the import. Name is a unique key: same name means one item
+  with quantity > 1.
 - The CLI covers migrations and the CSV sheet import.
 - After the import, new items go in manually via the web app; the sheet
   retires.
