@@ -42,8 +42,6 @@ func importCSV() error {
 		return err
 	}
 	qHandler := mysql.NewMySQLQueryRepo(conn)
-	provider := database_provider.DatabaseProvider{
-		Repository: qHandler,
-	}
+	provider := database_provider.DatabaseProvider{Repository: qHandler}
 	return provider.SaveItems(items)
 }

@@ -20,6 +20,10 @@ func (p *fakeRepository) Save(item models.Item) error {
 	p.fakeItems = append(p.fakeItems, item)
 	return p.fakeError
 }
+func (p *fakeRepository) SaveItems(items []models.Item) error {
+	p.fakeItems = append(p.fakeItems, items...)
+	return nil
+}
 func (p *fakeRepository) List() ([]models.Item, error) {
 	return p.fakeItems, p.fakeError
 }
