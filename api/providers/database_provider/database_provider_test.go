@@ -1,6 +1,7 @@
 package database_provider
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 	"time"
@@ -17,7 +18,7 @@ type fakeRepository struct {
 func (p *fakeRepository) Save(item models.Item) error {
 	p.fakeItem = &item
 	p.fakeItems = append(p.fakeItems, item)
-	return nil
+	return p.fakeError
 }
 func (p *fakeRepository) List() ([]models.Item, error) {
 	return p.fakeItems, p.fakeError
@@ -65,6 +66,7 @@ func Test_Save(t *testing.T) {
 		name    string
 		want    *models.Item
 		wantErr bool
+		fakeErr error
 	}{
 		{
 			name:    "no error",
@@ -75,10 +77,12 @@ func Test_Save(t *testing.T) {
 			name:    "error",
 			want:    nil,
 			wantErr: true,
+			fakeErr: errors.New("could not save item"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			fakeRepo.fakeError = tt.fakeErr
 			err := provider.Save(item)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Save() error = %v, wantErr %v", err, tt.wantErr)
