@@ -28,6 +28,10 @@ func ImportCSV(fileName string) ([]models.CSVItem, error) {
 	return items, err
 }
 
+func ExportCSV(fileName string) error {
+	return nil
+}
+
 // normalizeHeader canonicalizes a CSV header label for matching: surrounding
 // whitespace is ignored and matching is case-insensitive.
 func normalizeHeader(h string) string {
