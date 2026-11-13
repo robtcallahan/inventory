@@ -28,15 +28,19 @@ func init() {
 
 func export() error {
 	conn, err := repository.Connect(&config.Database)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	qHandler := mysql.NewMySQLQueryRepo(conn)
 	provider := database_provider.DatabaseProvider{Repository: qHandler}
 
 	items, err := provider.SortedListForCSV()
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	if len(items) == 0 {
 		return fmt.Errorf("no items found")
 	}
 
-	return models.ItemsExportToCSVFile(options.CSVFileName, items)
+	return models.ItemsExportToCSVFile(options.ExportFileName, items)
 }

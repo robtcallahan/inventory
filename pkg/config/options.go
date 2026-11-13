@@ -2,6 +2,6 @@ package config
 
 type Options struct {
 	ExportFileName string
-	CSVFileName    string
+	ImportFileName string
 	DryRun         bool
 }
