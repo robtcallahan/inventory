@@ -5,8 +5,6 @@ import (
 	"inventory/api/providers/database_provider"
 	"inventory/pkg/models"
 	"inventory/pkg/pdf"
-	"inventory/pkg/repository"
-	"inventory/pkg/repository/mysql"
 
 	"github.com/spf13/cobra"
 )
@@ -29,12 +27,10 @@ func init() {
 }
 
 func export() error {
-	conn, err := repository.Connect(&config.Database)
+	provider, err := database_provider.NewMySQLProvider(&config.Database)
 	if err != nil {
 		return err
 	}
-	qHandler := mysql.NewMySQLQueryRepo(conn)
-	provider := database_provider.DatabaseProvider{Repository: qHandler}
 
 	items, err := provider.SortedListForOutput()
 	if err != nil {
@@ -46,7 +42,6 @@ func export() error {
 
 	switch options.OutputFormat {
 	case "pdf":
-		//return pdf.ItemsExportToPDFFile(options.ExportFileName, items)
 		return pdf.PDF(options.ExportFileName, items)
 	case "csv":
 		return models.ItemsExportToCSVFile(options.ExportFileName, items)

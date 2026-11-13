@@ -4,8 +4,6 @@ import (
 	"inventory/api/providers/database_provider"
 	"inventory/pkg/csv"
 	"inventory/pkg/models"
-	"inventory/pkg/repository"
-	"inventory/pkg/repository/mysql"
 
 	"github.com/spf13/cobra"
 )
@@ -37,11 +35,9 @@ func importCSV() error {
 		return err
 	}
 
-	conn, err := repository.Connect(&config.Database)
+	provider, err := database_provider.NewMySQLProvider(&config.Database)
 	if err != nil {
 		return err
 	}
-	qHandler := mysql.NewMySQLQueryRepo(conn)
-	provider := database_provider.DatabaseProvider{Repository: qHandler}
 	return provider.SaveItems(items)
 }

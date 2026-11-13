@@ -1,8 +1,10 @@
 package database_provider
 
 import (
+	"inventory/pkg/config"
 	"inventory/pkg/models"
 	"inventory/pkg/repository"
+	"inventory/pkg/repository/mysql"
 )
 
 type DatabaseProviderInterface interface {
@@ -15,6 +17,14 @@ type DatabaseProviderInterface interface {
 }
 type DatabaseProvider struct {
 	Repository repository.QueryRepo
+}
+
+func NewMySQLProvider(dbCfg *config.DBConfig) (DatabaseProviderInterface, error) {
+	conn, err := repository.Connect(dbCfg)
+	if err != nil {
+		return nil, err
+	}
+	return &DatabaseProvider{Repository: mysql.NewMySQLQueryRepo(conn)}, nil
 }
 
 func (p *DatabaseProvider) Save(item models.Item) error {
