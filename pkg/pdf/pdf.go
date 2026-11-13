@@ -13,7 +13,7 @@ import (
 )
 
 func PDF(fileName string, items []models.Item) error {
-	var rows = make([][]string, len(items))
+	var rows = make([][]string, 0, len(items))
 
 	for i, t := range items {
 		purchaseDate := ""
@@ -58,7 +58,7 @@ func PDF(fileName string, items []models.Item) error {
 
 	data, err := doc.Generate()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	return os.WriteFile(fileName, data, 0644)
 }

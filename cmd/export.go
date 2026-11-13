@@ -23,7 +23,7 @@ func init() {
 
 	exportCmd.Flags().BoolVar(&options.DryRun, "dry-run", false, "Print-only run: no DB or spreadsheet updates performed")
 	exportCmd.Flags().StringVar(&options.OutputFormat, "format", "pdf", "export format (pdf or csv")
-	exportCmd.Flags().StringVar(&options.ExportFileName, "file", "./inventory.csv", "file name for export")
+	exportCmd.Flags().StringVar(&options.ExportFileName, "file", "inventory.pdf", "file name for export")
 }
 
 func export() error {
