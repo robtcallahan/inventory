@@ -23,7 +23,7 @@ func init() {
 	rootCmd.AddCommand(importCmd)
 
 	importCmd.Flags().BoolVar(&options.DryRun, "dry-run", false, "Print-only run: no DB or spreadsheet updates performed")
-	importCmd.Flags().StringVar(&options.ImportFileName, "csv", ".", "directory for inventory.csv export file")
+	importCmd.Flags().StringVar(&options.ImportFileName, "file", "./inventory.csv", "import CSV file name")
 }
 
 func importCSV() error {

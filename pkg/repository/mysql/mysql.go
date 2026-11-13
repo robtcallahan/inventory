@@ -65,7 +65,7 @@ func (r *mysqlQueryRepo) TotalByCategory(category string) (int, error) {
 	return total, nil
 }
 
-func (r *mysqlQueryRepo) SortedListForCSV() ([]models.Item, error) {
+func (r *mysqlQueryRepo) SortedListForOutput() ([]models.Item, error) {
 	var items []models.Item
 	if result := r.Conn.Order("category").Order("value DESC").Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)

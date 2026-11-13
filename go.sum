@@ -9,6 +9,8 @@ github.com/gocarina/gocsv v0.0.0-20261101205459-d0dd027dcbfa h1:u6dQLh7NdeVIBn4f
 github.com/gocarina/gocsv v0.0.0-20261101205459-d0dd027dcbfa/go.mod h1:5YoVOkjYAQumqlV356Hj3xeYh4BdZuLE0/nRkf2NKkI=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/gpdf-dev/gpdf v1.0.17 h1:yWJotZdNpm+bYmo2rIb7wJTgqdZ6bveWlgYB7mr+vhw=
+github.com/gpdf-dev/gpdf v1.0.17/go.mod h1:QTnE2q2L+q9E1neWCZen/V/x9iLOuJ1jWHBtylimfAw=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=

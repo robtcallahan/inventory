@@ -11,7 +11,7 @@ type DatabaseProviderInterface interface {
 	List() ([]models.Item, error)
 	ListByCategory(category string) ([]models.Item, error)
 	TotalByCategory(category string) (int, error)
-	SortedListForCSV() ([]models.Item, error)
+	SortedListForOutput() ([]models.Item, error)
 }
 type DatabaseProvider struct {
 	Repository repository.QueryRepo
@@ -45,8 +45,8 @@ func (p *DatabaseProvider) TotalByCategory(category string) (int, error) {
 	}
 	return totalValue, nil
 }
-func (p *DatabaseProvider) SortedListForCSV() ([]models.Item, error) {
-	items, err := p.Repository.SortedListForCSV()
+func (p *DatabaseProvider) SortedListForOutput() ([]models.Item, error) {
+	items, err := p.Repository.SortedListForOutput()
 	if err != nil {
 		return nil, err
 	}

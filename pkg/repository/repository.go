@@ -11,5 +11,5 @@ type QueryRepo interface {
 	List() ([]models.Item, error)
 	ListByCategory(category string) ([]models.Item, error)
 	TotalByCategory(category string) (int, error)
-	SortedListForCSV() ([]models.Item, error)
+	SortedListForOutput() ([]models.Item, error)
 }

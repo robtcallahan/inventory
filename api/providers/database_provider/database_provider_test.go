@@ -45,7 +45,7 @@ func (p *fakeRepository) TotalByCategory(category string) (int, error) {
 	}
 	return totalValue, p.fakeError
 }
-func (p *fakeRepository) SortedListForCSV() ([]models.Item, error) {
+func (p *fakeRepository) SortedListForOutput() ([]models.Item, error) {
 	return p.fakeItems, p.fakeError
 }
 
@@ -172,7 +172,7 @@ func Test_SortedListForCSV(t *testing.T) {
 	}
 	provider := &DatabaseProvider{Repository: fakeRepo}
 
-	_, err := provider.SortedListForCSV()
+	_, err := provider.SortedListForOutput()
 	if err != nil {
 		t.Fatalf("got error %v, want nil", err)
 	}
