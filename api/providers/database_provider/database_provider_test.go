@@ -10,9 +10,10 @@ import (
 )
 
 type fakeRepository struct {
-	fakeItems []models.Item
-	fakeItem  *models.Item
-	fakeError error
+	fakeItems       []models.Item
+	fakeItem        *models.Item
+	fakeOutputItems []models.OutputItem
+	fakeError       error
 }
 
 func (p *fakeRepository) Save(item models.Item) error {
@@ -45,8 +46,8 @@ func (p *fakeRepository) TotalByCategory(category string) (int, error) {
 	}
 	return totalValue, p.fakeError
 }
-func (p *fakeRepository) SortedListForOutput() ([]models.Item, error) {
-	return p.fakeItems, p.fakeError
+func (p *fakeRepository) SortedListForOutput() ([]models.OutputItem, error) {
+	return p.fakeOutputItems, p.fakeError
 }
 
 func Test_Save(t *testing.T) {
@@ -126,13 +127,13 @@ func Test_List(t *testing.T) {
 func Test_ListByCategory(t *testing.T) {
 	fakeRepo := &fakeRepository{
 		fakeItems: []models.Item{
-			{Name: "Taylor 610CE", Category: "Guitars"},
+			{Name: "Taylor 610CE", Category: "Musical Instruments"},
 			{Name: "Paradym Loud", Category: "Entertainment"},
 		},
 	}
 	provider := &DatabaseProvider{Repository: fakeRepo}
 
-	got, err := provider.ListByCategory("Guitars")
+	got, err := provider.ListByCategory("Musical Instruments")
 	if err != nil {
 		t.Fatalf("got error %v, want nil", err)
 	}
@@ -163,17 +164,33 @@ func Test_TotalByCategory(t *testing.T) {
 	}
 }
 
-func Test_SortedListForCSV(t *testing.T) {
+func Test_SortedListForOutput(t *testing.T) {
 	fakeRepo := &fakeRepository{
-		fakeItems: []models.Item{
-			{Name: "KRK Studio Monitors", Value: 179, Quantity: 2, Category: "Music Gear"},
-			{Name: "Macbook Pro", Value: 2070, Quantity: 1, Category: "Computers"},
+		fakeOutputItems: []models.OutputItem{
+			{Name: "MacBook Pro", Description: "2019 MacBook Pro, 16GB, 512 SSD", Value: 2070, Quantity: 1,
+				TotalCost: 2070, Category: "Computers"},
+			{Name: "KRK Studio Monitors", Description: "KRK Studio Monitors, yellow", Value: 179, Quantity: 2,
+				TotalCost: 358, Category: "Music Gear"},
+			{Name: "Humidifier", Description: "TommyBoy white humidifier", Value: 250, Quantity: 1, TotalCost: 250, Category: "Appliances"},
+			{Name: "Chef's knife", Description: "Flextone 10\" Chef's knife", Value: 50, Quantity: 2, TotalCost: 100,
+				Category: "Kitchen"},
+			{Name: "Chef's knife", Description: "Harbinger 8\" Chef's knife", Value: 50, Quantity: 2, TotalCost: 100,
+				Category: "Appliances"},
 		},
 	}
 	provider := &DatabaseProvider{Repository: fakeRepo}
 
-	_, err := provider.SortedListForOutput()
+	got, err := provider.SortedListForOutput()
 	if err != nil {
 		t.Fatalf("got error %v, want nil", err)
+	}
+	if len(got) != 5 {
+		t.Fatalf("got len(items) = %d, want 5", len(got))
+	}
+	if got[0].Name != fakeRepo.fakeOutputItems[0].Name {
+		t.Errorf("got item[0].Name = %v, want %v", got[0].Name, fakeRepo.fakeOutputItems[0].Name)
+	}
+	if got[4].Description != fakeRepo.fakeOutputItems[4].Description {
+		t.Errorf("got item[4].Name = %v, want %v", got[4].Description, fakeRepo.fakeOutputItems[4].Description)
 	}
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/gpdf-dev/gpdf/template"
 )
 
-func PDF(fileName string, items []models.Item) error {
+func PDF(fileName string, items []models.OutputItem) error {
 	var rows = make([][]string, 0, len(items))
 
 	for i, t := range items {
@@ -26,7 +26,7 @@ func PDF(fileName string, items []models.Item) error {
 			t.Name,
 			makeBlank(t.Manufacturer),
 			makeBlank(t.Model),
-			formatAccounting(float64(t.Value*t.Quantity), 8),
+			formatAccounting(float64(t.TotalCost), 8),
 			makeBlank(t.Category),
 			makeBlank(purchaseDate),
 			//makeBlank(t.SerialNumber),

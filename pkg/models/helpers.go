@@ -35,7 +35,7 @@ func CSVToItem(csvItems []CSVItem) ([]Item, error) {
 	return items, nil
 }
 
-func ItemsExportToCSVFile(fileName string, items []Item) error {
+func ItemsExportToCSVFile(fileName string, items []OutputItem) error {
 	file, err := os.Create(fileName)
 	if err != nil {
 		return fmt.Errorf("error creating file %s: %w", fileName, err)
@@ -57,7 +57,7 @@ func ItemsExportToCSVFile(fileName string, items []Item) error {
 			t.Name,
 			t.Manufacturer,
 			t.Model,
-			strconv.Itoa(t.Value * t.Quantity),
+			strconv.Itoa(t.TotalCost),
 			t.Category,
 			purchaseDate,
 			t.SerialNumber,

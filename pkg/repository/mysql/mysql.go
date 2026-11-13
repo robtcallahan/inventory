@@ -65,9 +65,12 @@ func (r *mysqlQueryRepo) TotalByCategory(category string) (int, error) {
 	return total, nil
 }
 
-func (r *mysqlQueryRepo) SortedListForOutput() ([]models.Item, error) {
-	var items []models.Item
-	if result := r.Conn.Order("category").Order("value DESC").Find(&items); result.Error != nil {
+func (r *mysqlQueryRepo) SortedListForOutput() ([]models.OutputItem, error) {
+	var items []models.OutputItem
+	if result := r.Conn.Table("items").
+		Select("*, (quantity * value) AS total_cost").
+		Order("total_cost DESC").Order("description").
+		Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)
 	}
 	return items, nil

@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a2ea41eb-36d9-46d1-a81a-fc83c6726bf2" name="Changes" comment="" />
+    <list default="true" id="a2ea41eb-36d9-46d1-a81a-fc83c6726bf2" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/providers/database_provider/database_provider.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/providers/database_provider/database_provider.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/providers/database_provider/database_provider_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/providers/database_provider/database_provider_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory" beforeDir="false" afterPath="$PROJECT_DIR$/inventory" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/models/helpers.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/models/helpers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/models/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/models/models.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/pdf/pdf.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/pdf/pdf.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/repository/mysql/mysql.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/mysql/mysql.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/repository/repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/repository.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -107,5 +117,19 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VgoModernizerVersionTracker">
+    <upgrades>
+      <map>
+        <entry key="$PROJECT_DIR$/go.mod">
+          <value>
+            <VersionUpgradeInfo>
+              <version>1.27</version>
+              <timestamp>1794600908956</timestamp>
+            </VersionUpgradeInfo>
+          </value>
+        </entry>
+      </map>
+    </upgrades>
   </component>
 </project>

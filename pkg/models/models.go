@@ -14,6 +14,19 @@ type Item struct {
 	Value        int
 }
 
+type OutputItem struct {
+	Quantity     int
+	Name         string
+	Manufacturer string
+	Model        string
+	Description  string
+	SerialNumber string
+	Category     string
+	PurchaseDate *time.Time
+	Value        int
+	TotalCost    int
+}
+
 type CSVItem struct {
 	Quantity     int    `csv:"Quantity"`
 	Name         string `csv:"Name"`
