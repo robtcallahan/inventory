@@ -15,13 +15,13 @@ type Item struct {
 }
 
 type CSVItem struct {
-	Quantity     int    `csv:"quantity"`
+	Quantity     int    `csv:"Quantity"`
 	Name         string `csv:"Name"`
 	Manufacturer string `csv:"Manufacturer"`
 	Model        string `csv:"Model"`
 	Description  string `csv:"Description"`
-	SerialNumber string `csv:"SerialNumber"`
+	SerialNumber string `csv:"Serial Number"`
 	Category     string `csv:"Category"`
-	PurchaseDate string `csv:"PurchaseDate"`
+	PurchaseDate string `csv:"Purchase Date"`
 	Value        int    `csv:"Value"`
 }

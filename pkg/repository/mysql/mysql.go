@@ -30,7 +30,7 @@ func (r *mysqlQueryRepo) Save(item models.Item) error {
 
 func (r *mysqlQueryRepo) List() ([]models.Item, error) {
 	var items []models.Item
-	if result := r.Conn.Order("date").Find(&items); result.Error != nil {
+	if result := r.Conn.Order("name").Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)
 	}
 	return items, nil
@@ -46,16 +46,18 @@ func (r *mysqlQueryRepo) ListByCategory(category string) ([]models.Item, error) 
 
 func (r *mysqlQueryRepo) TotalByCategory(category string) (int, error) {
 	var total int
-	r.Conn.Model(&models.Item{}).
-		Select("SUM(value * quantity)").
+	if result := r.Conn.Model(&models.Item{}).
+		Select("COALESCE(SUM(value * quantity), 0) AS total").
 		Where("category = ?", category).
-		Scan(&total)
+		Scan(&total); result.Error != nil {
+		return 0, fmt.Errorf("unable to get total of items: %w", result.Error)
+	}
 	return total, nil
 }
 
 func (r *mysqlQueryRepo) SortedListForCSV() ([]models.Item, error) {
 	var items []models.Item
-	if result := r.Conn.Order("category").Order("name").Find(&items); result.Error != nil {
+	if result := r.Conn.Order("category").Order("value DESC").Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)
 	}
 	return items, nil

@@ -1,122 +1,171 @@
 package database_provider
 
-//import (
-//	"fmt"
-//	"testing"
-//	"time"
-//
-//	"inventory/pkg/models"
-//)
-//
-//func Test_SaveAndList(t *testing.T) {
-//	provider := &DatabaseProvider{}
-//	now := time.Now()
-//	item := models.Item{
-//		Quantity:     1,
-//		Name:         "Item 1",
-//		Manufacturer: "Manufacturer",
-//		Model:        "Model",
-//		Description:  "Description",
-//		SerialNumber: "Serial Number",
-//		Category:     "Category",
-//		PurchaseDate: &now,
-//		Value:        100,
-//	}
-//
-//	err := provider.Save(item)
-//	if err != nil {
-//		fmt.Errorf("got error %v, want nil", err)
-//	}
-//	items, err := provider.List()
-//	if err != nil {
-//		fmt.Errorf("got error %v, want nil", err)
-//	}
-//	if len(items) != 1 {
-//		t.Fatalf("got len(items) = %d, want 1", len(items))
-//	}
-//	if items[0] != item {
-//		t.Errorf("got item = %v, want %v", item, item)
-//	}
-//}
-//
-//func Test_ListByCategory(t *testing.T) {
-//	provider := &DatabaseProvider{
-//		Repository: []models.Item{
-//			{Name: "Taylor 610CE", Category: "Guitars"},
-//			{Name: "Paradym Loud", Category: "Entertainment"},
-//		},
-//	}
-//	got, err := provider.ListByCategory("Guitars")
-//	if err != nil {
-//		t.Errorf("got error %v, want nil", err)
-//	}
-//	if len(got) != 1 {
-//		t.Fatalf("got len(items) = %d, want 1", len(got))
-//	}
-//	if got[0] != provider.Repository[0] {
-//		t.Errorf("got item = %v, want %v", got, provider.Repository[0])
-//	}
-//}
-//
-//func Test_TotalByCategory(t *testing.T) {
-//	provider := &DatabaseProvider{
-//		Repository: []models.Item{
-//			{Name: "KRK Studio Monitors", Value: 179, Quantity: 2, Category: "Music Gear"},
-//			{Name: "Macbook Pro", Value: 2070, Quantity: 1, Category: "Computers"},
-//		},
-//	}
-//	want := 358
-//	got, err := provider.TotalByCategory("Music Gear")
-//	if err != nil {
-//		t.Fatalf("got error %v, want nil", err)
-//	}
-//	if got != want {
-//		t.Errorf("got = %d, want %d", got, want)
-//	}
-//}
+import (
+	"reflect"
+	"testing"
+	"time"
 
-//func Test_ExportCSV(t *testing.T) {
-//	dirName := "tmp"
-//	csvPath := filepath.Join(ProjectDir, dirName, CSVFileName)
-//
-//	provider := &DatabaseProvider{
-//		Repository: []models.Item{
-//			{Name: "KRK Studio Monitors", Value: 179, Quantity: 2, Category: "Music Gear"},
-//			{Name: "Macbook Pro", Value: 2070, Quantity: 1, Category: "Computers"},
-//		},
-//	}
-//	err := provider.SortedListForCSV("tmp")
-//	if err != nil {
-//		t.Fatalf("got error %v, want nil", err)
-//	}
-//	if err := checkCSVHeaders(csvPath, models.Item{}); err != nil {
-//		t.Fatalf("got error %v, want nil", err)
-//	}
-//	csvFilePtr, err := os.Open(csvPath)
-//	if err != nil {
-//		t.Fatalf("could not open file %s: %v", csvPath, err)
-//	}
-//	defer csvFilePtr.Close()
-//
-//	var inventory []*models.Item
-//	if err := gocsv.UnmarshalFile(csvFilePtr, &inventory); err != nil {
-//		t.Fatalf("could not unmarshal CSV file %s: %v", csvPath, err)
-//	}
-//	if len(inventory) != 2 {
-//		t.Fatalf("got len(inventory) = %d, want 2", len(inventory))
-//	}
-//	wantValue := 358
-//	if inventory[0].Name != provider.Repository[0].Name {
-//		t.Errorf("got inventory[0].Name = %s, want %s", inventory[0].Name, provider.Repository[0].Name)
-//	}
-//	if inventory[0].Value != wantValue {
-//		t.Errorf("got inventory[0].Value = %d, want %d", inventory[0].Value, wantValue)
-//	}
-//	if inventory[1].Name != provider.Repository[1].Name {
-//		t.Errorf("got inventory[1].Name = %s, want %s", inventory[1].Name, provider.Repository[1].Name)
-//	}
-//	wantValue = 2070
-//	if inventory[1].Value != wantValue {
-//		t.Errorf("got inventory[1].Value = %d, want %d", inventory[1].Value, wantValue)
-//	}
-//}
+	"inventory/pkg/models"
+)
+
+type fakeRepository struct {
+	fakeItems []models.Item
+	fakeItem  *models.Item
+	fakeError error
+}
+
+func (p *fakeRepository) Save(item models.Item) error {
+	p.fakeItem = &item
+	p.fakeItems = append(p.fakeItems, item)
+	return nil
+}
+func (p *fakeRepository) List() ([]models.Item, error) {
+	return p.fakeItems, p.fakeError
+}
+func (p *fakeRepository) ListByCategory(category string) ([]models.Item, error) {
+	var matched []models.Item
+	for _, item := range p.fakeItems {
+		if item.Category == category {
+			matched = append(matched, item)
+		}
+	}
+	return matched, p.fakeError
+}
+func (p *fakeRepository) TotalByCategory(category string) (int, error) {
+	totalValue := 0
+	for _, item := range p.fakeItems {
+		if item.Category == category {
+			totalValue = totalValue + (item.Value * item.Quantity)
+		}
+	}
+	return totalValue, p.fakeError
+}
+func (p *fakeRepository) SortedListForCSV() ([]models.Item, error) {
+	return p.fakeItems, p.fakeError
+}
+
+func Test_Save(t *testing.T) {
+	fakeRepo := &fakeRepository{fakeItems: []models.Item{}}
+	provider := &DatabaseProvider{Repository: fakeRepo}
+
+	now := time.Now()
+	item := models.Item{
+		Quantity:     1,
+		Name:         "Item 1",
+		Manufacturer: "Manufacturer",
+		Model:        "Model",
+		Description:  "Description",
+		SerialNumber: "Serial Number",
+		Category:     "Category",
+		PurchaseDate: &now,
+		Value:        100,
+	}
+
+	tests := []struct {
+		name    string
+		want    *models.Item
+		wantErr bool
+	}{
+		{
+			name:    "no error",
+			want:    &item,
+			wantErr: false,
+		},
+		{
+			name:    "error",
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := provider.Save(item)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Save() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if tt.wantErr {
+				return
+			}
+			if !reflect.DeepEqual(fakeRepo.fakeItem, tt.want) {
+				t.Errorf("Save() = %v, want %v", fakeRepo.fakeItem, tt.want)
+			}
+		})
+	}
+
+}
+
+func Test_List(t *testing.T) {
+	fakeRepo := &fakeRepository{
+		fakeItems: []models.Item{
+			{Name: "Taylor 610CE", Category: "Guitars"},
+			{Name: "Paradym Loud", Category: "Entertainment"},
+		},
+	}
+	provider := &DatabaseProvider{Repository: fakeRepo}
+
+	got, err := provider.List()
+	if err != nil {
+		t.Fatalf("got error %v, want nil", err)
+	}
+	if len(got) != 2 {
+		t.Fatalf("got len(items) = %d, want 2", len(got))
+	}
+	if !reflect.DeepEqual(got, fakeRepo.fakeItems) {
+		t.Errorf("got item = %v, want %v", got, fakeRepo.fakeItems)
+	}
+}
+
+func Test_ListByCategory(t *testing.T) {
+	fakeRepo := &fakeRepository{
+		fakeItems: []models.Item{
+			{Name: "Taylor 610CE", Category: "Guitars"},
+			{Name: "Paradym Loud", Category: "Entertainment"},
+		},
+	}
+	provider := &DatabaseProvider{Repository: fakeRepo}
+
+	got, err := provider.ListByCategory("Guitars")
+	if err != nil {
+		t.Fatalf("got error %v, want nil", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("got len(items) = %d, want 1", len(got))
+	}
+	if got[0] != fakeRepo.fakeItems[0] {
+		t.Errorf("got item = %v, want %v", got, fakeRepo.fakeItems[0])
+	}
+}
+
+func Test_TotalByCategory(t *testing.T) {
+	fakeRepo := &fakeRepository{
+		fakeItems: []models.Item{
+			{Name: "KRK Studio Monitors", Value: 179, Quantity: 2, Category: "Music Gear"},
+			{Name: "Macbook Pro", Value: 2070, Quantity: 1, Category: "Computers"},
+		},
+	}
+	provider := &DatabaseProvider{Repository: fakeRepo}
+
+	want := 358
+	got, err := provider.TotalByCategory("Music Gear")
+	if err != nil {
+		t.Fatalf("got error %v, want nil", err)
+	}
+	if got != want {
+		t.Errorf("got = %d, want %d", got, want)
+	}
+}
+
+func Test_SortedListForCSV(t *testing.T) {
+	fakeRepo := &fakeRepository{
+		fakeItems: []models.Item{
+			{Name: "KRK Studio Monitors", Value: 179, Quantity: 2, Category: "Music Gear"},
+			{Name: "Macbook Pro", Value: 2070, Quantity: 1, Category: "Computers"},
+		},
+	}
+	provider := &DatabaseProvider{Repository: fakeRepo}
+
+	_, err := provider.SortedListForCSV()
+	if err != nil {
+		t.Fatalf("got error %v, want nil", err)
+	}
+}
