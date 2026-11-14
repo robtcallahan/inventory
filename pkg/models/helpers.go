@@ -20,15 +20,16 @@ func CSVToItem(csvItems []CSVItem) ([]Item, error) {
 			}
 		}
 		item := Item{
+			Quantity:     i.Quantity,
+			Name:         i.Name,
+			Value:        int(i.Value),
+			Description:  i.Description,
+			Manufacturer: i.Manufacturer,
+			Model:        i.Model,
 			Category:     i.Category,
 			PurchaseDate: purchasedAt,
-			Value:        int(i.Value),
-			Name:         i.Name,
-			Model:        i.Model,
-			Manufacturer: i.Manufacturer,
-			Quantity:     i.Quantity,
-			Description:  i.Description,
 			SerialNumber: i.SerialNumber,
+			Details:      i.Details,
 		}
 		items = append(items, item)
 	}
@@ -43,7 +44,8 @@ func ItemsExportToCSVFile(fileName string, items []OutputItem) error {
 	defer file.Close()
 
 	w := stdcsv.NewWriter(file)
-	record := []string{"Qty", "Name", "Manufacturer", "Model", "Value", "Category", "Purchase Date", "Serial Num", "Description"}
+	record := []string{"Qty", "Name", "Value", "Total Cost", "Description", "Manufacturer", "Model", "Category",
+		"Purchase Date", "Serial Num", "Details"}
 	if err = w.Write(record); err != nil {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
@@ -55,13 +57,15 @@ func ItemsExportToCSVFile(fileName string, items []OutputItem) error {
 		record = []string{
 			strconv.Itoa(t.Quantity),
 			t.Name,
+			strconv.Itoa(t.Value),
+			strconv.Itoa(t.TotalCost),
+			t.Description,
 			t.Manufacturer,
 			t.Model,
-			strconv.Itoa(t.TotalCost),
 			t.Category,
 			purchaseDate,
 			t.SerialNumber,
-			t.Description,
+			t.Details,
 		}
 		if err := w.Write(record); err != nil {
 			return fmt.Errorf("error writing to file: %w", err)

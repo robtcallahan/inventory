@@ -35,26 +35,28 @@ func (c *CurrencyInt) UnmarshalCSV(csv string) error {
 type Item struct {
 	Quantity     int
 	Name         string
+	Value        int
+	Description  string
 	Manufacturer string
 	Model        string
-	Description  string
-	SerialNumber string
 	Category     string
 	PurchaseDate *time.Time
-	Value        int
+	SerialNumber string
+	Details      string `csv:"Details"`
 }
 
 type OutputItem struct {
-	Quantity     int
-	Name         string
-	Manufacturer string
-	Model        string
-	Description  string
-	SerialNumber string
-	Category     string
-	PurchaseDate *time.Time
-	Value        int
-	TotalCost    int
+	Quantity     int        `csv:"Quantity"`
+	Name         string     `csv:"Name"`
+	Value        int        `csv:"Value"`
+	TotalCost    int        `csv:"Total Cost"`
+	Description  string     `csv:"Description"`
+	Manufacturer string     `csv:"Manufacturer"`
+	Model        string     `csv:"Model"`
+	Category     string     `csv:"Category"`
+	PurchaseDate *time.Time `csv:"Purchase Date"`
+	SerialNumber string     `csv:"Serial Number"`
+	Details      string     `csv:"Details"`
 }
 
 type CSVItem struct {
