@@ -25,11 +25,8 @@ func ImportCSV(fileName string) ([]models.CSVItem, error) {
 	if err := gocsv.UnmarshalFile(csvFilePtr, &items); err != nil {
 		return nil, fmt.Errorf("could not unmarshal CSV file %s: %w", fileName, err)
 	}
-	return items, err
-}
 
-func ExportCSV(fileName string) error {
-	return nil
+	return items, err
 }
 
 // normalizeHeader canonicalizes a CSV header label for matching: surrounding

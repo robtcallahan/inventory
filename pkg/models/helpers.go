@@ -22,7 +22,7 @@ func CSVToItem(csvItems []CSVItem) ([]Item, error) {
 		item := Item{
 			Category:     i.Category,
 			PurchaseDate: purchasedAt,
-			Value:        i.Value,
+			Value:        int(i.Value),
 			Name:         i.Name,
 			Model:        i.Model,
 			Manufacturer: i.Manufacturer,
