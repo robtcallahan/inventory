@@ -21,7 +21,7 @@ var want = []models.Item{
 		Category:    "category1",
 	},
 	{
-		Quantity:    1,
+		Quantity:    2,
 		Name:        "name2",
 		Description: "desc2",
 		Value:       200,
@@ -76,13 +76,13 @@ func setupTestDB(t *testing.T) *gorm.DB {
 func Test_Save(t *testing.T) {
 	conn := setupTestDB(t)
 	repo := NewMySQLQueryRepo(conn)
-	want := models.Item{
+	wantOne := models.Item{
 		Name:        "name",
 		Description: "desc",
 		Value:       100,
 	}
 
-	err := repo.Save(want)
+	err := repo.Save(wantOne)
 	if err != nil {
 		t.Fatalf("could not save item: %v", err)
 	}
@@ -93,9 +93,9 @@ func Test_Save(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 item, got %d", len(got))
 	}
-	if got[0].Name != want.Name || got[0].Description != want.Description || got[0].Value != want.
+	if got[0].Name != wantOne.Name || got[0].Description != wantOne.Description || got[0].Value != wantOne.
 		Value {
-		t.Errorf("expected: %v, got: %v", want, got)
+		t.Errorf("expected: %v, got: %v", wantOne, got)
 	}
 }
 
@@ -103,14 +103,14 @@ func Test_SaveItems(t *testing.T) {
 	conn := setupTestDB(t)
 	repo := NewMySQLQueryRepo(conn)
 
-	got, err := repo.SaveItems(want)
+	skipped, err := repo.SaveItems(want)
 	if err != nil {
 		t.Fatalf("could not save items: %v", err)
 	}
-	if len(got) != 0 {
-		t.Fatalf("expected 0 skipped items, got %d", len(got))
+	if len(skipped) != 0 {
+		t.Fatalf("expected 0 skipped items, got %d", len(skipped))
 	}
-	got, err = repo.List()
+	got, err := repo.List()
 	if err != nil {
 		t.Fatalf("could not list items: %v", err)
 	}
@@ -118,6 +118,9 @@ func Test_SaveItems(t *testing.T) {
 		t.Fatalf("expected 4 items, got %d", len(got))
 	}
 	for i, item := range got {
+		if item.Quantity != want[i].Quantity {
+			t.Errorf("expected want.Quantity: %d, got %d", want[i].Quantity, item.Quantity)
+		}
 		if item.Name != want[i].Name {
 			t.Errorf("expected want.Name: %s, got %s", want[i].Name, item.Name)
 		}
@@ -149,6 +152,9 @@ func Test_ListByCategory(t *testing.T) {
 		t.Fatalf("expected 2 items, got %d", len(got))
 	}
 	for i, item := range got {
+		if item.Quantity != want[i+1].Quantity {
+			t.Errorf("expected want.Quantity: %d, got %d", want[i+1].Quantity, item.Quantity)
+		}
 		if item.Name != want[i+1].Name {
 			t.Errorf("expected want.Name: %s, got %s", want[i+1].Name, item.Name)
 		}
@@ -176,7 +182,7 @@ func Test_TotalByCategory(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not total by category: %v", err)
 	}
-	if got != 500 {
-		t.Fatalf("expected 500, got %d", got)
+	if got != 700 {
+		t.Fatalf("expected 700, got %d", got)
 	}
 }
