@@ -84,12 +84,14 @@ already in the struct. These items are parked, not dropped.
   is capture only. DB holds all 93 rows and is what export/PDF read
   from.
 - [ ] 6.6 Automated tests against a real MySQL database
-  (inventory_test). One-time setup: CREATE DATABASE inventory_test +
-  grant. Test setup builds a DBConfig with Name "inventory_test",
-  connects, runs goose migrations up, truncates items; then seed
-  out of order and assert order — proves the provider methods
-  against real MySQL instead of the fake. (Password: env var, or
-  read config.json and swap the Name.)
+  (inventory_test). Tests live in pkg/repository/mysql/mysql_test.go
+  (the mysql package's test file); the fake-based provider tests
+  stay in database_provider_test.go. One-time setup: CREATE DATABASE
+  inventory_test + grant. Test setup builds a DBConfig with Name
+  "inventory_test", connects, runs goose migrations up, truncates
+  items; then seed out of order and assert order — proves the
+  provider methods against real MySQL instead of the fake.
+  (Password: env var, or read config.json and swap the Name.)
 
 ## Phase 7 — One-shot import from the sheet
 
