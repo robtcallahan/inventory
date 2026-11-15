@@ -1,8 +1,7 @@
-package cmd
+package models
 
 import (
 	"encoding/csv"
-	"inventory/pkg/models"
 	"os"
 	"path/filepath"
 	"slices"
@@ -34,13 +33,13 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 	macDate, _ := time.Parse("01/02/2006", "10/12/2026")
 	denonDate, _ := time.Parse("01/02/2006", "05/22/2021")
 
-	items := []models.OutputItem{
+	items := []OutputItem{
 		{Quantity: 1, Name: "Piano", Value: 2632, TotalCost: 2632, Description: "RD-2000 EX Premium Digital Stage", PurchaseDate: &pianoDate},
 		{Quantity: 1, Name: "Computer", Value: 2070, TotalCost: 2070, Description: "MacBook Pro 16-inch, M3 Pro, 36GB/512GB", PurchaseDate: &macDate},
 		{Quantity: 1, Name: "AV Receiver", Value: 1907, TotalCost: 1907, Description: "AVR-X4700H", PurchaseDate: &denonDate},
 		{Quantity: 2, Name: "Studio Monitor", Value: 179, TotalCost: 358, Description: "ROKIT 5 G4"},
 	}
-	err := models.ItemsExportToCSVFile(outputFile, items)
+	err := ItemsExportToCSVFile(outputFile, items)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +60,10 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 	}
 	_ = outputFilePtr.Close()
 
-	outputFilePtr, _ = os.Open(outputFile)
+	outputFilePtr, err = os.Open(outputFile)
+	if err != nil {
+		t.Fatalf("could not open file %s: %v", outputFile, err)
+	}
 	var readItems []CSVOutputItem
 	if err := gocsv.UnmarshalFile(outputFilePtr, &readItems); err != nil {
 		t.Fatalf("could not unmarshal CSV file %s: %v", outputFile, err)
@@ -84,4 +86,5 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 		t.Errorf("expected items[0].PurchaseDate: \"07/07/2025\", items[1].PurchaseDate: \"10/12/2026\", got %v & %v",
 			readItems[0].PurchaseDate, readItems[1].PurchaseDate)
 	}
+	_ = outputFilePtr.Close()
 }
