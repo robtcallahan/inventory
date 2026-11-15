@@ -1,23 +1,26 @@
 package mysql
 
 import (
-	"inventory/pkg/config"
+	cfg "inventory/pkg/config"
 	"inventory/pkg/repository"
-	"os"
 	"testing"
 
 	"github.com/pressly/goose/v3"
 	"gorm.io/gorm"
 )
 
+const ConfigFile = "../../../config/config.json"
+
 func setupTestDB(t *testing.T) *gorm.DB {
 	t.Helper()
-	cfg := &config.DBConfig{
-		Type: "mysql", Host: "localhost", Port: "3306",
-		Name:     "inventory_test",
-		Username: "inventory", Password: os.Getenv("INVENTORY_TEST_MYSQL_PASSWORD"),
+
+	var err error
+	config, err := cfg.ReadConfig(ConfigFile)
+	if err != nil {
+		t.Fatalf("could not read config file: %s, err: %s", ConfigFile, err.Error())
 	}
-	conn, err := repository.Connect(cfg)
+
+	conn, err := repository.Connect(&config.TestDatabase)
 	if err != nil {
 		t.Fatalf("connect test db: %v", err)
 	}
@@ -36,4 +39,8 @@ func setupTestDB(t *testing.T) *gorm.DB {
 		t.Fatalf("truncate items: %v", err)
 	}
 	return conn
+}
+
+func Test_Save(t *testing.T) {
+	setupTestDB(t)
 }

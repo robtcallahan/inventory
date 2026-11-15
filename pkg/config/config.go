@@ -17,7 +17,8 @@ type DBConfig struct {
 
 // Config ...
 type Config struct {
-	Database DBConfig `json:"database"`
+	Database     DBConfig `json:"database"`
+	TestDatabase DBConfig `json:"test_database"`
 }
 
 // ReadConfig ...

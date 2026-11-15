@@ -76,11 +76,11 @@ already in the struct. These items are parked, not dropped.
   methods implement the interface and work; the automated real-DB
   test is separate work (the inventory_test database, after the
   duplicate skip).
-- [ ] 6.4 Swap the in-memory provider for MySQL behind the interface;
+- [X] 6.4 Swap the in-memory provider for MySQL behind the interface;
   all tests still green. Commands now build the MySQL provider via
   NewMySQLProvider (import and export); the in-memory provider is no
   longer used by the commands.
-- [ ] 6.5 The DB is the reference data source from here on; the sheet
+- [X] 6.5 The DB is the reference data source from here on; the sheet
   is capture only. DB holds all 93 rows and is what export/PDF read
   from.
 - [ ] 6.6 Automated tests against a real MySQL database
