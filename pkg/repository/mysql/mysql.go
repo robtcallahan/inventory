@@ -3,7 +3,7 @@ package mysql
 import (
 	"fmt"
 	"inventory/pkg/models"
-	repo "inventory/pkg/repository"
+	"inventory/pkg/repository"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -13,7 +13,7 @@ type mysqlQueryRepo struct {
 	Conn *gorm.DB
 }
 
-func NewMySQLQueryRepo(conn *gorm.DB) repo.QueryRepo {
+func NewMySQLQueryRepo(conn *gorm.DB) repository.QueryRepo {
 	return &mysqlQueryRepo{
 		Conn: conn,
 	}
