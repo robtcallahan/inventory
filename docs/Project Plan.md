@@ -6,9 +6,9 @@ items; DB holds all 93 after the import (2026-11-14); repo is
 `inventory`; Details wired end to end (migration, structs, import,
 export, PDF); unique key is (name, description); export test
 Test_ItemsExportToCSVFile green (header, dates, TotalCost); PDF export
-built with gpdf (landscape, Description column added). Next: Rob's call
-on 6.3/6.4, the duplicate-skip visibility (7.7), the test database, and
-the Phase 8 framework call.
+built with gpdf (landscape, Description column added). Next: the
+duplicate-skip visibility (7.7), then the test database. Rob's call
+on 6.4/6.5.
 
 ## Phase 1 — Core: an item goes in, the list gives it back (done)
 
@@ -68,13 +68,14 @@ already in the struct. These items are parked, not dropped.
 - [X] 6.2 CLI: root + migrate commands (copied from register's
   migrate), pkg config, models, repository. Database and user created.
   Build green, tests green, committed, pushed.
-- [ ] 6.3 MySQL provider implementing the same interface (Save,
+- [X] 6.3 MySQL provider implementing the same interface (Save,
   SaveItems, List, ListByCategory, TotalByCategory,
   SortedListForOutput — renamed from SortedListForCSV). Methods exist
   and work against real MySQL (import loaded 93 rows via SaveItems;
-  export reads via SortedListForOutput). Not yet proven by an
-  automated test against a real database — provider tests use the
-  fake; a real-DB test needs the inventory_test database.
+  export reads via SortedListForOutput). Ticked 2026-11-14: the
+  methods implement the interface and work; the automated real-DB
+  test is separate work (the inventory_test database, after the
+  duplicate skip).
 - [ ] 6.4 Swap the in-memory provider for MySQL behind the interface;
   all tests still green. Commands now build the MySQL provider via
   NewMySQLProvider (import and export); the in-memory provider is no
@@ -115,7 +116,9 @@ already in the struct. These items are parked, not dropped.
 Web-based from the start: pick the framework up front and build basic
 on it, no converting later.
 
-- [ ] 8.1 Choose the JS framework (decide once, up front)
+- [X] 8.1 Choose the JS framework (decide once, up front). Decided
+  2026-11-14: vanilla JS for now, to refresh his memory on JS
+  first; can upgrade to a framework later.
 - [ ] 8.2 Go server serves the web app
 - [ ] 8.3 List view: all items, filterable by category
 - [ ] 8.4 Item detail view
@@ -188,6 +191,9 @@ possible.
   retires.
 - Photos: files on disk in local storage; the DB column holds a pointer
   to the file (a file name). Upload is a web feature.
+- Web UI: vanilla JS for now (no JS framework), to refresh his
+  memory on JS; can upgrade to a framework later. (Rob's call
+  2026-11-14.)
 - Web-based from the start: pick the JS framework up front, build basic
   on it, no converting later. Colors: blues and natural colors.
 - Plaintext config with secrets is never committed; config.json stays
