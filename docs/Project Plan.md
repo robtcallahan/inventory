@@ -114,7 +114,7 @@ already in the struct. These items are parked, not dropped.
   values ($ 199) and the DB holds whole dollars.
 - [ ] 7.6 No tests for the import (Rob's call — the code is mostly
   written already)
-- [ ] 7.7 (name, description) is the unique key (see 6.1); a duplicate
+- [X] 7.7 (name, description) is the unique key (see 6.1); a duplicate
   on import is skipped — the skip must be visible (a count or an
   error), not silent. The silent skip bit us 2026-11-14 (two Desks
   and two Sheet Sets with empty models collided under the old (name,

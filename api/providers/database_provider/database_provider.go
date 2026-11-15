@@ -9,7 +9,7 @@ import (
 
 type DatabaseProviderInterface interface {
 	Save(item models.Item) error
-	SaveItems(items []models.Item) error
+	SaveItems(items []models.Item) ([]models.Item, error)
 	List() ([]models.Item, error)
 	ListByCategory(category string) ([]models.Item, error)
 	TotalByCategory(category string) (int, error)
@@ -30,7 +30,7 @@ func NewMySQLProvider(dbCfg *config.DBConfig) (DatabaseProviderInterface, error)
 func (p *DatabaseProvider) Save(item models.Item) error {
 	return p.Repository.Save(item)
 }
-func (p *DatabaseProvider) SaveItems(items []models.Item) error {
+func (p *DatabaseProvider) SaveItems(items []models.Item) ([]models.Item, error) {
 	return p.Repository.SaveItems(items)
 }
 

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"inventory/api/providers/database_provider"
 	"inventory/pkg/csv"
 	"inventory/pkg/models"
@@ -39,5 +40,24 @@ func importCSV() error {
 	if err != nil {
 		return err
 	}
-	return provider.SaveItems(items)
+	skipped, err := provider.SaveItems(items)
+	if err != nil {
+		return err
+	}
+
+	// print out any duplicate items that were skipped so they can be corrected in the spreadsheet
+	if len(skipped) != 0 {
+		fmt.Println("Item skipped due to duplicate name/description unique key:")
+		fmt.Printf("Row %-30s Description\n", "Name")
+		for _, skippedItem := range skipped {
+			for i, item := range items {
+				// find the skipped item in the items slice to determine the row which is i+2
+				if item.Name == skippedItem.Name && item.Description == skippedItem.Description {
+					fmt.Printf("%3d %-30s %s\n", i+2, item.Name, item.Description)
+					break
+				}
+			}
+		}
+	}
+	return nil
 }

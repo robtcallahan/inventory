@@ -28,16 +28,23 @@ func (r *mysqlQueryRepo) Save(item models.Item) error {
 	})
 }
 
-func (r *mysqlQueryRepo) SaveItems(items []models.Item) error {
-	return r.Conn.Transaction(func(tx *gorm.DB) error {
+func (r *mysqlQueryRepo) SaveItems(items []models.Item) ([]models.Item, error) {
+	var skipped []models.Item
+	err := r.Conn.Transaction(func(tx *gorm.DB) error {
 		for _, item := range items {
-			if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(item).Error; err != nil {
-				return err
+			result := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(item)
+			if result.Error != nil {
+				return result.Error
+			}
+			if result.RowsAffected == 0 {
+				skipped = append(skipped, item)
 			}
 		}
 		return nil
 	})
+	return skipped, err
 }
+
 func (r *mysqlQueryRepo) List() ([]models.Item, error) {
 	var items []models.Item
 	if result := r.Conn.Order("name").Find(&items); result.Error != nil {
