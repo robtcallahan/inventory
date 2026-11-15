@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `items` (
     `updated_at` datetime DEFAULT NULL,
     `deleted_at` datetime DEFAULT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `name_model_UNIQUE` (`name`, `description`)
+    UNIQUE INDEX `name_description_UNIQUE` (`name`, `description`)
     ) ENGINE=InnoDB;
 
 -- +goose Down
