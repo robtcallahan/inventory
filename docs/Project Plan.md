@@ -1,12 +1,14 @@
 # Home Insurance Inventory — Project Plan
 
 The plan for the inventory app: what it holds, what it can do, and what
-is left. Tick boxes off as items land. Current state: sheet holds 92
-items, ~$26,346 in known values; repo is `inventory`; import/export
-reworked through the provider (SaveItems in a transaction, Description
-back in the export), provider tests green and pushed; PDF export built
-with gpdf (landscape, first version pretty). Next: move the Connect and
-repo construction out of cmd, then the export test rewrite.
+is left. Tick boxes off as items land. Current state: sheet holds 93
+items; DB holds all 93 after the import (2026-11-14); repo is
+`inventory`; Details wired end to end (migration, structs, import,
+export, PDF); unique key is (name, description); export test
+Test_ItemsExportToCSVFile green (header, dates, TotalCost); PDF export
+built with gpdf (landscape, Description column added). Next: Rob's call
+on 6.3/6.4, the duplicate-skip visibility (7.7), the test database, and
+the Phase 8 framework call.
 
 ## Phase 1 — Core: an item goes in, the list gives it back (done)
 
@@ -32,11 +34,15 @@ repo construction out of cmd, then the export test rewrite.
 
 - [X] 4.1 Export method on the provider, headers in sheet column order
 - [X] 4.2 Test writes to a file in t.TempDir() and reads it back;
-  green, pushed
+  green, pushed. Rewritten 2026-11-14 as Test_ItemsExportToCSVFile
+  in cmd/export_test.go: header check via stdlib csv, dates,
+  TotalCost; green, pushed.
 - [X] 4.3 Three CSV-reading helpers live in the test file (not needed
   in prod code; can be moved and exported if needed)
 - [X] 4.4 Description back in the export (was left out deliberately
-  for length; added 2026-11-12 in the import/export rework)
+  for length; added 2026-11-12 in the import/export rework). Export
+  now writes Value and Total Cost as separate columns (2026-11-14),
+  fixing the old row-total-under-Value-header trap.
 
 ## Phase 5 — Photos, serial numbers, URLs (skipped for now)
 
@@ -51,37 +57,58 @@ already in the struct. These items are parked, not dropped.
 ## Phase 6 — Database backend (MySQL)
 
 - [X] 6.1 Schema: items table, auto-increment PK, fields matching the
-  Item struct. Name is a UNIQUE KEY (Rob's call 2026-11-12: same name
-  means one item with quantity > 1). Migration ran, `migrate up`
-  green.
+  Item struct. Unique key is (name, description) (was name alone
+  2026-11-12, then (name, model); changed 2026-11-14 because generic
+  Names collide and Details is TEXT, which MySQL can't index whole).
+  Field lengths tightened 2026-11-14: name varchar(30), description
+  varchar(60), model varchar(60), details TEXT. Baseline rewritten
+  (not a 00002) because the DB isn't live yet — drop and rebuild is
+  fine until then. Migration ran, `migrate up` green; DB holds all
+  93 rows.
 - [X] 6.2 CLI: root + migrate commands (copied from register's
   migrate), pkg config, models, repository. Database and user created.
   Build green, tests green, committed, pushed.
-- [ ] 6.3 MySQL provider implementing the same interface (Save, List,
-  ListByCategory, TotalByCategory, SortedListForCSV)
+- [ ] 6.3 MySQL provider implementing the same interface (Save,
+  SaveItems, List, ListByCategory, TotalByCategory,
+  SortedListForOutput — renamed from SortedListForCSV). Methods exist
+  and work against real MySQL (import loaded 93 rows via SaveItems;
+  export reads via SortedListForOutput). Not yet proven by an
+  automated test against a real database — provider tests use the
+  fake; a real-DB test needs the inventory_test database.
 - [ ] 6.4 Swap the in-memory provider for MySQL behind the interface;
-  all tests still green
+  all tests still green. Commands now build the MySQL provider via
+  NewMySQLProvider (import and export); the in-memory provider is no
+  longer used by the commands.
 - [ ] 6.5 The DB is the reference data source from here on; the sheet
-  is capture only
+  is capture only. DB holds all 93 rows and is what export/PDF read
+  from.
 
 ## Phase 7 — One-shot import from the sheet
 
 - [ ] 7.1 Finish capture in the sheet first: 6 guitars, a guitar
   synth, 2 big TVs, other guitar effects, plus furniture (the import
-  waits on this)
+  waits on this). Note: the import already ran on the 93 captured
+  rows (2026-11-14) before capture finished; the remaining items
+  still need a path into the DB (open question — web UI 8.5, or
+  another import).
 - [ ] 7.2 Import is a CLI command reading a CSV export of the sheet,
-  once into the DB (no Sheets API, no live link to the sheet)
-- [ ] 7.3 Import reads by header name, not row position (columns were
-  moved and rows re-sorted)
-- [ ] 7.4 Import tolerates blanks: 16 rows with no purchase date, Gamo
-  rifle with no value
-- [ ] 7.5 Import writes whole dollars (Value is whole dollars, no
-  cents)
+  once into the DB (no Sheets API, no live link to the sheet).
+  Command exists and ran 2026-11-14 (93 rows landed).
+- [X] 7.3 Import reads by header name, not row position (columns were
+  moved and rows re-sorted) — proven by the 2026-11-14 import, which
+  handled the Value column move.
+- [X] 7.4 Import tolerates blanks: 16 rows with no purchase date, Gamo
+  rifle with no value — proven, all 93 rows landed.
+- [X] 7.5 Import writes whole dollars (Value is whole dollars, no
+  cents) — proven; CurrencyInt parses the accounting-formatted
+  values ($ 199) and the DB holds whole dollars.
 - [ ] 7.6 No tests for the import (Rob's call — the code is mostly
   written already)
-- [ ] 7.7 Name is a unique key (see 6.1); a duplicate name on import
-  is skipped — the skip must be visible (a count or an error), not
-  silent
+- [ ] 7.7 (name, description) is the unique key (see 6.1); a duplicate
+  on import is skipped — the skip must be visible (a count or an
+  error), not silent. The silent skip bit us 2026-11-14 (two Desks
+  and two Sheet Sets with empty models collided under the old (name,
+  model) key; the (name, description) key fixed it).
 
 ## Phase 8 — Web UI, basic
 
@@ -130,18 +157,32 @@ possible.
   version built 2026-11-12 with gpdf: landscape, header with
   name/address/date, Confidential footer; the $ left-alignment is
   still being tweaked, and Purchase Date / Serial Number were dropped
-  from this version)
+  from this version). Description column added 2026-11-14 with
+  adjusted widths. Known gpdf bug: when a column value wraps, the
+  stripe background isn't replicated across the other columns on the
+  wrapped line (Rob may PR a fix). Idea: a second, roomier PDF for
+  Details, which is too long for the dense table.
 
 ## Standing decisions
 
 - Value is the per-item (unit) price, in whole dollars, no cents. A
-  row's total is Value × Quantity.
+  row's total is Value × Quantity. Value sits in column C of the
+  sheet, right after Name (moved 2026-11-14, accounting format, no
+  decimals); a CurrencyInt type parses the formatted values on
+  import.
+- Name is generic (Computer, Piano, Saucepan); Description is the
+  short specific name; Details is the long text, last column.
+  (Rob's call 2026-11-13.)
+- Export sort: TotalCost desc, then description asc. (Rob's call
+  2026-11-13.)
+- Unique key is (name, description). (Changed 2026-11-14; see 6.1.)
 - The spreadsheet is one-time capture only, NOT a live source. Read it
   once into the DB, then code works off the DB. No Sheets API.
 - The DB is the reference data source.
 - Finish capture first, then one import. No re-runnable import. No
-  tests for the import. Name is a unique key: same name means one item
-  with quantity > 1.
+  tests for the import.
+- While the DB isn't live, baseline rewrites + drop/rebuild are fine;
+  new migrations once it's live. (Rob's call 2026-11-14.)
 - The CLI covers migrations and the CSV sheet import.
 - After the import, new items go in manually via the web app; the sheet
   retires.
