@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"encoding/csv"
 	"inventory/pkg/models"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 	"time"
 
@@ -47,8 +49,19 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not open file %s: %v", outputFile, err)
 	}
-	defer outputFilePtr.Close()
 
+	reader := csv.NewReader(outputFilePtr)
+	headers, err := reader.Read()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []string{"Qty", "Name", "Value", "Total Cost", "Description", "Manufacturer", "Model", "Category", "Purchase Date", "Serial Num", "Details"}
+	if !slices.Equal(headers, want) {
+		t.Errorf("got header %v, want %v", headers, want)
+	}
+	_ = outputFilePtr.Close()
+
+	outputFilePtr, _ = os.Open(outputFile)
 	var readItems []CSVOutputItem
 	if err := gocsv.UnmarshalFile(outputFilePtr, &readItems); err != nil {
 		t.Fatalf("could not unmarshal CSV file %s: %v", outputFile, err)
@@ -66,5 +79,9 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 	}
 	if readItems[3].PurchaseDate != "" {
 		t.Errorf("expected items[3].PurchaseDate to be empty, got %v", readItems[3].PurchaseDate)
+	}
+	if readItems[0].PurchaseDate != "07/07/2025" || readItems[1].PurchaseDate != "10/12/2026" {
+		t.Errorf("expected items[0].PurchaseDate: \"07/07/2025\", items[1].PurchaseDate: \"10/12/2026\", got %v & %v",
+			readItems[0].PurchaseDate, readItems[1].PurchaseDate)
 	}
 }
