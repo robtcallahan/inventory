@@ -14,7 +14,7 @@ type CSVOutputItem struct {
 	Quantity     int    `csv:"Quantity"`
 	Name         string `csv:"Name"`
 	Value        int    `csv:"Value"`
-	TotalCost    string `csv:"Total Cost"`
+	TotalCost    int    `csv:"Total Cost"`
 	Description  string `csv:"Description"`
 	Manufacturer string `csv:"Manufacturer"`
 	Model        string `csv:"Model"`
@@ -60,7 +60,7 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 		t.Errorf("expected items[0].Name: %v, items[3].Name: %v, got %v and %v", items[0].Name, items[3].Name,
 			readItems[0].Name, readItems[3].Name)
 	}
-	if readItems[3].Value != items[3].Value || readItems[3].TotalCost != readItems[3].TotalCost {
+	if readItems[3].Value != items[3].Value || items[3].TotalCost != readItems[3].TotalCost {
 		t.Errorf("expected items[3].Value: %v, items[3].TotalCost: %v, got %v & %v",
 			items[3].Value, items[3].TotalCost, readItems[3].Value, readItems[3].TotalCost)
 	}
