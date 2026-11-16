@@ -47,7 +47,7 @@ func (r *mysqlQueryRepo) SaveItems(items []models.Item) ([]models.Item, error) {
 
 func (r *mysqlQueryRepo) List() ([]models.Item, error) {
 	var items []models.Item
-	if result := r.Conn.Order("name").Find(&items); result.Error != nil {
+	if result := r.Conn.Order("name").Order("description").Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)
 	}
 	return items, nil
@@ -55,7 +55,7 @@ func (r *mysqlQueryRepo) List() ([]models.Item, error) {
 
 func (r *mysqlQueryRepo) ListByCategory(category string) ([]models.Item, error) {
 	var items []models.Item
-	if result := r.Conn.Where("category = ?", category).Order("name").Find(&items); result.Error != nil {
+	if result := r.Conn.Where("category = ?", category).Order("name").Order("description").Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items for category: %w", result.Error)
 	}
 	return items, nil
@@ -76,7 +76,7 @@ func (r *mysqlQueryRepo) SortedListForOutput() ([]models.OutputItem, error) {
 	var items []models.OutputItem
 	if result := r.Conn.Table("items").
 		Select("*, (quantity * value) AS total_cost").
-		Order("total_cost DESC").Order("description").
+		Order("total_cost DESC").Order("name").Order("description").
 		Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)
 	}

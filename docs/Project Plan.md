@@ -83,7 +83,7 @@ already in the struct. These items are parked, not dropped.
 - [X] 6.5 The DB is the reference data source from here on; the sheet
   is capture only. DB holds all 93 rows and is what export/PDF read
   from.
-- [ ] 6.6 Automated tests against a real MySQL database
+- [X] 6.6 Automated tests against a real MySQL database
   (inventory_test). Tests live in pkg/repository/mysql/mysql_test.go
   (the mysql package's test file); the fake-based provider tests
   stay in database_provider_test.go. One-time setup: CREATE DATABASE
