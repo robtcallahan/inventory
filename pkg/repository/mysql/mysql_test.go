@@ -227,6 +227,6 @@ func Test_SkippingDuplicates(t *testing.T) {
 		t.Fatalf("could not save items: %v", err)
 	}
 	if len(skippedSecondSave) != 4 {
-		t.Fatalf("expected 4 items on first save, got %d", len(skippedSecondSave))
+		t.Fatalf("expected 4 items on second save, got %d", len(skippedSecondSave))
 	}
 }
