@@ -185,8 +185,9 @@ possible.
 - Name is generic (Computer, Piano, Saucepan); Description is the
   short specific name; Details is the long text, last column.
   (Rob's call 2026-11-13.)
-- Export sort: TotalCost desc, then description asc. (Rob's call
-  2026-11-13.)
+- Export sort: TotalCost desc, then name, then description asc.
+  (Rob's call 2026-11-13; name added 2026-11-15 for consistency
+  with List()/ListByCategory.)
 - Unique key is (name, description). (Changed 2026-11-14; see 6.1.)
 - The spreadsheet is one-time capture only, NOT a live source. Read it
   once into the DB, then code works off the DB. No Sheets API.
