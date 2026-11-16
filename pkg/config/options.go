@@ -10,4 +10,5 @@ type Options struct {
 	ImportFileName string
 	OutputFormat   string
 	DryRun         bool
+	Debug          bool
 }
