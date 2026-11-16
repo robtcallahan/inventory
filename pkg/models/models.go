@@ -46,17 +46,17 @@ type Item struct {
 }
 
 type OutputItem struct {
-	Quantity     int        `csv:"Quantity"`
-	Name         string     `csv:"Name"`
-	Value        int        `csv:"Value"`
-	TotalCost    int        `csv:"Total Cost"`
-	Description  string     `csv:"Description"`
-	Manufacturer string     `csv:"Manufacturer"`
-	Model        string     `csv:"Model"`
-	Category     string     `csv:"Category"`
-	PurchaseDate *time.Time `csv:"Purchase Date"`
-	SerialNumber string     `csv:"Serial Number"`
-	Details      string     `csv:"Details"`
+	Quantity     int        `csv:"Quantity" json:"quantity"`
+	Name         string     `csv:"Name" json:"name"`
+	Value        int        `csv:"Value" json:"value"`
+	TotalCost    int        `csv:"Total Cost" json:"total_cost"`
+	Description  string     `csv:"Description" json:"description"`
+	Manufacturer string     `csv:"Manufacturer" json:"manufacturer"`
+	Model        string     `csv:"Model" json:"model"`
+	Category     string     `csv:"Category" json:"category"`
+	PurchaseDate *time.Time `csv:"Purchase Date" json:"purchase_date"`
+	SerialNumber string     `csv:"Serial Number" json:"serial_number"`
+	Details      string     `csv:"Details" json:"details"`
 }
 
 type CSVItem struct {
