@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"inventory/api/providers/database_provider"
+	"inventory/pkg/models"
 	"log"
 	"net/http"
 
@@ -33,9 +34,13 @@ func listItemsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Failed to obtain items from provider", http.StatusInternalServerError)
 	}
+	htmlItems, err := models.OutputItemsToHTML(items)
+	if err != nil {
+		http.Error(w, "Failed to convert items to strings", http.StatusInternalServerError)
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	err = json.NewEncoder(w).Encode(items)
+	err = json.NewEncoder(w).Encode(htmlItems)
 	if err != nil {
 		http.Error(w, "Failed to JSON encode items", http.StatusInternalServerError)
 	}

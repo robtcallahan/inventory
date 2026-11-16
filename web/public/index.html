@@ -5,15 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="javascript" href="js/main.js">
+    <script src="js/main.js"></script>
 </head>
 <body>
 <div class="container">
     <h1>Home Inventory</h1>
     <p>For all your insurance needs</p>
 </div>
+
+<label for="categoryFilter">Category:</label>
+<select id="categoryFilter">
+    <option value="">All</option>
+    <option value="Musical Instruments">Musical Instruments</option>
+    <option value="Music Gear">Music Gear</option>
+    <option value="Entertainment">Entertainment</option>
+    <option value="Electronics">Electronics</option>
+    <option value="Computers">Computers</option>
+    <option value="Phones &amp; Tablets">Phones &amp; Tablets</option>
+    <option value="Furniture">Furniture</option>
+    <option value="Appliances">Appliances</option>
+    <option value="Kitchen">Kitchen</option>
+    <option value="Clothes">Clothes</option>
+    <option value="Gardening">Gardening</option>
+    <option value="Other">Other</option>
+</select>
+
 <div>
-    <table id="items">
+    <table class="itemsTable">
+        <thead id="itemsTableHead"></thead>
+        <tbody id="itemsTableBody"></tbody>
     </table>
 </div>
 </body>

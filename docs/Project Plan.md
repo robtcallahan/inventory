@@ -129,7 +129,7 @@ on it, no converting later.
   2026-11-14: vanilla JS for now, to refresh his memory on JS
   first; can upgrade to a framework later.
 - [X] 8.2 Go server serves the web app
-- [ ] 8.3 List view: all items, filterable by category
+- [X] 8.3 List view: all items, filterable by category
 - [ ] 8.4 Item detail view
 - [ ] 8.5 Add and edit items manually via the web UI (after the
   import, this replaces the sheet as the entry point)

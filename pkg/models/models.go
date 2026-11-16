@@ -59,6 +59,21 @@ type OutputItem struct {
 	Details      string     `csv:"Details" json:"details"`
 }
 
+type HTMLItem struct {
+	Number       string `json:"number"`
+	Quantity     string `json:"quantity"`
+	Name         string `json:"name"`
+	Value        string `json:"value"`
+	TotalCost    string `json:"total_cost"`
+	Description  string `json:"description"`
+	Manufacturer string `json:"manufacturer"`
+	Model        string `json:"model"`
+	Category     string `json:"category"`
+	PurchaseDate string `json:"purchase_date"`
+	SerialNumber string `json:"serial_number"`
+	Details      string `json:"details"`
+}
+
 type CSVItem struct {
 	Quantity     int         `csv:"Quantity"`
 	Name         string      `csv:"Name"`
