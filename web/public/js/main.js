@@ -1,4 +1,3 @@
-
 let viewItem;
 const tableKeys = ["number", "quantity", "name", "description", "value", "total_cost", "manufacturer",
     "model", "category", "purchase_date", "serial_number"];
@@ -41,7 +40,7 @@ fetch('/api/items')
     });
 
 function showItemDetail(item) {
-    viewItem = item;
+    viewItem = { ...item };
     itemDetailsKeys.forEach(key => {
         const el = document.getElementById(getItemKeyID(key));
         if (el) {
@@ -68,21 +67,9 @@ function editItemDetails() {
     editButtons();
 }
 
-function viewButtons() {
-    document.getElementById('modalButtonClose').classList.remove('hidden');
-    document.getElementById('modalButtonEdit').classList.remove('hidden');
-    document.getElementById('modalButtonCancel').classList.add('hidden');
-    document.getElementById('modalButtonSave').classList.add('hidden');
-}
-function editButtons() {
-    document.getElementById('modalButtonClose').classList.add('hidden');
-    document.getElementById('modalButtonEdit').classList.add('hidden');
-    document.getElementById('modalButtonCancel').classList.remove('hidden');
-    document.getElementById('modalButtonSave').classList.remove('hidden');
-}
-
 function saveItemDetails() {
-    saveItem = viewItem;
+    let saveItem = { ...viewItem };
+
     itemDetailsKeys.forEach(key => {
         const el = document.getElementById(getItemKeyID(key));
         if (el) {
@@ -96,20 +83,20 @@ function saveItemDetails() {
                 case 'purchase_date':
                     const [month, day, year] = el.value.split("/").map(Number);
                     const date = new Date(Date.UTC(year, month - 1, day));
-                    saveItem[key]= date.toISOString();
+                    saveItem[key] = date.toISOString();
                     break;
                 default:
                     saveItem[key] = el.value;
             }
         }
     });
-    delete saveItem['total_cost'];
     delete saveItem['number'];
+    delete saveItem['total_cost'];
 
     fetch('/api/save', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(viewItem)
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(saveItem)
     })
         .then(response => {
             if (!response.ok) {
@@ -130,16 +117,34 @@ function getItemKeyID(key) {
 
 function getItemLabel(key) {
     switch (key) {
-        case 'quantity': return 'Qty';
-        case 'number': return 'Num';
-        default: return key
-            .replace(/_/g, ' ')
-            .replace(/\b\w/g, char => char.toUpperCase());
+        case 'quantity':
+            return 'Qty';
+        case 'number':
+            return 'Num';
+        default:
+            return key
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, char => char.toUpperCase());
     }
 }
+
 function accountingToInt(value) {
     return parseInt(value
-        .replace(/\$,\s/g, ''), 10);
+        .replace(/[$,\s]/g, ''), 10);
+}
+
+function viewButtons() {
+    document.getElementById('modalButtonClose').classList.remove('hidden');
+    document.getElementById('modalButtonEdit').classList.remove('hidden');
+    document.getElementById('modalButtonCancel').classList.add('hidden');
+    document.getElementById('modalButtonSave').classList.add('hidden');
+}
+
+function editButtons() {
+    document.getElementById('modalButtonClose').classList.add('hidden');
+    document.getElementById('modalButtonEdit').classList.add('hidden');
+    document.getElementById('modalButtonCancel').classList.remove('hidden');
+    document.getElementById('modalButtonSave').classList.remove('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
