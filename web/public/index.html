@@ -36,5 +36,20 @@
         <tbody id="itemsTableBody"></tbody>
     </table>
 </div>
+
+<div id="itemModal" class="modal hidden">
+    <div id="itemDetails" class="modal-content">
+        <form id="itemForm">
+            <table>
+                <tbody id="itemDetailsBody"></tbody>
+            </table>
+            <button id="modalButtonClose" type="button" onclick="closeItemDetails()" class="modal-button">Close</button>
+            <button id="modalButtonEdit" type="button" onclick="editItemDetails()" class="modal-button">Edit</button>
+            <button id="modalButtonCancel" type="button" onclick="closeItemDetails()" class="modal-button hidden">Cancel</button>
+            <button id="modalButtonSave" type="button" onclick="saveItemDetails()" class="modal-button hidden">Save</button>
+        </form>
+    </div>
+</div>
+
 </body>
 </html>

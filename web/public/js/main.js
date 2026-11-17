@@ -1,101 +1,95 @@
+
+let viewItem;
+const tableKeys = ["number", "quantity", "name", "description", "value", "total_cost", "manufacturer",
+    "model", "category", "purchase_date", "serial_number"];
+const itemDetailsKeys = ["quantity", "name", "description", "value", "total_cost", "manufacturer",
+    "model", "category", "purchase_date", "serial_number", "details"];
+
 fetch('/api/items')
     .then(response => response.json())
     .then(items => {
         const tHead = document.getElementById('itemsTableHead');
-
         const headRow = document.createElement('tr');
-
-        const qtyHead = document.createElement('th');
-        qtyHead.textContent = "Qty";
-        headRow.appendChild(qtyHead);
-
-        const nameHead = document.createElement('th');
-        nameHead.textContent = "Name";
-        headRow.appendChild(nameHead);
-
-        const descrHead = document.createElement('th');
-        descrHead.textContent = "Description";
-        headRow.appendChild(descrHead);
-
-        const valueHead = document.createElement('th');
-        valueHead.textContent = "Value";
-        headRow.appendChild(valueHead);
-
-        const totCostHead = document.createElement('th');
-        totCostHead.textContent = "Total Cost";
-        headRow.appendChild(totCostHead);
-
-        const manHead = document.createElement('th');
-        manHead.textContent = "Manufacturer";
-        headRow.appendChild(manHead);
-
-        const modelHead = document.createElement('th');
-        modelHead.textContent = "Model";
-        headRow.appendChild(modelHead);
-
-        const catHead = document.createElement('th');
-        catHead.textContent = "Category";
-        headRow.appendChild(catHead);
-
-        const pDateHead = document.createElement('th');
-        pDateHead.textContent = "Purchase Date";
-        headRow.appendChild(pDateHead);
-
-        const serNumHead = document.createElement('th');
-        serNumHead.textContent = "Serial Number";
-        headRow.appendChild(serNumHead);
-
+        tableKeys.forEach(key => {
+            let el = document.createElement('th');
+            el.textContent = getItemLabel(key);
+            headRow.appendChild(el);
+        });
         tHead.appendChild(headRow);
 
         const tbody = document.getElementById('itemsTableBody');
         items.forEach(item => {
             const row = document.createElement('tr');
 
-            const qtyCell = document.createElement('td');
-            qtyCell.textContent = item.quantity;
-            row.appendChild(qtyCell);
+            tableKeys.forEach(key => {
+                let el = document.createElement('td');
+                el.textContent = item[key];
+                if (key === 'value' || key === 'total_cost') {
+                    el.className = 'dollars';
+                }
+                if (key === 'details') {
+                    el.classList.add('hidden');
+                }
+                row.appendChild(el);
+            });
 
-            const nameCell = document.createElement('td');
-            nameCell.textContent = item.name;
-            row.appendChild(nameCell);
-
-            const descrCell = document.createElement('td');
-            descrCell.textContent = item.description;
-            row.appendChild(descrCell);
-
-            const valueCell = document.createElement('td');
-            valueCell.textContent = item.value;
-            valueCell.className = 'dollars';
-            row.appendChild(valueCell);
-
-            const totCostCell = document.createElement('td');
-            totCostCell.textContent = item.total_cost;
-            totCostCell.className = 'dollars';
-            row.appendChild(totCostCell);
-
-            const manCell = document.createElement('td');
-            manCell.textContent = item.manufacturer;
-            row.appendChild(manCell);
-
-            const modelCell = document.createElement('td');
-            modelCell.textContent = item.model;
-            row.appendChild(modelCell);
-
-            const catCell = document.createElement('td');
-            catCell.textContent = item.category;
-            row.appendChild(catCell);
-
-            const pDateCell = document.createElement('td');
-            pDateCell.textContent = item.purchase_date;
-            row.appendChild(pDateCell);
-
-            const serNumCell = document.createElement('td');
-            serNumCell.textContent = item.serial_number;
-            row.appendChild(serNumCell);
-
+            row.addEventListener('click', () => {
+                showItemDetail(item);
+            });
             tbody.appendChild(row);
         });
     });
+
+function showItemDetail(item) {
+    viewItem = item;
+    itemDetailsKeys.forEach(key => {
+        const el = document.getElementById(getItemKeyID(key));
+        if (el) {
+            el.value = item[key];
+            el.disabled = true;
+        }
+    });
+
+    document.getElementById('itemModal').classList.remove('hidden');
+}
+
+function closeItemDetails() {
+    document.getElementById('itemModal').classList.add('hidden');
+}
+
+function editItemDetails() {
+    itemDetailsKeys.forEach(key => {
+        const el = document.getElementById(getItemKeyID(key));
+        if (el) {
+            // el.value = viewItem[key];
+            el.disabled = false;
+        }
+    });
+
+    document.getElementById('modalButtonClose').classList.add('hidden');
+    document.getElementById('modalButtonEdit').classList.add('hidden');
+    document.getElementById('modalButtonCancel').classList.remove('hidden');
+    document.getElementById('modalButtonSave').classList.remove('hidden');
+}
+
+function saveItemDetails() {
+
+}
+
+function getItemKeyID(key) {
+    return 'item' + getItemLabel(key)
+        .replace(/\s/g, '');
+}
+
+function getItemLabel(key) {
+    switch (key) {
+        case 'quantity': return 'Qty';
+        case 'number': return 'Num';
+        default: return key
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, char => char.toUpperCase());
+    }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('categoryFilter').addEventListener('change', (event) => {
@@ -110,6 +104,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 row.style.display = 'none';
             }
         }
+    });
+
+    const tbody = document.getElementById('itemDetailsBody');
+    itemDetailsKeys.forEach(key => {
+        const row = document.createElement('tr');
+        let cell = document.createElement('td');
+        const label = document.createElement('label');
+        label.attributes['for'] = getItemKeyID(key);
+        label.textContent = getItemLabel(key);
+        cell.appendChild(label);
+        row.appendChild(cell);
+
+        cell = document.createElement('td');
+        const input = document.createElement('input');
+        input.id = getItemKeyID(key);
+        input.type = 'text';
+        cell.appendChild(input);
+        row.appendChild(cell);
+        tbody.appendChild(row);
     });
 });
 

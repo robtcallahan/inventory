@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"inventory/api/providers/database_provider"
 	"inventory/pkg/models"
@@ -46,9 +47,34 @@ func listItemsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func saveItemHandler(w http.ResponseWriter, r *http.Request) {
+	var item models.Item
+	err := json.NewDecoder(r.Body).Decode(&item)
+	if err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	provider, err := database_provider.NewMySQLProvider(&config.Database)
+	if err != nil {
+		http.Error(w, "Failed to obtain provider", http.StatusInternalServerError)
+	}
+
+	err = provider.Save(item)
+	if errors.Is(err, models.ErrAlreadyExists) {
+		http.Error(w, "item already exists", http.StatusConflict)
+		return
+	}
+	if err != nil {
+		http.Error(w, "save failed", http.StatusInternalServerError)
+		return
+	}
+}
+
 func server() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/items", listItemsHandler)
+	mux.HandleFunc("POST /api/save", saveItemHandler)
 
 	fs := http.FileServer(http.Dir("./web/public"))
 	mux.Handle("/", fs)

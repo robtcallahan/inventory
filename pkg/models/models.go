@@ -1,10 +1,13 @@
 package models
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 	"time"
 )
+
+var ErrAlreadyExists = errors.New("item already exists")
 
 // CurrencyInt custom type wrapping int
 type CurrencyInt int
@@ -33,6 +36,7 @@ func (c *CurrencyInt) UnmarshalCSV(csv string) error {
 }
 
 type Item struct {
+	ID           uint
 	Quantity     int
 	Name         string
 	Value        int
@@ -46,6 +50,7 @@ type Item struct {
 }
 
 type OutputItem struct {
+	ID           uint       `csv:"id" json:"id"`
 	Quantity     int        `csv:"Quantity" json:"quantity"`
 	Name         string     `csv:"Name" json:"name"`
 	Value        int        `csv:"Value" json:"value"`
@@ -60,6 +65,7 @@ type OutputItem struct {
 }
 
 type HTMLItem struct {
+	ID           uint   `json:"id"`
 	Number       string `json:"number"`
 	Quantity     string `json:"quantity"`
 	Name         string `json:"name"`

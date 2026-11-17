@@ -21,8 +21,12 @@ func NewMySQLQueryRepo(conn *gorm.DB) repository.QueryRepo {
 
 func (r *mysqlQueryRepo) Save(item models.Item) error {
 	return r.Conn.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(item).Error; err != nil {
-			return err
+		result := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(item)
+		if result.Error != nil {
+			return result.Error
+		}
+		if item.ID == 0 && result.RowsAffected == 0 {
+			return models.ErrAlreadyExists
 		}
 		return nil
 	})
