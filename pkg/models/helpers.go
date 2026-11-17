@@ -18,6 +18,7 @@ func OutputItemsToHTML(items []OutputItem) ([]HTMLItem, error) {
 			purchaseDate = item.PurchaseDate.Format("01/02/2006")
 		}
 		htmlItem := HTMLItem{
+			ID:           item.ID,
 			Number:       strconv.Itoa(i + 1),
 			Quantity:     strconv.Itoa(item.Quantity),
 			Name:         item.Name,

@@ -49,7 +49,7 @@ function showItemDetail(item) {
             el.disabled = true;
         }
     });
-
+    viewButtons()
     document.getElementById('itemModal').classList.remove('hidden');
 }
 
@@ -65,7 +65,16 @@ function editItemDetails() {
             el.disabled = false;
         }
     });
+    editButtons();
+}
 
+function viewButtons() {
+    document.getElementById('modalButtonClose').classList.remove('hidden');
+    document.getElementById('modalButtonEdit').classList.remove('hidden');
+    document.getElementById('modalButtonCancel').classList.add('hidden');
+    document.getElementById('modalButtonSave').classList.add('hidden');
+}
+function editButtons() {
     document.getElementById('modalButtonClose').classList.add('hidden');
     document.getElementById('modalButtonEdit').classList.add('hidden');
     document.getElementById('modalButtonCancel').classList.remove('hidden');
@@ -73,7 +82,45 @@ function editItemDetails() {
 }
 
 function saveItemDetails() {
+    saveItem = viewItem;
+    itemDetailsKeys.forEach(key => {
+        const el = document.getElementById(getItemKeyID(key));
+        if (el) {
+            switch (key) {
+                case 'quantity':
+                    saveItem[key] = parseInt(el.value, 10);
+                    break;
+                case 'value':
+                    saveItem[key] = accountingToInt(el.value);
+                    break;
+                case 'purchase_date':
+                    const [month, day, year] = el.value.split("/").map(Number);
+                    const date = new Date(Date.UTC(year, month - 1, day));
+                    saveItem[key]= date.toISOString();
+                    break;
+                default:
+                    saveItem[key] = el.value;
+            }
+        }
+    });
+    delete saveItem['total_cost'];
+    delete saveItem['number'];
 
+    fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(viewItem)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Save failed: ' + response.status);
+            }
+            closeItemDetails();
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Save failed');
+        });
 }
 
 function getItemKeyID(key) {
@@ -90,6 +137,10 @@ function getItemLabel(key) {
             .replace(/\b\w/g, char => char.toUpperCase());
     }
 }
+function accountingToInt(value) {
+    return parseInt(value
+        .replace(/\$,\s/g, ''), 10);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('categoryFilter').addEventListener('change', (event) => {
@@ -97,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tbody = document.getElementById('itemsTableBody');
         for (let i = 0; i < tbody.rows.length; i++) {
             const row = tbody.rows[i];
-            const catCell = row.cells[7];
+            const catCell = row.cells[8];
             if (category === '' || catCell.textContent === category) {
                 row.style.display = '';
             } else {

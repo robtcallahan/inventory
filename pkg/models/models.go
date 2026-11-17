@@ -46,7 +46,7 @@ type Item struct {
 	Category     string
 	PurchaseDate *time.Time
 	SerialNumber string
-	Details      string `csv:"Details"`
+	Details      string
 }
 
 type OutputItem struct {
