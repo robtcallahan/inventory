@@ -36,17 +36,17 @@ func (c *CurrencyInt) UnmarshalCSV(csv string) error {
 }
 
 type Item struct {
-	ID           uint
-	Quantity     int
-	Name         string
-	Value        int
-	Description  string
-	Manufacturer string
-	Model        string
-	Category     string
-	PurchaseDate *time.Time
-	SerialNumber string
-	Details      string
+	ID           uint       `json:"id"`
+	Quantity     int        `json:"quantity"`
+	Name         string     `json:"name"`
+	Value        int        `json:"value"`
+	Description  string     `json:"description"`
+	Manufacturer string     `json:"manufacturer"`
+	Model        string     `json:"model"`
+	Category     string     `json:"category"`
+	PurchaseDate *time.Time `json:"purchase_date"`
+	SerialNumber string     `json:"serial_number"`
+	Details      string     `json:"details"`
 }
 
 type OutputItem struct {
@@ -69,8 +69,8 @@ type HTMLItem struct {
 	Number       string `json:"number"`
 	Quantity     string `json:"quantity"`
 	Name         string `json:"name"`
-	Value        string `json:"value"`
-	TotalCost    string `json:"total_cost"`
+	Value        int    `json:"value"`
+	TotalCost    int    `json:"total_cost"`
 	Description  string `json:"description"`
 	Manufacturer string `json:"manufacturer"`
 	Model        string `json:"model"`

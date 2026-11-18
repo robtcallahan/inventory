@@ -1,51 +1,86 @@
-let viewItem;
-const tableKeys = ["number", "quantity", "name", "description", "value", "total_cost", "manufacturer",
-    "model", "category", "purchase_date", "serial_number"];
+let items = [];
+let editingItem;
+let selectedCategory;
+
+const TotalCostColumn = 6;
+const CategoryColumn = 10;
+
+const tableKeys = ["number", "quantity", "name", "description", "value", "total_cost",
+    "manufacturer", "model", "category", "purchase_date", "serial_number"];
 const itemDetailsKeys = ["quantity", "name", "description", "value", "total_cost", "manufacturer",
     "model", "category", "purchase_date", "serial_number", "details"];
+const dollarColumns = ["value", "total_cost"];
 
-fetch('/api/items')
-    .then(response => response.json())
-    .then(items => {
-        const tHead = document.getElementById('itemsTableHead');
-        const headRow = document.createElement('tr');
-        tableKeys.forEach(key => {
-            let el = document.createElement('th');
-            el.textContent = getItemLabel(key);
-            headRow.appendChild(el);
-        });
-        tHead.appendChild(headRow);
+// TODO: add total number of items near total cost
 
-        const tbody = document.getElementById('itemsTableBody');
-        items.forEach(item => {
-            const row = document.createElement('tr');
+function renderTable(items) {
+    const tHead = document.getElementById('itemsTableHead');
+    const headRow = document.createElement('tr');
 
-            tableKeys.forEach(key => {
-                let el = document.createElement('td');
-                el.textContent = item[key];
-                if (key === 'value' || key === 'total_cost') {
-                    el.className = 'dollars';
-                }
-                if (key === 'details') {
-                    el.classList.add('hidden');
-                }
-                row.appendChild(el);
-            });
-
-            row.addEventListener('click', () => {
-                showItemDetail(item);
-            });
-            tbody.appendChild(row);
-        });
+    items.sort((a, b) => {
+        return a.name.localeCompare(b.name) ||
+            a.description.localeCompare(b.description);
     });
 
-function showItemDetail(item) {
-    viewItem = { ...item };
+    tHead.replaceChildren();
+    tableKeys.forEach(key => {
+        let el = document.createElement('th');
+        el.textContent = getItemLabel(key);
+        headRow.appendChild(el);
+    });
+    tHead.appendChild(headRow);
+
+    const tbody = document.getElementById('itemsTableBody');
+    tbody.replaceChildren();
+
+    for (let i = 0; i < items.length; i++) {
+        const row = document.createElement('tr');
+        let item = items[i];
+
+        tableKeys.forEach(key => {
+            let el = document.createElement('td');
+            if (dollarColumns.includes(key)) {
+                el.append(accountingCell(item[key]));
+            } else if (key === 'number') {
+                el.textContent = String(i + 1);
+            } else {
+                el.textContent = item[key];
+            }
+            row.appendChild(el);
+        });
+
+        row.addEventListener('click', () => {
+            showItemDetail(item, true);
+        });
+        tbody.appendChild(row);
+    }
+}
+
+function accountingCell(amount) {
+    const td = document.createElement('td');
+    td.className = 'accounting';
+    let el = document.createElement('span');
+    el.className = "currency";
+    el.textContent = '$';
+    td.appendChild(el);
+
+    el = document.createElement('span');
+    el.className = "amount";
+    el.textContent = amount;
+    td.appendChild(el);
+    return td;
+}
+
+function getItemIndexByID(id) {
+    return items.findIndex(item => item.id === id);
+}
+function showItemDetail(item, disabled) {
+    editingItem = {...item};
     itemDetailsKeys.forEach(key => {
         const el = document.getElementById(getItemKeyID(key));
         if (el) {
             el.value = item[key];
-            el.disabled = true;
+            el.disabled = disabled;
         }
     });
     viewButtons()
@@ -53,40 +88,41 @@ function showItemDetail(item) {
 }
 
 function closeItemDetails() {
+
     document.getElementById('itemModal').classList.add('hidden');
 }
 
 function editItemDetails() {
-    itemDetailsKeys.forEach(key => {
-        const el = document.getElementById(getItemKeyID(key));
-        if (el) {
-            // el.value = viewItem[key];
-            el.disabled = false;
-        }
-    });
+    showItemDetail(editingItem, false);
     editButtons();
 }
 
 function saveItemDetails() {
-    let saveItem = { ...viewItem };
+    let saveItem = Object;
 
     itemDetailsKeys.forEach(key => {
         const el = document.getElementById(getItemKeyID(key));
         if (el) {
             switch (key) {
-                case 'quantity':
+                case 'quantity' || 'value':
                     saveItem[key] = parseInt(el.value, 10);
-                    break;
-                case 'value':
-                    saveItem[key] = accountingToInt(el.value);
+                    console.log(saveItem.value);
+                    console.log(typeof saveItem.value);
+                    editingItem[key] = el.value;
                     break;
                 case 'purchase_date':
+                    if (!el.value) {
+                        saveItem[key] = null;
+                        editingItem[key] = null;
+                        break;
+                    }
                     const [month, day, year] = el.value.split("/").map(Number);
                     const date = new Date(Date.UTC(year, month - 1, day));
                     saveItem[key] = date.toISOString();
                     break;
                 default:
                     saveItem[key] = el.value;
+                    editingItem[key] = el.value;
             }
         }
     });
@@ -102,6 +138,8 @@ function saveItemDetails() {
             if (!response.ok) {
                 throw new Error('Save failed: ' + response.status);
             }
+            let index = getItemIndexByID(editingItem.ID);
+            items[index] = {...editingItem};
             closeItemDetails();
         })
         .catch(err => {
@@ -121,6 +159,10 @@ function getItemLabel(key) {
             return 'Qty';
         case 'number':
             return 'Num';
+        case 'value_dollars':
+            return 'Value';
+        case 'total_cost_dollars':
+            return 'Total Cost';
         default:
             return key
                 .replace(/_/g, ' ')
@@ -147,21 +189,22 @@ function editButtons() {
     document.getElementById('modalButtonSave').classList.remove('hidden');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('categoryFilter').addEventListener('change', (event) => {
-        const category = event.target.value;
-        const tbody = document.getElementById('itemsTableBody');
-        for (let i = 0; i < tbody.rows.length; i++) {
-            const row = tbody.rows[i];
-            const catCell = row.cells[8];
-            if (category === '' || catCell.textContent === category) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
+function showSelectedCategory(event) {
+    selectedCategory = event.target.value;
+    let displayItems = [];
+    let totalCost = 0;
+
+    items.forEach(function (item) {
+        if (item.category === '' || item.category === selectedCategory) {
+            totalCost += item.total_cost;
+            displayItems.push(item);
         }
     });
+    renderTable(displayItems);
+    document.getElementById('totalAmount').textContent = "$ " + totalCost.toLocaleString('en-US');
+}
 
+function createDetailsTable() {
     const tbody = document.getElementById('itemDetailsBody');
     itemDetailsKeys.forEach(key => {
         const row = document.createElement('tr');
@@ -180,5 +223,17 @@ document.addEventListener('DOMContentLoaded', () => {
         row.appendChild(cell);
         tbody.appendChild(row);
     });
+}
+
+fetch('/api/items')
+    .then(response => response.json())
+    .then(data => {
+        items = data;
+        renderTable(items);
+    });
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('categoryFilter').addEventListener('change', (event) => showSelectedCategory(event));
+    createDetailsTable();
 });
 

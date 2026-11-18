@@ -13,25 +13,34 @@
     <p>For all your insurance needs</p>
 </div>
 
-<label for="categoryFilter">Category:</label>
-<select id="categoryFilter">
-    <option value="">All</option>
-    <option value="Musical Instruments">Musical Instruments</option>
-    <option value="Music Gear">Music Gear</option>
-    <option value="Entertainment">Entertainment</option>
-    <option value="Electronics">Electronics</option>
-    <option value="Computers">Computers</option>
-    <option value="Phones &amp; Tablets">Phones &amp; Tablets</option>
-    <option value="Furniture">Furniture</option>
-    <option value="Appliances">Appliances</option>
-    <option value="Kitchen">Kitchen</option>
-    <option value="Clothes">Clothes</option>
-    <option value="Gardening">Gardening</option>
-    <option value="Other">Other</option>
-</select>
+<div class="table-header">
+    <div class="category-selector">
+        <label for="categoryFilter" class="category-label">Category:</label>
+        <select id="categoryFilter">
+            <option value="">All</option>
+            <option value="Appliances">Appliances</option>
+            <option value="Clothes">Clothes</option>
+            <option value="Computers">Computers</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Gardening">Gardening</option>
+            <option value="Kitchen">Kitchen</option>
+            <option value="Music Gear">Music Gear</option>
+            <option value="Musical Instruments">Musical Instruments</option>
+            <option value="Phones &amp; Tablets">Phones &amp; Tablets</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+
+    <div class="table-total">
+        <div>Total: <span id="totalAmount" class="total-amount">$ 0</span></div>
+    </div>
+</div>
+
 
 <div>
-    <table class="itemsTable">
+    <table class="items-table">
         <thead id="itemsTableHead"></thead>
         <tbody id="itemsTableBody"></tbody>
     </table>
