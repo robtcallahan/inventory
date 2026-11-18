@@ -1,6 +1,6 @@
 let items = [];
-let editingItem;
-let selectedCategory;
+let editingItem = {};
+let selectedCategory = '';
 
 const TotalCostColumn = 6;
 const CategoryColumn = 10;
@@ -74,6 +74,7 @@ function accountingCell(amount) {
 function getItemIndexByID(id) {
     return items.findIndex(item => item.id === id);
 }
+
 function showItemDetail(item, disabled) {
     editingItem = {...item};
     itemDetailsKeys.forEach(key => {
@@ -98,13 +99,14 @@ function editItemDetails() {
 }
 
 function saveItemDetails() {
-    let saveItem = Object;
+    let saveItem = {};
 
     itemDetailsKeys.forEach(key => {
         const el = document.getElementById(getItemKeyID(key));
         if (el) {
             switch (key) {
-                case 'quantity' || 'value':
+                case 'quantity':
+                case 'value':
                     saveItem[key] = parseInt(el.value, 10);
                     console.log(saveItem.value);
                     console.log(typeof saveItem.value);
@@ -126,6 +128,7 @@ function saveItemDetails() {
             }
         }
     });
+    saveItem['id'] = editingItem['id'];
     delete saveItem['number'];
     delete saveItem['total_cost'];
 
@@ -138,9 +141,10 @@ function saveItemDetails() {
             if (!response.ok) {
                 throw new Error('Save failed: ' + response.status);
             }
-            let index = getItemIndexByID(editingItem.ID);
+            let index = getItemIndexByID(editingItem.id);
             items[index] = {...editingItem};
             closeItemDetails();
+            showSelectedCategory(selectedCategory);
         })
         .catch(err => {
             console.error(err);
@@ -170,11 +174,6 @@ function getItemLabel(key) {
     }
 }
 
-function accountingToInt(value) {
-    return parseInt(value
-        .replace(/[$,\s]/g, ''), 10);
-}
-
 function viewButtons() {
     document.getElementById('modalButtonClose').classList.remove('hidden');
     document.getElementById('modalButtonEdit').classList.remove('hidden');
@@ -189,8 +188,12 @@ function editButtons() {
     document.getElementById('modalButtonSave').classList.remove('hidden');
 }
 
-function showSelectedCategory(event) {
-    selectedCategory = event.target.value;
+function showSelectedCategory(category) {
+    selectedCategory = category;
+    if (selectedCategory === '') {
+        renderTable(items);
+        return;
+    }
     let displayItems = [];
     let totalCost = 0;
 
@@ -233,7 +236,9 @@ fetch('/api/items')
     });
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('categoryFilter').addEventListener('change', (event) => showSelectedCategory(event));
+    document.getElementById('categoryFilter').addEventListener('change', (event) => {
+        showSelectedCategory(event.target.value)
+    });
     createDetailsTable();
 });
 
