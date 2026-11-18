@@ -54,7 +54,7 @@ type OutputItem struct {
 	Quantity     int        `csv:"Quantity" json:"quantity"`
 	Name         string     `csv:"Name" json:"name"`
 	Value        int        `csv:"Value" json:"value"`
-	TotalCost    int        `csv:"Total Cost" json:"total_cost"`
+	TotalValue   int        `csv:"Total Cost" json:"total_value"`
 	Description  string     `csv:"Description" json:"description"`
 	Manufacturer string     `csv:"Manufacturer" json:"manufacturer"`
 	Model        string     `csv:"Model" json:"model"`
@@ -70,7 +70,7 @@ type HTMLItem struct {
 	Quantity     string `json:"quantity"`
 	Name         string `json:"name"`
 	Value        int    `json:"value"`
-	TotalCost    int    `json:"total_cost"`
+	TotalValue   int    `json:"total_value"`
 	Description  string `json:"description"`
 	Manufacturer string `json:"manufacturer"`
 	Model        string `json:"model"`

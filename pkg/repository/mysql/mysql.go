@@ -87,8 +87,8 @@ func (r *mysqlQueryRepo) TotalByCategory(category string) (int, error) {
 func (r *mysqlQueryRepo) SortedListForOutput() ([]models.OutputItem, error) {
 	var items []models.OutputItem
 	if result := r.Conn.Table("items").
-		Select("*, (quantity * value) AS total_cost").
-		Order("total_cost DESC").Order("name").Order("description").
+		Select("*, (quantity * value) AS total_value").
+		Order("total_value DESC").Order("name").Order("description").
 		Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)
 	}

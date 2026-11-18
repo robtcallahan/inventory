@@ -5,11 +5,11 @@ let selectedCategory = '';
 const TotalCostColumn = 6;
 const CategoryColumn = 10;
 
-const tableKeys = ["number", "quantity", "name", "description", "value", "total_cost",
+const tableKeys = ["number", "quantity", "name", "description", "value", "total_value",
     "manufacturer", "model", "category", "purchase_date", "serial_number"];
-const itemDetailsKeys = ["quantity", "name", "description", "value", "total_cost", "manufacturer",
+const itemDetailsKeys = ["quantity", "name", "description", "value", "total_value", "manufacturer",
     "model", "category", "purchase_date", "serial_number", "details"];
-const dollarColumns = ["value", "total_cost"];
+const dollarColumns = ["value", "total_value"];
 
 // TODO: add total number of items near total cost
 
@@ -54,6 +54,10 @@ function renderTable(items) {
         });
         tbody.appendChild(row);
     }
+
+    document.getElementById('totalItems').textContent = items.length;
+    const totalCost = items.reduce((sum, item) => sum + item.value, 0);
+    document.getElementById('totalAmount').textContent = "$ " + totalCost.toLocaleString();
 }
 
 function accountingCell(amount) {
@@ -89,7 +93,6 @@ function showItemDetail(item, disabled) {
 }
 
 function closeItemDetails() {
-
     document.getElementById('itemModal').classList.add('hidden');
 }
 
@@ -130,7 +133,7 @@ function saveItemDetails() {
     });
     saveItem['id'] = editingItem['id'];
     delete saveItem['number'];
-    delete saveItem['total_cost'];
+    delete saveItem['total_value'];
 
     fetch('/api/save', {
         method: 'POST',
@@ -163,10 +166,6 @@ function getItemLabel(key) {
             return 'Qty';
         case 'number':
             return 'Num';
-        case 'value_dollars':
-            return 'Value';
-        case 'total_cost_dollars':
-            return 'Total Cost';
         default:
             return key
                 .replace(/_/g, ' ')
@@ -194,15 +193,9 @@ function showSelectedCategory(category) {
         renderTable(items);
         return;
     }
-    let displayItems = [];
-    let totalCost = 0;
+    const displayItems = items.filter(item => item.category === category);
+    const totalCost = displayItems.reduce((sum, item) => sum + item.value, 0);
 
-    items.forEach(function (item) {
-        if (item.category === '' || item.category === selectedCategory) {
-            totalCost += item.total_cost;
-            displayItems.push(item);
-        }
-    });
     renderTable(displayItems);
     document.getElementById('totalAmount').textContent = "$ " + totalCost.toLocaleString('en-US');
 }

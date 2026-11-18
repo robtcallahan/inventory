@@ -168,13 +168,13 @@ func Test_SortedListForOutput(t *testing.T) {
 	fakeRepo := &fakeRepository{
 		fakeOutputItems: []models.OutputItem{
 			{Name: "MacBook Pro", Description: "2019 MacBook Pro, 16GB, 512 SSD", Value: 2070, Quantity: 1,
-				TotalCost: 2070, Category: "Computers"},
+				TotalValue: 2070, Category: "Computers"},
 			{Name: "KRK Studio Monitors", Description: "KRK Studio Monitors, yellow", Value: 179, Quantity: 2,
-				TotalCost: 358, Category: "Music Gear"},
-			{Name: "Humidifier", Description: "TommyBoy white humidifier", Value: 250, Quantity: 1, TotalCost: 250, Category: "Appliances"},
-			{Name: "Chef's knife", Description: "Flextone 10\" Chef's knife", Value: 50, Quantity: 2, TotalCost: 100,
+				TotalValue: 358, Category: "Music Gear"},
+			{Name: "Humidifier", Description: "TommyBoy white humidifier", Value: 250, Quantity: 1, TotalValue: 250, Category: "Appliances"},
+			{Name: "Chef's knife", Description: "Flextone 10\" Chef's knife", Value: 50, Quantity: 2, TotalValue: 100,
 				Category: "Kitchen"},
-			{Name: "Chef's knife", Description: "Harbinger 8\" Chef's knife", Value: 50, Quantity: 2, TotalCost: 100,
+			{Name: "Chef's knife", Description: "Harbinger 8\" Chef's knife", Value: 50, Quantity: 2, TotalValue: 100,
 				Category: "Appliances"},
 		},
 	}

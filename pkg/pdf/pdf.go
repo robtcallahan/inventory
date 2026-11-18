@@ -24,7 +24,7 @@ func PDF(fileName string, items []models.OutputItem) error {
 			t.Description,
 			makeBlank(t.Manufacturer),
 			makeBlank(t.Model),
-			models.FormatAccounting(float64(t.TotalCost), 8),
+			models.FormatAccounting(float64(t.TotalValue), 8),
 			makeBlank(t.Category),
 			makeBlank(purchaseDate),
 			//makeBlank(t.SerialNumber),

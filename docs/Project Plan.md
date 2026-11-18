@@ -5,7 +5,7 @@ is left. Tick boxes off as items land. Current state: sheet holds 93
 items; DB holds all 93 after the import (2026-11-14); repo is
 `inventory`; Details wired end to end (migration, structs, import,
 export, PDF); unique key is (name, description); export test
-Test_ItemsExportToCSVFile green (header, dates, TotalCost); PDF export
+Test_ItemsExportToCSVFile green (header, dates, TotalValue); PDF export
 built with gpdf (landscape, Description column added). Next: the
 duplicate-skip visibility (7.7), then the test database. Rob's call
 on 6.4/6.5.
@@ -36,7 +36,7 @@ on 6.4/6.5.
 - [X] 4.2 Test writes to a file in t.TempDir() and reads it back;
   green, pushed. Rewritten 2026-11-14 as Test_ItemsExportToCSVFile
   in cmd/export_test.go: header check via stdlib csv, dates,
-  TotalCost; green, pushed.
+  TotalValue; green, pushed.
 - [X] 4.3 Three CSV-reading helpers live in the test file (not needed
   in prod code; can be moved and exported if needed)
 - [X] 4.4 Description back in the export (was left out deliberately
@@ -185,7 +185,7 @@ possible.
 - Name is generic (Computer, Piano, Saucepan); Description is the
   short specific name; Details is the long text, last column.
   (Rob's call 2026-11-13.)
-- Export sort: TotalCost desc, then name, then description asc.
+- Export sort: TotalValue desc, then name, then description asc.
   (Rob's call 2026-11-13; name added 2026-11-15 for consistency
   with List()/ListByCategory.)
 - Unique key is (name, description). (Changed 2026-11-14; see 6.1.)
