@@ -66,8 +66,8 @@ type OutputItem struct {
 
 type HTMLItem struct {
 	ID           uint   `json:"id"`
-	Number       string `json:"number"`
-	Quantity     string `json:"quantity"`
+	Number       int    `json:"number"`
+	Quantity     int    `json:"quantity"`
 	Name         string `json:"name"`
 	Value        int    `json:"value"`
 	TotalValue   int    `json:"total_value"`

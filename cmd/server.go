@@ -30,11 +30,6 @@ func listItemsHandler(
 	provider database_provider.DatabaseProviderInterface,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		provider, err := database_provider.NewMySQLProvider(&config.Database)
-		if err != nil {
-			http.Error(w, "Failed to obtain provider", http.StatusInternalServerError)
-			return
-		}
 		items, err := provider.SortedListForOutput()
 		if err != nil {
 			http.Error(w, "Failed to obtain items from provider", http.StatusInternalServerError)

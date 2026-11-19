@@ -19,8 +19,8 @@ func OutputItemsToHTML(items []OutputItem) ([]HTMLItem, error) {
 		}
 		htmlItem := HTMLItem{
 			ID:           item.ID,
-			Number:       strconv.Itoa(i + 1),
-			Quantity:     strconv.Itoa(item.Quantity),
+			Number:       i + 1,
+			Quantity:     item.Quantity,
 			Name:         item.Name,
 			Description:  item.Description,
 			Value:        item.Value,

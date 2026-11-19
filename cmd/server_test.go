@@ -130,7 +130,6 @@ func TestSaveItemHandler_Error(t *testing.T) {
 	handler := saveItemHandler(provider)
 	handler(recorder, req)
 
-	handler(recorder, req)
 	if recorder.Code != http.StatusInternalServerError {
 		t.Errorf("go status %d, want %d", recorder.Code, http.StatusInternalServerError)
 	}
@@ -164,27 +163,27 @@ func TestListItemsHandler_Success(t *testing.T) {
 	provider := &fakeProvider{
 		listedOutputItems: []models.OutputItem{
 			{
+				ID:           1,
 				Name:         "Coffee Maker",
 				Quantity:     1,
+				Value:        25,
+				TotalValue:   25,
 				PurchaseDate: &time1,
 			}, {
+				ID:           2,
 				Name:         "Blender",
 				Quantity:     2,
+				Value:        10,
+				TotalValue:   20,
 				PurchaseDate: &time2,
 			},
 		},
 	}
-	want := `{
-		{
-			"name': "Coffee Maker",
-			"quantity": 1,
-			"purchaseDate": "01/01/2026"
-		},{
-			"name': "Blender",
-			"quantity": 2,
-			"purchaseDate": "02/02/2026"
-		}
-	}`
+	want := `[{"id":1,"number":1,"quantity":1,"name":"Coffee Maker","value":25,
+"total_value":25,"description":"","manufacturer":"","model":"","category":"","purchaseDate":"01/01/2026",
+"serial_number":"","details":""},{"id":2,"number":2,"quantity":2,"name":"Blender","value":10,
+"total_value":20,"description":"","manufacturer":"","model":"","category":"","purchaseDate":"02/02/2026",
+"serial_number":"","details":""}]`
 
 	//body := strings.NewReader()
 
@@ -198,7 +197,7 @@ func TestListItemsHandler_Success(t *testing.T) {
 		t.Errorf("got status %d, want %d", recorder.Code, http.StatusOK)
 	}
 
-	if reflect.DeepEqual(recorder.Body.String(), want) {
+	if !reflect.DeepEqual(recorder.Body.String(), want) {
 		t.Errorf("got body %q, want %q", recorder.Body.String(), want)
 	}
 }
