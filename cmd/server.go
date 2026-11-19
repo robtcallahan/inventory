@@ -30,51 +30,59 @@ func listItemsHandler(w http.ResponseWriter, r *http.Request) {
 	provider, err := database_provider.NewMySQLProvider(&config.Database)
 	if err != nil {
 		http.Error(w, "Failed to obtain provider", http.StatusInternalServerError)
+		return
 	}
 	items, err := provider.SortedListForOutput()
 	if err != nil {
 		http.Error(w, "Failed to obtain items from provider", http.StatusInternalServerError)
+		return
 	}
 	htmlItems, err := models.OutputItemsToHTML(items)
 	if err != nil {
 		http.Error(w, "Failed to convert items to strings", http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	err = json.NewEncoder(w).Encode(htmlItems)
 	if err != nil {
 		http.Error(w, "Failed to JSON encode items", http.StatusInternalServerError)
+		return
 	}
 }
 
-func saveItemHandler(w http.ResponseWriter, r *http.Request) {
-	var item models.Item
-	err := json.NewDecoder(r.Body).Decode(&item)
-	if err != nil {
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
-	}
+func saveItemHandler(
+	provider database_provider.DatabaseProviderInterface,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var item models.Item
+		err := json.NewDecoder(r.Body).Decode(&item)
+		if err != nil {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
 
-	provider, err := database_provider.NewMySQLProvider(&config.Database)
-	if err != nil {
-		http.Error(w, "Failed to obtain provider", http.StatusInternalServerError)
-	}
-
-	err = provider.Save(item)
-	if errors.Is(err, models.ErrAlreadyExists) {
-		http.Error(w, "item already exists", http.StatusConflict)
-		return
-	}
-	if err != nil {
-		http.Error(w, "save failed", http.StatusInternalServerError)
-		return
+		err = provider.Save(item)
+		if errors.Is(err, models.ErrAlreadyExists) {
+			http.Error(w, "item already exists", http.StatusConflict)
+			return
+		}
+		if err != nil {
+			http.Error(w, "save failed", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
 func server() error {
+	provider, err := database_provider.NewMySQLProvider(&config.Database)
+	if err != nil {
+		return err
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/items", listItemsHandler)
-	mux.HandleFunc("POST /api/save", saveItemHandler)
+	mux.HandleFunc("POST /api/save", saveItemHandler(provider))
 
 	fs := http.FileServer(http.Dir("./web/public"))
 	mux.Handle("/", fs)
