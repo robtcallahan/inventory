@@ -158,7 +158,7 @@ func TestSaveItemHandler_BadRequest(t *testing.T) {
 	}
 }
 
-func TestListItemsHandler_success(t *testing.T) {
+func TestListItemsHandler_Success(t *testing.T) {
 	time1, _ := time.Parse("01/02/2006", "01/01/2026")
 	time2, _ := time.Parse("01/02/2006", "02/02/2026")
 	provider := &fakeProvider{
