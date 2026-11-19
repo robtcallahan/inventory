@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"inventory/api/providers/database_provider"
 	"inventory/pkg/models"
@@ -179,13 +180,12 @@ func TestListItemsHandler_Success(t *testing.T) {
 			},
 		},
 	}
-	want := `[{"id":1,"number":1,"quantity":1,"name":"Coffee Maker","value":25,
-"total_value":25,"description":"","manufacturer":"","model":"","category":"","purchaseDate":"01/01/2026",
-"serial_number":"","details":""},{"id":2,"number":2,"quantity":2,"name":"Blender","value":10,
-"total_value":20,"description":"","manufacturer":"","model":"","category":"","purchaseDate":"02/02/2026",
-"serial_number":"","details":""}]`
-
-	//body := strings.NewReader()
+	//	want := `[{"id":1,"number":1,"quantity":1,"name":"Coffee Maker","value":25,"total_value":25,"description":"","manufacturer":"","model":"","category":"","purchase_date":"01/01/2026","serial_number":"","details":""},{"id":2,"number":2,"quantity":2,"name":"Blender","value":10,"total_value":20,"description":"","manufacturer":"","model":"","category":"","purchase_date":"02/02/2026","serial_number":"","details":""}]
+	//`
+	want, err := models.OutputItemsToHTML(provider.listedOutputItems)
+	if err != nil {
+		t.Fatalf("error converting items to html: %s", err)
+	}
 
 	req := httptest.NewRequest(http.MethodGet, "/api/items", nil)
 	recorder := httptest.NewRecorder()
@@ -197,7 +197,9 @@ func TestListItemsHandler_Success(t *testing.T) {
 		t.Errorf("got status %d, want %d", recorder.Code, http.StatusOK)
 	}
 
-	if !reflect.DeepEqual(recorder.Body.String(), want) {
-		t.Errorf("got body %q, want %q", recorder.Body.String(), want)
+	var got []models.HTMLItem
+	err = json.Unmarshal(recorder.Body.Bytes(), &got)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got body %+v, want %+v", got, want)
 	}
 }
