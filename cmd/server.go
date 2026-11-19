@@ -26,28 +26,32 @@ func init() {
 	serverCmd.Flags().BoolVar(&options.Debug, "debug", false, "Debug mode")
 }
 
-func listItemsHandler(w http.ResponseWriter, r *http.Request) {
-	provider, err := database_provider.NewMySQLProvider(&config.Database)
-	if err != nil {
-		http.Error(w, "Failed to obtain provider", http.StatusInternalServerError)
-		return
-	}
-	items, err := provider.SortedListForOutput()
-	if err != nil {
-		http.Error(w, "Failed to obtain items from provider", http.StatusInternalServerError)
-		return
-	}
-	htmlItems, err := models.OutputItemsToHTML(items)
-	if err != nil {
-		http.Error(w, "Failed to convert items to strings", http.StatusInternalServerError)
-		return
-	}
+func listItemsHandler(
+	provider database_provider.DatabaseProviderInterface,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		provider, err := database_provider.NewMySQLProvider(&config.Database)
+		if err != nil {
+			http.Error(w, "Failed to obtain provider", http.StatusInternalServerError)
+			return
+		}
+		items, err := provider.SortedListForOutput()
+		if err != nil {
+			http.Error(w, "Failed to obtain items from provider", http.StatusInternalServerError)
+			return
+		}
+		htmlItems, err := models.OutputItemsToHTML(items)
+		if err != nil {
+			http.Error(w, "Failed to convert items to strings", http.StatusInternalServerError)
+			return
+		}
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	err = json.NewEncoder(w).Encode(htmlItems)
-	if err != nil {
-		http.Error(w, "Failed to JSON encode items", http.StatusInternalServerError)
-		return
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(w).Encode(htmlItems)
+		if err != nil {
+			http.Error(w, "Failed to JSON encode items", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
@@ -81,7 +85,7 @@ func server() error {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/items", listItemsHandler)
+	mux.HandleFunc("GET /api/items", listItemsHandler(provider))
 	mux.HandleFunc("POST /api/save", saveItemHandler(provider))
 
 	fs := http.FileServer(http.Dir("./web/public"))
