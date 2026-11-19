@@ -8,47 +8,45 @@
     <script src="js/main.js"></script>
 </head>
 <body>
+<div class="banner">
+    <h1 class="title">Home Inventory</h1>
+    <p class="subtitle">Protecting what matters</p>
+</div>
+
 <div class="container">
-    <h1>Home Inventory</h1>
-    <p>For all your insurance needs</p>
-</div>
-
-<div class="table-header">
-
-    <div class="category-selector">
-        <label for="categoryFilter" class="category-label">Category:</label>
-        <select id="categoryFilter">
-            <option value="">All</option>
-            <option value="Appliances">Appliances</option>
-            <option value="Clothes">Clothes</option>
-            <option value="Computers">Computers</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Furniture">Furniture</option>
-            <option value="Gardening">Gardening</option>
-            <option value="Kitchen">Kitchen</option>
-            <option value="Music Gear">Music Gear</option>
-            <option value="Musical Instruments">Musical Instruments</option>
-            <option value="Phones &amp; Tablets">Phones &amp; Tablets</option>
-            <option value="Other">Other</option>
-        </select>
+    <div class="table-top">
+        <div class="category-selector">
+            <label for="categoryFilter" class="category-label">Category:</label>
+            <select id="categoryFilter">
+                <option value="">All</option>
+                <option value="Appliances">Appliances</option>
+                <option value="Clothes">Clothes</option>
+                <option value="Computers">Computers</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Gardening">Gardening</option>
+                <option value="Kitchen">Kitchen</option>
+                <option value="Music Gear">Music Gear</option>
+                <option value="Musical Instruments">Musical Instruments</option>
+                <option value="Phones &amp; Tablets">Phones &amp; Tablets</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="total-items">
+            Total Items: <span id="totalItems">0</span>
+        </div>
+        <div class="table-total">
+            <div>Total Value: <span id="totalAmount" class="total-amount">$ 0</span></div>
+        </div>
     </div>
 
-    <div class="total-items">
-        Total Items: <span id="totalItems">0</span>
+    <div>
+        <table class="items-table">
+            <thead id="itemsTableHead"></thead>
+            <tbody id="itemsTableBody"></tbody>
+        </table>
     </div>
-
-    <div class="table-total">
-        <div>Total Value: <span id="totalAmount" class="total-amount">$ 0</span></div>
-    </div>
-
-</div>
-
-<div>
-    <table class="items-table">
-        <thead id="itemsTableHead"></thead>
-        <tbody id="itemsTableBody"></tbody>
-    </table>
 </div>
 
 <div id="itemModal" class="modal hidden">
@@ -59,8 +57,11 @@
             </table>
             <button id="modalButtonClose" type="button" onclick="closeItemDetails()" class="modal-button">Close</button>
             <button id="modalButtonEdit" type="button" onclick="editItemDetails()" class="modal-button">Edit</button>
-            <button id="modalButtonCancel" type="button" onclick="closeItemDetails()" class="modal-button hidden">Cancel</button>
-            <button id="modalButtonSave" type="button" onclick="saveItemDetails()" class="modal-button hidden">Save</button>
+            <button id="modalButtonCancel" type="button" onclick="closeItemDetails()" class="modal-button hidden">
+                Cancel
+            </button>
+            <button id="modalButtonSave" type="button" onclick="saveItemDetails()" class="modal-button hidden">Save
+            </button>
         </form>
     </div>
 </div>

@@ -1,14 +1,14 @@
 # Home Insurance Inventory — Project Plan
 
 The plan for the inventory app: what it holds, what it can do, and what
-is left. Tick boxes off as items land. Current state: sheet holds 93
-items; DB holds all 93 after the import (2026-11-14); repo is
-`inventory`; Details wired end to end (migration, structs, import,
-export, PDF); unique key is (name, description); export test
-Test_ItemsExportToCSVFile green (header, dates, TotalValue); PDF export
-built with gpdf (landscape, Description column added). Next: the
-duplicate-skip visibility (7.7), then the test database. Rob's call
-on 6.4/6.5.
+is left. Tick boxes off as items land. Keep tasks small enough to use as
+git commit messages; phases and tasks may be reordered as priorities change.
+
+Current confirmed status: MySQL is the source of truth; Goose handles
+migrations; the CSV import is implemented, skips duplicates, and works.
+The uploaded plan records 93 imported items as of 2026-11-14. The web
+list/category filter and first PDF export are implemented. The existing
+checklist states are retained below; newer work is listed separately.
 
 ## Phase 1 — Core: an item goes in, the list gives it back (done)
 
@@ -93,7 +93,7 @@ already in the struct. These items are parked, not dropped.
   provider methods against real MySQL instead of the fake.
   (Password: env var, or read config.json and swap the Name.)
 
-## Phase 7 — One-shot import from the sheet
+## Phase 7 — CSV import from the sheet
 
 - [ ] 7.1 Finish capture in the sheet first: 6 guitars, a guitar
   synth, 2 big TVs, other guitar effects, plus furniture (the import
@@ -101,7 +101,7 @@ already in the struct. These items are parked, not dropped.
   rows (2026-11-14) before capture finished; the remaining items
   still need a path into the DB (open question — web UI 8.5, or
   another import).
-- [ ] 7.2 Import is a CLI command reading a CSV export of the sheet,
+- [X] 7.2 Import is a CLI command reading a CSV export of the sheet,
   once into the DB (no Sheets API, no live link to the sheet).
   Command exists and ran 2026-11-14 (93 rows landed).
 - [X] 7.3 Import reads by header name, not row position (columns were
@@ -112,7 +112,7 @@ already in the struct. These items are parked, not dropped.
 - [X] 7.5 Import writes whole dollars (Value is whole dollars, no
   cents) — proven; CurrencyInt parses the accounting-formatted
   values ($ 199) and the DB holds whole dollars.
-- [ ] 7.6 No tests for the import (Rob's call — the code is mostly
+- [X] 7.6 No tests for the import (Rob's call — the code is mostly
   written already)
 - [X] 7.7 (name, description) is the unique key (see 6.1); a duplicate
   on import is skipped — the skip must be visible (a count or an
@@ -130,10 +130,10 @@ on it, no converting later.
   first; can upgrade to a framework later.
 - [X] 8.2 Go server serves the web app
 - [X] 8.3 List view: all items, filterable by category
-- [ ] 8.4 Item detail view
+- [X] 8.4 Item detail view
 - [ ] 8.5 Add and edit items manually via the web UI (after the
   import, this replaces the sheet as the entry point)
-- [ ] 8.6 Color scheme: blues and natural colors
+- [X] 8.6 Color scheme: blues and natural colors
 
 ## Phase 9 — Web: photo upload
 
@@ -175,38 +175,87 @@ possible.
   wrapped line (Rob may PR a fix). Idea: a second, roomier PDF for
   Details, which is too long for the dense table.
 
+## Phase 14 — HTTP handlers: functional tests
+
+- [ ] 14.1 Inventory existing routes, handlers, request/response formats, and error paths
+- [ ] 14.2 Add `httptest` coverage for listing all items and filtering by category
+- [ ] 14.3 Test item detail endpoint: found, not found, and invalid ID
+- [ ] 14.4 Test create-item endpoint: valid payload, missing fields, invalid values, and duplicate
+- [ ] 14.5 Test update-item endpoint: valid changes, not found, invalid payload, and duplicate
+- [ ] 14.6 Test handler responses for database failures and expected HTTP status codes
+- [ ] 14.7 Ensure handler tests are isolated and deterministic; document how to run them
+
+## Phase 15 — Database and migration test coverage
+
+- [ ] 15.1 Audit MySQL repository test coverage against every public repository method
+- [ ] 15.2 Add tests for empty results, duplicate-key behavior, and invalid data
+- [ ] 15.3 Verify totals and sorting with multiple quantities and tied values
+- [ ] 15.4 Make `inventory_test` setup and cleanup repeatable without touching production data
+- [ ] 15.5 Verify Goose migrations against a clean test database
+- [ ] 15.6 Document test prerequisites and a single command for running the suite
+
+## Phase 16 — Frontend code organization and usability
+
+- [ ] 16.1 Review JavaScript responsibilities: API requests, state, rendering, and events
+- [ ] 16.2 Separate reusable formatting/helpers from DOM rendering without changing behavior
+- [ ] 16.3 Consolidate CSS rules and variables; remove obsolete/duplicate overrides
+- [ ] 16.4 Restore consistent thousands separators and whole-dollar formatting throughout UI
+- [ ] 16.5 Improve responsive table behavior on narrower screens
+- [ ] 16.6 Add clear loading, empty-list, success, and error states
+- [ ] 16.7 Add lightweight frontend tests for formatting and other pure functions
+
+## Phase 17 — Inventory details and valuation
+
+- [ ] 17.1 Add room/location field to the schema, model, API, and UI
+- [ ] 17.2 Add purchase price separately from current estimated replacement value
+- [ ] 17.3 Clarify existing Value field semantics and migrate data without losing values
+- [ ] 17.4 Add condition field with a small, documented set of values
+- [ ] 17.5 Display purchase date, serial number, details, and website URL in item detail view
+- [ ] 17.6 Allow filtering by room/location as well as category
+- [ ] 17.7 Document how replacement estimates are entered and reviewed over time
+
+## Phase 18 — Receipts and attachments
+
+- [ ] 18.1 Define receipt attachment metadata and on-disk storage layout
+- [ ] 18.2 Upload and associate a receipt with an item
+- [ ] 18.3 View/download attached receipts from item details
+- [ ] 18.4 Validate file type/size and prevent unsafe file paths
+- [ ] 18.5 Include photo and receipt files in backup/restore procedure
+
+## Phase 19 — Dashboard, search, and reporting
+
+- [ ] 19.1 Build dashboard showing total replacement value, item count, and category totals
+- [ ] 19.2 Add room/location totals and identify high-value items
+- [ ] 19.3 Add search across item name, description, manufacturer, and model
+- [ ] 19.4 Add an insurance-oriented PDF summary by category and location
+- [ ] 19.5 Improve PDF money formatting, wrapping, and row background consistency
+- [ ] 19.6 Consider a second, roomier PDF report for full item details and attachments
+- [ ] 19.7 Document that insurance policies may have special limits for selected categories
+
+## Phase 20 — Backup, recovery, and release readiness
+
+- [ ] 20.1 Document MySQL backup and restore commands
+- [ ] 20.2 Back up item photos and receipts alongside database data
+- [ ] 20.3 Test restoring a backup into a separate database and file directory
+- [ ] 20.4 Add a simple, repeatable local backup workflow
+- [ ] 20.5 Review configuration, secrets handling, and ignored files before release
+- [ ] 20.6 Write setup/run/test instructions for a fresh machine
+
 ## Standing decisions
 
-- Value is the per-item (unit) price, in whole dollars, no cents. A
-  row's total is Value × Quantity. Value sits in column C of the
-  sheet, right after Name (moved 2026-11-14, accounting format, no
-  decimals); a CurrencyInt type parses the formatted values on
-  import.
-- Name is generic (Computer, Piano, Saucepan); Description is the
-  short specific name; Details is the long text, last column.
-  (Rob's call 2026-11-13.)
-- Export sort: TotalValue desc, then name, then description asc.
-  (Rob's call 2026-11-13; name added 2026-11-15 for consistency
-  with List()/ListByCategory.)
-- Unique key is (name, description). (Changed 2026-11-14; see 6.1.)
-- The spreadsheet is one-time capture only, NOT a live source. Read it
-  once into the DB, then code works off the DB. No Sheets API.
-- The DB is the reference data source.
-- Finish capture first, then one import. No re-runnable import. No
-  tests for the import.
-- While the DB isn't live, baseline rewrites + drop/rebuild are fine;
-  new migrations once it's live. (Rob's call 2026-11-14.)
-- The CLI covers migrations and the CSV sheet import.
-- After the import, new items go in manually via the web app; the sheet
-  retires.
-- Photos: files on disk in local storage; the DB column holds a pointer
-  to the file (a file name). Upload is a web feature.
-- Web UI: vanilla JS for now (no JS framework), to refresh his
-  memory on JS; can upgrade to a framework later. (Rob's call
-  2026-11-14.)
-- Web-based from the start: pick the JS framework up front, build basic
-  on it, no converting later. Colors: blues and natural colors.
-- Plaintext config with secrets is never committed; config.json stays
-  gitignored, encrypted config.json.age like register.
-- Rob writes the code; Muse guides and second pair of eyes. Hints
-  first, full answer only on "just tell me".
+- Value is the per-item (unit) amount in whole dollars; TotalValue is Value × Quantity. Clarify how Value relates to replacement value before adding a separate purchase-price field.
+- Name is generic; Description is the short specific name; Details holds longer text.
+- Export sort: TotalValue descending, then name and description ascending.
+- Unique item key: (name, description). CSV import works and skips duplicates.
+- MySQL is the source of truth; Goose manages schema migrations. The spreadsheet is not a live data source; there is no Sheets API integration.
+- The CLI provides migrations and CSV import; the web app is the intended entry point for new items.
+- Photos are stored on disk with a database reference to the file; uploads belong in the web UI.
+- The web UI uses vanilla JavaScript for now; a framework is not required.
+- Secrets must not be committed; plaintext `config.json` stays gitignored.
+- Rob writes the code; the assistant provides guidance and review, with hints first and full implementations on request.
+
+## Plan maintenance notes
+
+- Existing checklist marks above were preserved from the uploaded plan, including historical items whose descriptions mention earlier intentions. Phase 7's original unchecked tasks should be reconciled individually rather than silently marked complete.
+- The user confirmed the CSV import is complete and skips duplicates. The older 'one-shot only / no re-runnable import' assumptions were removed from Standing decisions.
+- New phases are proposals, not claims that features or tests are currently missing; confirm against the latest repository before implementation.
