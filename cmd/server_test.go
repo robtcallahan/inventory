@@ -18,10 +18,12 @@ type fakeProvider struct {
 	listedOutputItems []models.OutputItem
 	saveCalled        bool
 	saveErr           error
+	listErr           error
 }
 
 func (f *fakeProvider) Save(item models.Item) error {
 	f.savedItem = item
+	f.saveCalled = true
 	return f.saveErr
 }
 func (f *fakeProvider) SaveItems(items []models.Item) ([]models.Item, error) {
@@ -29,7 +31,7 @@ func (f *fakeProvider) SaveItems(items []models.Item) ([]models.Item, error) {
 }
 
 func (f *fakeProvider) List() ([]models.Item, error) {
-	return nil, f.saveErr
+	return nil, f.listErr
 }
 
 func (f *fakeProvider) ListByCategory(category string) ([]models.Item, error) {
@@ -41,7 +43,7 @@ func (f *fakeProvider) TotalByCategory(category string) (int, error) {
 }
 
 func (f *fakeProvider) SortedListForOutput() ([]models.OutputItem, error) {
-	return f.listedOutputItems, f.saveErr
+	return f.listedOutputItems, f.listErr
 }
 
 var _ database_provider.DatabaseProviderInterface = (*fakeProvider)(nil)
@@ -208,7 +210,7 @@ func TestListItemsHandler_Success(t *testing.T) {
 
 func TestListItemsHandler_Error(t *testing.T) {
 	provider := &fakeProvider{
-		saveErr: errors.New("SortedListForOutput failed"),
+		listErr: errors.New("SortedListForOutput failed"),
 	}
 
 	req := httptest.NewRequest(http.MethodGet, "/api/items", nil)
