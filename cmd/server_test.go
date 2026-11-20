@@ -29,7 +29,7 @@ func (f *fakeProvider) SaveItems(items []models.Item) ([]models.Item, error) {
 }
 
 func (f *fakeProvider) List() ([]models.Item, error) {
-	return nil, nil
+	return nil, f.saveErr
 }
 
 func (f *fakeProvider) ListByCategory(category string) ([]models.Item, error) {
@@ -41,7 +41,7 @@ func (f *fakeProvider) TotalByCategory(category string) (int, error) {
 }
 
 func (f *fakeProvider) SortedListForOutput() ([]models.OutputItem, error) {
-	return f.listedOutputItems, nil
+	return f.listedOutputItems, f.saveErr
 }
 
 var _ database_provider.DatabaseProviderInterface = (*fakeProvider)(nil)
@@ -203,5 +203,21 @@ func TestListItemsHandler_Success(t *testing.T) {
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got body %+v, want %+v", got, want)
+	}
+}
+
+func TestListItemsHandler_Error(t *testing.T) {
+	provider := &fakeProvider{
+		saveErr: errors.New("SortedListForOutput failed"),
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/api/items", nil)
+	recorder := httptest.NewRecorder()
+	handler := listItemsHandler(provider)
+	handler(recorder, req)
+
+	// Check the HTTP status.
+	if recorder.Code != http.StatusInternalServerError {
+		t.Errorf("got status %d, want %d", recorder.Code, http.StatusInternalServerError)
 	}
 }
