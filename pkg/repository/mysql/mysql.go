@@ -22,7 +22,7 @@ func NewMySQLQueryRepo(conn *gorm.DB) repository.QueryRepo {
 func (r *mysqlQueryRepo) Save(item models.Item) error {
 	return r.Conn.Transaction(func(tx *gorm.DB) error {
 		if item.ID == 0 {
-			result := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(item)
+			result := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&item)
 			if result.Error != nil {
 				return result.Error
 			}
@@ -44,7 +44,7 @@ func (r *mysqlQueryRepo) SaveItems(items []models.Item) ([]models.Item, error) {
 	var skipped []models.Item
 	err := r.Conn.Transaction(func(tx *gorm.DB) error {
 		for _, item := range items {
-			result := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(item)
+			result := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&item)
 			if result.Error != nil {
 				return result.Error
 			}

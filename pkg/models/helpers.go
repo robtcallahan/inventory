@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func OutputItemsToHTML(items []OutputItem) ([]HTMLItem, error) {
+func OutputItemsToHTML(items []OutputItem) []HTMLItem {
 	htmlItems := make([]HTMLItem, 0, len(items))
 	for i, item := range items {
 		purchaseDate := ""
@@ -34,7 +34,7 @@ func OutputItemsToHTML(items []OutputItem) ([]HTMLItem, error) {
 		}
 		htmlItems = append(htmlItems, htmlItem)
 	}
-	return htmlItems, nil
+	return htmlItems
 }
 
 func CSVToItem(csvItems []CSVItem) ([]Item, error) {
@@ -48,6 +48,7 @@ func CSVToItem(csvItems []CSVItem) ([]Item, error) {
 				purchasedAt = &t
 			}
 		}
+
 		item := Item{
 			Quantity:     i.Quantity,
 			Name:         i.Name,

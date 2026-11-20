@@ -65,12 +65,19 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	}
 	// tests run in the package dir, so the path is relative to pkg/repository/mysql
 	if err := goose.Up(sqlDB, "../../../migrations"); err != nil {
-		t.Fatalf("migrate test db: %v", err)
-	}
-	if err := conn.Exec("TRUNCATE TABLE items").Error; err != nil {
-		t.Fatalf("truncate items: %v", err)
+		t.Fatalf("migrate up on test db: %v", err)
 	}
 	return conn
+}
+
+func TeardownTestDB(t *testing.T, conn *gorm.DB) {
+	sqlDB, err := conn.DB()
+	if err != nil {
+		t.Fatalf("get sql.DB: %v", err)
+	}
+	if err := goose.Down(sqlDB, "../../../migrations"); err != nil {
+		t.Fatalf("migrate down on test db: %v", err)
+	}
 }
 
 func Test_Save(t *testing.T) {
@@ -97,6 +104,7 @@ func Test_Save(t *testing.T) {
 		Value {
 		t.Errorf("expected: %v, got: %v", wantOne, got)
 	}
+	TeardownTestDB(t, conn)
 }
 
 func Test_SaveAndListItems(t *testing.T) {
@@ -135,6 +143,7 @@ func Test_SaveAndListItems(t *testing.T) {
 			t.Errorf("expected want.Category: %s, got %s", want[wantI[i]].Category, item.Category)
 		}
 	}
+	TeardownTestDB(t, conn)
 }
 
 func Test_ListByCategory(t *testing.T) {
@@ -170,6 +179,7 @@ func Test_ListByCategory(t *testing.T) {
 			t.Errorf("expected want.Category: %s, got %s", want[wantI[i]].Category, item.Category)
 		}
 	}
+	TeardownTestDB(t, conn)
 }
 
 func Test_TotalByCategory(t *testing.T) {
@@ -187,6 +197,7 @@ func Test_TotalByCategory(t *testing.T) {
 	if got != 700 {
 		t.Fatalf("expected 700, got %d", got)
 	}
+	TeardownTestDB(t, conn)
 }
 
 func Test_SortedListForOutput(t *testing.T) {
@@ -210,6 +221,7 @@ func Test_SortedListForOutput(t *testing.T) {
 			t.Errorf("expected want.Name: %s, got %s", wantI[i], item.Name)
 		}
 	}
+	TeardownTestDB(t, conn)
 }
 
 func Test_SkippingDuplicates(t *testing.T) {
@@ -229,4 +241,5 @@ func Test_SkippingDuplicates(t *testing.T) {
 	if len(skippedSecondSave) != 4 {
 		t.Fatalf("expected 4 items on second save, got %d", len(skippedSecondSave))
 	}
+	TeardownTestDB(t, conn)
 }

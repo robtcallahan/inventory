@@ -35,11 +35,7 @@ func listItemsHandler(
 			http.Error(w, "Failed to obtain items from provider", http.StatusInternalServerError)
 			return
 		}
-		htmlItems, err := models.OutputItemsToHTML(items)
-		if err != nil {
-			http.Error(w, "Failed to convert items to strings", http.StatusInternalServerError)
-			return
-		}
+		htmlItems := models.OutputItemsToHTML(items)
 
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(w).Encode(htmlItems)

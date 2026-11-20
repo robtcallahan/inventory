@@ -121,7 +121,9 @@ func TestSaveItemHandler_Duplicate(t *testing.T) {
 }
 
 func TestSaveItemHandler_Error(t *testing.T) {
-	provider := &fakeProvider{}
+	provider := &fakeProvider{
+		saveErr: errors.New("this thing doesn't work"),
+	}
 	body := strings.NewReader(`{
         "name": "Coffee Maker"
     }`)
@@ -182,10 +184,7 @@ func TestListItemsHandler_Success(t *testing.T) {
 	}
 	//	want := `[{"id":1,"number":1,"quantity":1,"name":"Coffee Maker","value":25,"total_value":25,"description":"","manufacturer":"","model":"","category":"","purchase_date":"01/01/2026","serial_number":"","details":""},{"id":2,"number":2,"quantity":2,"name":"Blender","value":10,"total_value":20,"description":"","manufacturer":"","model":"","category":"","purchase_date":"02/02/2026","serial_number":"","details":""}]
 	//`
-	want, err := models.OutputItemsToHTML(provider.listedOutputItems)
-	if err != nil {
-		t.Fatalf("error converting items to html: %s", err)
-	}
+	want := models.OutputItemsToHTML(provider.listedOutputItems)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/items", nil)
 	recorder := httptest.NewRecorder()
@@ -198,7 +197,10 @@ func TestListItemsHandler_Success(t *testing.T) {
 	}
 
 	var got []models.HTMLItem
-	err = json.Unmarshal(recorder.Body.Bytes(), &got)
+	err := json.Unmarshal(recorder.Body.Bytes(), &got)
+	if err != nil {
+		t.Fatalf("failed to unmarshal response body: %s", err)
+	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got body %+v, want %+v", got, want)
 	}
