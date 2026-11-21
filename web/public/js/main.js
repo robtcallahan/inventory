@@ -108,6 +108,11 @@ function renderTable() {
 }
 
 function createFields() {
+    const category = ui.filter.cloneNode(true);
+    category.remove(0);  // Remove "All"
+    category.id = 'item-field-category';
+    category.name = 'category';
+
     for (const key of detailFields) {
         const field = document.createElement('div');
         field.className = 'item-fields__row';
@@ -115,11 +120,15 @@ function createFields() {
         label.className = 'item-fields__label';
         label.htmlFor = `item-field-${key}`;
         label.textContent = fieldLabel(key);
-        const input = document.createElement('input');
+        const input = key === 'category'
+            ? category
+            : document.createElement('input');
         input.className = 'item-fields__input';
         input.id = `item-field-${key}`;
         input.name = key;
-        input.type = numericFields.has(key) ? 'number' : 'text';
+        if (key !== 'category') {
+            input.type = numericFields.has(key) ? 'number' : 'text';
+        }
         if (numericFields.has(key)) {
             input.step = '1';
             input.min = '0';
@@ -136,7 +145,7 @@ function showError(message = '') {
 }
 
 function setMode(editing, adding = false) {
-    for (const input of ui.fields.querySelectorAll('input')) {
+    for (const input of ui.fields.querySelectorAll('input, select')) {
         input.disabled = !editing || input.name === 'total_value';
     }
     ui.close.classList.toggle('is-hidden', editing);
@@ -169,6 +178,7 @@ function closeItem() {
 }
 
 function addItem(event) {
+
     selectedItem = {id: 0};
     setMode(true, true);
     ui.dialog.classList.remove('is-hidden');

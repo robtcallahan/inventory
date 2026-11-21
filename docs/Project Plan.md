@@ -131,7 +131,7 @@ on it, no converting later.
 - [X] 8.2 Go server serves the web app
 - [X] 8.3 List view: all items, filterable by category
 - [X] 8.4 Item detail view
-- [ ] 8.5 Add and edit items manually via the web UI (after the
+- [X] 8.5 Add and edit items manually via the web UI (after the
   import, this replaces the sheet as the entry point)
 - [X] 8.6 Color scheme: blues and natural colors
 
