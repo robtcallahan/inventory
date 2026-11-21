@@ -6,6 +6,7 @@ const ui = {
     search: document.getElementById('search-filter'),
     count: document.getElementById('inventory-count'),
     value: document.getElementById('inventory-value'),
+    add: document.getElementById('inventory-add'),
     head: document.getElementById('inventory-table-head'),
     body: document.getElementById('inventory-table-body'),
     dialog: document.getElementById('item-dialog'),
@@ -134,7 +135,7 @@ function showError(message = '') {
     ui.error.classList.toggle('is-hidden', !message);
 }
 
-function setMode(editing) {
+function setMode(editing, adding = false) {
     for (const input of ui.fields.querySelectorAll('input')) {
         input.disabled = !editing || input.name === 'total_value';
     }
@@ -142,8 +143,13 @@ function setMode(editing) {
     ui.edit.classList.toggle('is-hidden', editing);
     ui.cancel.classList.toggle('is-hidden', !editing);
     ui.save.classList.toggle('is-hidden', !editing);
-    ui.dialogTitle.textContent = editing ? 'Edit Item' : 'Item Details';
-}
+    if (adding) {
+        ui.dialogTitle.textContent = "Add Item";
+    } else if (editing) {
+        ui.dialogTitle.textContent = "Edit Item";
+    } else {
+        ui.dialogTitle.textContent = "Item Details";
+    }}
 
 function openItem(item) {
     selectedItem = item;
@@ -162,8 +168,16 @@ function closeItem() {
     selectedItem = null;
 }
 
+function addItem(event) {
+    selectedItem = {id: 0};
+    setMode(true, true);
+    ui.dialog.classList.remove('is-hidden');
+    ui.edit.focus();
+    ui.form.elements.namedItem('name').focus();
+}
+
 function readItem() {
-    const item = { id: selectedItem.id };
+    const item = { id: selectedItem?.id ?? 0 };
     for (const key of detailFields) {
         if (key === 'total_value') continue; // Computed by the server.
         const value = ui.form.elements.namedItem(key).value.trim();
@@ -246,6 +260,7 @@ function init() {
         renderTable();
     });
     ui.search.addEventListener('input', searchFilter)
+    ui.add.addEventListener('click', addItem);
     ui.close.addEventListener('click', closeItem);
     ui.cancel.addEventListener('click', closeItem);
     ui.edit.addEventListener('click', () => {
