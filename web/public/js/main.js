@@ -1,237 +1,265 @@
+'use strict';
+
+// DOM hooks use IDs. CSS classes describe appearance; is-* classes describe state.
+const ui = {
+    filter: document.getElementById('category-filter'),
+    search: document.getElementById('search-filter'),
+    count: document.getElementById('inventory-count'),
+    value: document.getElementById('inventory-value'),
+    head: document.getElementById('inventory-table-head'),
+    body: document.getElementById('inventory-table-body'),
+    dialog: document.getElementById('item-dialog'),
+    dialogTitle: document.getElementById('item-dialog-title'),
+    form: document.getElementById('item-form'),
+    fields: document.getElementById('item-fields'),
+    error: document.getElementById('item-form-error'),
+    close: document.getElementById('item-close'),
+    edit: document.getElementById('item-edit'),
+    cancel: document.getElementById('item-cancel'),
+    save: document.getElementById('item-save'),
+};
+
+const tableFields = ['number', 'quantity', 'name', 'description', 'value',
+    'total_value', 'manufacturer', 'model', 'category', 'purchase_date', 'serial_number'];
+const detailFields = ['quantity', 'name', 'description', 'value', 'total_value',
+    'manufacturer', 'model', 'category', 'purchase_date', 'serial_number', 'details'];
+const numericFields = new Set(['quantity', 'value']);
+const moneyFields = new Set(['value', 'total_value']);
+
 let items = [];
-let editingItem = {};
+let selectedItem = null;
 let selectedCategory = '';
+let searchText = "";
+let saving = false;
 
-const TotalCostColumn = 6;
-const CategoryColumn = 10;
+function fieldLabel(key) {
+    if (key === 'quantity') return 'Qty';
+    if (key === 'number') return 'Num';
+    return key.replaceAll('_', ' ').replace(/\b\w/g, char => char.toUpperCase());
+}
 
-const tableKeys = ["number", "quantity", "name", "description", "value", "total_value",
-    "manufacturer", "model", "category", "purchase_date", "serial_number"];
-const itemDetailsKeys = ["quantity", "name", "description", "value", "total_value", "manufacturer",
-    "model", "category", "purchase_date", "serial_number", "details"];
-const dollarColumns = ["value", "total_value"];
+function money(amount) {
+    return '$' + Number(amount || 0).toLocaleString('en-US');
+}
 
-// TODO: add total number of items near total cost
 
-function renderTable(items) {
-    const tHead = document.getElementById('itemsTableHead');
-    const headRow = document.createElement('tr');
+function visibleItems() {
+    return items.filter(item => {
+        const matchesCategory =
+            !selectedCategory || item.category === selectedCategory;
 
-    items.sort((a, b) => {
-        return a.name.localeCompare(b.name) ||
-            a.description.localeCompare(b.description);
-    });
+        const matchesSearch = [
+            item.name,
+            item.description,
+            item.manufacturer,
+            item.model,
+            item.serial_number,
+            item.details
+        ].some(value =>
+            String(value ?? "").toLowerCase().includes(searchText)
+        );
 
-    tHead.replaceChildren();
-    tableKeys.forEach(key => {
-        let el = document.createElement('th');
-        el.textContent = getItemLabel(key);
-        headRow.appendChild(el);
-    });
-    tHead.appendChild(headRow);
+        return matchesCategory && matchesSearch;
+    }).sort((a, b) =>
+        a.name.localeCompare(b.name) ||
+        a.description.localeCompare(b.description)
+    );
+}
 
-    const tbody = document.getElementById('itemsTableBody');
-    tbody.replaceChildren();
+function renderTable() {
+    const displayed = visibleItems();
+    const header = document.createElement('tr');
+    for (const key of tableFields) {
+        const th = document.createElement('th');
+        th.scope = 'col';
+        th.textContent = fieldLabel(key);
+        header.append(th);
+    }
+    ui.head.replaceChildren(header);
+    ui.body.replaceChildren();
 
-    for (let i = 0; i < items.length; i++) {
+    displayed.forEach((item, index) => {
         const row = document.createElement('tr');
-        let item = items[i];
-
-        tableKeys.forEach(key => {
-            let el = document.createElement('td');
-            if (dollarColumns.includes(key)) {
-                el.append(accountingCell(item[key]));
-            } else if (key === 'number') {
-                el.textContent = String(i + 1);
+        row.tabIndex = 0;
+        row.setAttribute('aria-label', `View ${item.name}`);
+        for (const key of tableFields) {
+            const td = document.createElement('td');
+            if (moneyFields.has(key)) {
+                td.classList.add('inventory-table__money');
+                td.textContent = money(item[key]);
             } else {
-                el.textContent = item[key];
+                td.textContent = String(key === 'number' ? index + 1 : (item[key] ?? ''));
             }
-            row.appendChild(el);
-        });
-
-        row.addEventListener('click', () => {
-            showItemDetail(item, true);
-        });
-        tbody.appendChild(row);
-    }
-
-    document.getElementById('totalItems').textContent = items.length;
-    const totalCost = items.reduce((sum, item) => sum + item.value, 0);
-    document.getElementById('totalAmount').textContent = "$ " + totalCost.toLocaleString();
-}
-
-function accountingCell(amount) {
-    const td = document.createElement('td');
-    td.className = 'accounting';
-    let el = document.createElement('span');
-    el.className = "currency";
-    el.textContent = '$';
-    td.appendChild(el);
-
-    el = document.createElement('span');
-    el.className = "amount";
-    el.textContent = amount;
-    td.appendChild(el);
-    return td;
-}
-
-function getItemIndexByID(id) {
-    return items.findIndex(item => item.id === id);
-}
-
-function showItemDetail(item, disabled) {
-    editingItem = {...item};
-    itemDetailsKeys.forEach(key => {
-        const el = document.getElementById(getItemKeyID(key));
-        if (el) {
-            el.value = item[key];
-            el.disabled = disabled;
+            row.append(td);
         }
-    });
-    viewButtons()
-    document.getElementById('itemModal').classList.remove('hidden');
-}
-
-function closeItemDetails() {
-    document.getElementById('itemModal').classList.add('hidden');
-}
-
-function editItemDetails() {
-    showItemDetail(editingItem, false);
-    editButtons();
-}
-
-function saveItemDetails() {
-    let saveItem = {};
-
-    itemDetailsKeys.forEach(key => {
-        const el = document.getElementById(getItemKeyID(key));
-        if (el) {
-            switch (key) {
-                case 'quantity':
-                case 'value':
-                    saveItem[key] = parseInt(el.value, 10);
-                    console.log(saveItem.value);
-                    console.log(typeof saveItem.value);
-                    editingItem[key] = el.value;
-                    break;
-                case 'purchase_date':
-                    if (!el.value) {
-                        saveItem[key] = null;
-                        editingItem[key] = null;
-                        break;
-                    }
-                    const [month, day, year] = el.value.split("/").map(Number);
-                    const date = new Date(Date.UTC(year, month - 1, day));
-                    saveItem[key] = date.toISOString();
-                    break;
-                default:
-                    saveItem[key] = el.value;
-                    editingItem[key] = el.value;
+        row.addEventListener('click', () => openItem(item));
+        row.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openItem(item);
             }
-        }
-    });
-    saveItem['id'] = editingItem['id'];
-    delete saveItem['number'];
-    delete saveItem['total_value'];
-
-    fetch('/api/save', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(saveItem)
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Save failed: ' + response.status);
-            }
-            let index = getItemIndexByID(editingItem.id);
-            items[index] = {...editingItem};
-            closeItemDetails();
-            showSelectedCategory(selectedCategory);
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Save failed');
         });
+        ui.body.append(row);
+    });
+
+    ui.count.textContent = displayed.length;
+    ui.value.textContent = money(displayed.reduce((sum, item) => sum + Number(item.total_value || 0), 0));
 }
 
-function getItemKeyID(key) {
-    return 'item' + getItemLabel(key)
-        .replace(/\s/g, '');
-}
-
-function getItemLabel(key) {
-    switch (key) {
-        case 'quantity':
-            return 'Qty';
-        case 'number':
-            return 'Num';
-        default:
-            return key
-                .replace(/_/g, ' ')
-                .replace(/\b\w/g, char => char.toUpperCase());
+function createFields() {
+    for (const key of detailFields) {
+        const field = document.createElement('div');
+        field.className = 'item-fields__row';
+        const label = document.createElement('label');
+        label.className = 'item-fields__label';
+        label.htmlFor = `item-field-${key}`;
+        label.textContent = fieldLabel(key);
+        const input = document.createElement('input');
+        input.className = 'item-fields__input';
+        input.id = `item-field-${key}`;
+        input.name = key;
+        input.type = numericFields.has(key) ? 'number' : 'text';
+        if (numericFields.has(key)) {
+            input.step = '1';
+            input.min = '0';
+        }
+        if (key === 'total_value') input.readOnly = true;
+        field.append(label, input);
+        ui.fields.append(field);
     }
 }
 
-function viewButtons() {
-    document.getElementById('modalButtonClose').classList.remove('hidden');
-    document.getElementById('modalButtonEdit').classList.remove('hidden');
-    document.getElementById('modalButtonCancel').classList.add('hidden');
-    document.getElementById('modalButtonSave').classList.add('hidden');
+function showError(message = '') {
+    ui.error.textContent = message;
+    ui.error.classList.toggle('is-hidden', !message);
 }
 
-function editButtons() {
-    document.getElementById('modalButtonClose').classList.add('hidden');
-    document.getElementById('modalButtonEdit').classList.add('hidden');
-    document.getElementById('modalButtonCancel').classList.remove('hidden');
-    document.getElementById('modalButtonSave').classList.remove('hidden');
+function setMode(editing) {
+    for (const input of ui.fields.querySelectorAll('input')) {
+        input.disabled = !editing || input.name === 'total_value';
+    }
+    ui.close.classList.toggle('is-hidden', editing);
+    ui.edit.classList.toggle('is-hidden', editing);
+    ui.cancel.classList.toggle('is-hidden', !editing);
+    ui.save.classList.toggle('is-hidden', !editing);
+    ui.dialogTitle.textContent = editing ? 'Edit Item' : 'Item Details';
 }
 
-function showSelectedCategory(category) {
-    selectedCategory = category;
-    if (selectedCategory === '') {
-        renderTable(items);
+function openItem(item) {
+    selectedItem = item;
+    showError();
+    for (const key of detailFields) {
+        ui.form.elements.namedItem(key).value = item[key] ?? '';
+    }
+    setMode(false);
+    ui.dialog.classList.remove('is-hidden');
+    ui.edit.focus();
+}
+
+function closeItem() {
+    if (saving) return;
+    ui.dialog.classList.add('is-hidden');
+    selectedItem = null;
+}
+
+function readItem() {
+    const item = { id: selectedItem.id };
+    for (const key of detailFields) {
+        if (key === 'total_value') continue; // Computed by the server.
+        const value = ui.form.elements.namedItem(key).value.trim();
+        if (numericFields.has(key)) {
+            if (!/^\d+$/.test(value)) throw new Error(`${fieldLabel(key)} must be a nonnegative whole number.`);
+            item[key] = Number(value);
+            if (!Number.isSafeInteger(item[key])) throw new Error(`${fieldLabel(key)} is too large.`);
+        } else if (key === 'purchase_date') {
+            if (!value) {
+                item[key] = null;
+            } else {
+                const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+                if (!match) throw new Error('Purchase Date must use MM/DD/YYYY.');
+                const [, mm, dd, yyyy] = match.map(Number);
+                const date = new Date(Date.UTC(yyyy, mm - 1, dd));
+                if (date.getUTCFullYear() !== yyyy || date.getUTCMonth() !== mm - 1 || date.getUTCDate() !== dd) {
+                    throw new Error('Purchase Date is invalid.');
+                }
+                item[key] = date.toISOString();
+            }
+        } else {
+            item[key] = value;
+        }
+    }
+    return item;
+}
+
+async function saveItem(event) {
+    event.preventDefault();
+    if (saving || !selectedItem) return;
+    let payload;
+    try {
+        payload = readItem();
+    } catch (error) {
+        showError(error.message);
         return;
     }
-    const displayItems = items.filter(item => item.category === category);
-    const totalCost = displayItems.reduce((sum, item) => sum + item.value, 0);
-
-    renderTable(displayItems);
-    document.getElementById('totalAmount').textContent = "$ " + totalCost.toLocaleString('en-US');
+    saving = true;
+    ui.save.disabled = true;
+    showError();
+    try {
+        const response = await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        if (!response.ok) throw new Error(`Save failed (HTTP ${response.status}).`);
+        // Fetch the server's authoritative computed fields and formatted dates.
+        await loadItems();
+        closeItemAfterSave();
+    } catch (error) {
+        showError(error.message);
+    } finally {
+        saving = false;
+        ui.save.disabled = false;
+    }
 }
 
-function createDetailsTable() {
-    const tbody = document.getElementById('itemDetailsBody');
-    itemDetailsKeys.forEach(key => {
-        const row = document.createElement('tr');
-        let cell = document.createElement('td');
-        const label = document.createElement('label');
-        label.attributes['for'] = getItemKeyID(key);
-        label.textContent = getItemLabel(key);
-        cell.appendChild(label);
-        row.appendChild(cell);
+function closeItemAfterSave() {
+    ui.dialog.classList.add('is-hidden');
+    selectedItem = null;
+}
 
-        cell = document.createElement('td');
-        const input = document.createElement('input');
-        input.id = getItemKeyID(key);
-        input.type = 'text';
-        cell.appendChild(input);
-        row.appendChild(cell);
-        tbody.appendChild(row);
+function searchFilter(event) {
+    searchText = event.target.value.trim().toLowerCase();
+    renderTable();
+}
+
+async function loadItems() {
+    const response = await fetch('/api/items');
+    if (!response.ok) throw new Error(`Unable to load items (HTTP ${response.status}).`);
+    items = await response.json();
+    renderTable();
+}
+
+function init() {
+    createFields();
+    ui.filter.addEventListener('change', () => {
+        selectedCategory = ui.filter.value;
+        renderTable();
+    });
+    ui.search.addEventListener('input', searchFilter)
+    ui.close.addEventListener('click', closeItem);
+    ui.cancel.addEventListener('click', closeItem);
+    ui.edit.addEventListener('click', () => {
+        setMode(true);
+        ui.form.elements.namedItem('name').focus();
+    });
+    ui.form.addEventListener('submit', saveItem);
+    ui.dialog.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !saving) closeItem();
+    });
+    loadItems().catch(error => {
+        console.error(error);
+        ui.body.textContent = 'Unable to load inventory. Please refresh the page.';
     });
 }
 
-fetch('/api/items')
-    .then(response => response.json())
-    .then(data => {
-        items = data;
-        renderTable(items);
-    });
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('categoryFilter').addEventListener('change', (event) => {
-        showSelectedCategory(event.target.value)
-    });
-    createDetailsTable();
-});
-
+init();

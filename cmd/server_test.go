@@ -27,7 +27,8 @@ func (f *fakeProvider) Save(item models.Item) error {
 	return f.saveErr
 }
 func (f *fakeProvider) SaveItems(items []models.Item) ([]models.Item, error) {
-	return nil, nil
+	f.saveCalled = true
+	return nil, f.listErr
 }
 
 func (f *fakeProvider) List() ([]models.Item, error) {
@@ -81,20 +82,16 @@ func TestSaveItemHandler_Success(t *testing.T) {
 
 	// Check the HTTP status.
 	if recorder.Code != http.StatusOK {
-		t.Errorf(
-			"got status %d, want %d",
-			recorder.Code,
-			http.StatusOK,
-		)
+		t.Errorf("got status %d, want %d", recorder.Code, http.StatusOK)
+	}
+
+	if !provider.saveCalled {
+		t.Errorf("save was not called")
 	}
 
 	// Check what was passed to the provider.
 	if provider.savedItem.Name != "Coffee Maker" {
-		t.Errorf(
-			"saved name = %q, want %q",
-			provider.savedItem.Name,
-			"Coffee Maker",
-		)
+		t.Errorf("saved name = %q, want %q", provider.savedItem.Name, "Coffee Maker")
 	}
 }
 
@@ -184,8 +181,6 @@ func TestListItemsHandler_Success(t *testing.T) {
 			},
 		},
 	}
-	//	want := `[{"id":1,"number":1,"quantity":1,"name":"Coffee Maker","value":25,"total_value":25,"description":"","manufacturer":"","model":"","category":"","purchase_date":"01/01/2026","serial_number":"","details":""},{"id":2,"number":2,"quantity":2,"name":"Blender","value":10,"total_value":20,"description":"","manufacturer":"","model":"","category":"","purchase_date":"02/02/2026","serial_number":"","details":""}]
-	//`
 	want := models.OutputItemsToHTML(provider.listedOutputItems)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/items", nil)

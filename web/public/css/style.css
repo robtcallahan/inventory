@@ -1,193 +1,196 @@
+/* ========================================================================== 
+   1. Theme tokens
+   Adjust the palette, spacing, and radius here to update the entire UI.
+   ========================================================================== */
 :root {
-    --primary: #233B5D;
-    --background: #EAF1F8;
-    --surface: #FFFFFF;
-    --accent: #278477;
-    --row-alt: #F0F5F8;
-    --row-hover: #DCEFEA;
-    --border: #D6DEE7;
-    --text: #283747;
-}
-/* Reset default browser margins and padding */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    --color-primary: #233b5d;
+    --color-primary-hover: #304f77;
+    --color-accent: #278477;
+    --color-accent-hover: #1d6b60;
+    --color-page: #eaf1f8;
+    --color-surface: #ffffff;
+    --color-surface-muted: #f0f5f8;
+    --color-row-hover: #dcefea;
+    --color-border: #d6dee7;
+    --color-text: #283747;
+    --color-text-muted: #607285;
+    --color-overlay: rgb(17 30 46 / 60%);
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --shadow-panel: 0 4px 18px rgb(20 35 55 / 9%);
+    --shadow-dialog: 0 22px 65px rgb(12 24 40 / 26%);
 }
 
-/* Base body styles */
-body {
-    background: var(--background);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, sans-serif;
+/* ========================================================================== 
+   2. Reset and global elements
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+body { margin: 0; background: var(--color-page); color: var(--color-text); }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
 }
+.is-hidden { display: none !important; } /* UI state class, toggled by JavaScript. */
 
-.banner {
-    max-width: 98%;
-    margin: 10px auto;
-    padding: 10px;
-    background-color: var(--primary);
+/* ========================================================================== 
+   3. Shared controls
+   ========================================================================== */
+.field-label { color: var(--color-primary); font-weight: 650; }
+.select-control {
+    min-height: 38px;
+    padding: 7px 32px 7px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+.button {
+    min-height: 40px;
+    padding: 9px 18px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-weight: 650;
+    transition: background-color 150ms ease;
+}
+.button--primary { background: var(--color-accent); color: white; }
+.button--primary:hover { background: var(--color-accent-hover); }
+.button--secondary {
+    background: var(--color-surface-muted);
+    color: var(--color-primary);
+    border-color: var(--color-border);
+}
+.button--secondary:hover { background: var(--color-row-hover); }
+
+/* ========================================================================== 
+   4. Page header
+   ========================================================================== */
+.site-header {
+    margin: 12px 24px 18px;
+    padding: 20px 24px;
+    border-radius: var(--radius-lg);
+    background: var(--color-primary);
     color: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     text-align: center;
+    box-shadow: var(--shadow-panel);
 }
+.site-header__title { margin: 0; font-size: clamp(1.5rem, 3vw, 2rem); }
+.site-header__subtitle { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.85; }
 
-/* Wrapper around the table */
-.container {
+/* ========================================================================== 
+   5. Inventory toolbar and table
+   ========================================================================== */
+.inventory-panel {
     margin: 0 24px 24px;
-    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-panel);
 }
-
-/* Table */
-.container table {
-    width: 100%;
-    background: var(--surface);
-    border-collapse: collapse;
+.inventory-toolbar {
+    display: grid;
+    grid-template-columns: auto minmax(180px, 1fr) auto auto;   align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--color-page);
+    color: var(--color-primary);
 }
+.inventory-toolbar__filter { display: flex; align-items: center; gap: 10px; }
+.inventory-toolbar__search { display: flex; align-items: center; gap: 10px; }
+.inventory-toolbar__count, .inventory-toolbar__value { margin: 0; font-weight: 650; }
+.inventory-toolbar__count { text-align: center; }
+.inventory-toolbar__value { text-align: right; }
+.inventory-table-scroll { overflow-x: auto; }
+.inventory-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.inventory-table thead { background: var(--color-primary); color: white; }
+.inventory-table th, .inventory-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--color-border);
+    text-align: left;
+    white-space: nowrap;
+}
+.inventory-table th { font-weight: 650; }
+.inventory-table tbody tr:nth-child(even) { background: var(--color-surface-muted); }
+.inventory-table tbody tr:hover { background: var(--color-row-hover); cursor: pointer; }
 
-.container thead {
-    background: var(--primary);
+.inventory-table__money { text-align: right !important; font-variant-numeric: tabular-nums; }
+
+/* ========================================================================== 
+   6. Item details dialog
+   ========================================================================== */
+.item-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background: var(--color-overlay);
+}
+.item-dialog__panel {
+    width: min(100%, 760px);
+    max-height: min(90vh, 900px);
+    overflow-y: auto;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-dialog);
+}
+.item-dialog__header {
+    padding: 20px 26px;
+    background: var(--color-primary);
     color: white;
 }
-
-.container thead th:first-child {
-        border-top-left-radius: 12px;
-}
-.container thead th:last-child {
-        border-top-right-radius: 12px;
-}
-
-.container th,
-.container td {
-    border: none;
-    padding: 6px 6px;
-}
-
-.container tbody {
-    font-size: small;
-}
-
-tbody tr:nth-child(even) {
-    background: var(--row-alt);
-}
-
-tbody tr:hover {
-    background: var(--row-hover);
-}
-
-
-/* Paragraphs and links */
-h1 .title {
-    font-size: xx-large;
-}
-p .subtitle {
-    font-size: 10pt;
-    margin-bottom: 1rem;
-}
-
-a {
-    color: #0066cc;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-.table-top {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    width: 99%;
-    margin: 12px;
-    padding: 16px;
-    color: var(--primary);
-    background-color: var(--background);
-}
-
-.category-selector {
-    justify-self: start;
-}
-
-.category-label {
-    font-weight: bold;
-    color: var(--primary);
-    padding-right: 5px;
-}
-
-.total-items {
-    justify-self: center;
-    font-weight: bold;
-}
-
-.table-total {
-    justify-self: end;
-    font-weight: bold;
-}
-
-#category {
-    padding: 5px 8px;
-}
-
-.hidden {
-    display: none;
-}
-
-/*
-    Currency
-*/
-.accounting {
-    display: flex;
-    justify-content: space-between;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-}
-
-.currency {
-    margin-right: 8px;
-}
-
-.amount {
-    text-align: right;
-}
-
-/*
-    Modals
-*/
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
+.item-dialog__title { margin: 0; font-size: 1.35rem; }
+.item-dialog__subtitle { margin: 5px 0 0; font-size: 0.88rem; opacity: 0.82; }
+.item-dialog__body { padding: 18px 26px 12px; }
+.item-fields { width: 100%; }
+.item-fields__row { display: grid; grid-template-columns: minmax(130px, 34%) 1fr; gap: 12px; align-items: center; padding: 8px 6px; }
+.item-fields__row + .item-fields__row { border-top: 1px solid var(--color-border); }
+.item-fields__label { color: var(--color-text-muted); font-weight: 600; }
+.item-fields__input {
     width: 100%;
-    height: 100%;
+    min-height: 38px;
+    padding: 8px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+.item-fields__input:disabled, .item-fields__input:read-only {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+    opacity: 1;
+    -webkit-text-fill-color: var(--color-text);
+}
+.item-dialog__actions {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 26px 20px;
+    border-top: 1px solid var(--color-border);
 }
-.modal.hidden {
-    display: none;
+
+/* ========================================================================== 
+   7. Responsive adjustments
+   ========================================================================== */
+@media (max-width: 700px) {
+    .site-header { margin: 10px 12px 14px; }
+    .inventory-panel { margin: 0 12px 16px; }
+    .inventory-toolbar { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .inventory-toolbar__filter { grid-column: 1 / -1; }
+    .inventory-toolbar__count { text-align: left; }
+    .inventory-toolbar__value { text-align: right; }
+    .item-dialog { padding: 12px; }
+    .item-dialog__header { padding: 16px; }
+    .item-dialog__body { padding: 12px 14px; }
+    .item-dialog__actions { padding: 14px; }
+    .item-fields__row { grid-template-columns: minmax(100px, 38%) 1fr; }
 }
-.modal-content {
-    width: 75%;
-    max-width: 800px;
-    background: white;
-    padding: 20px;
-}
-input[type="text"] {
-    width: 350px;
-    box-sizing: border-box;
-}
-.modal-button {
-    padding: 5px;
-    margin-top: 10px;
-    color: #fff;
-    background: #0066cc;
-}
-.modal-button.hidden {
-    display: none;
-}
+
+.form-error { margin: 12px 6px 0; color: #a32d2d; font-weight: 600; }
+.button:disabled { opacity: 0.65; cursor: wait; }
