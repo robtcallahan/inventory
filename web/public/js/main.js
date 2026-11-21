@@ -19,7 +19,10 @@ const ui = {
     delete: document.getElementById('item-delete'),
     cancel: document.getElementById('item-cancel'),
     save: document.getElementById('item-save'),
-};
+    confirmDialog: document.getElementById('delete-confirm-dialog'),
+    confirmMessage: document.getElementById('delete-confirm-message'),
+    confirmDelete: document.getElementById('confirm-delete'),
+    cancelDelete: document.getElementById('cancel-delete'),};
 
 const tableFields = ['number', 'quantity', 'name', 'description', 'value',
     'total_value', 'manufacturer', 'model', 'category', 'purchase_date', 'serial_number'];
@@ -253,16 +256,11 @@ async function saveItem(event) {
 async function deleteItem(event) {
     event.preventDefault();
     if (deleting || !selectedItem) return;
-    let payload;
-    try {
-        payload = readItem();
-    } catch (error) {
-        showError(error.message);
-        return;
-    }
+    const payload = { id: selectedItem.id };
     deleting = true;
     ui.save.disabled = true;
     ui.delete.disabled = true;
+    ui.confirmDelete.disabled = true;
     showError();
     try {
         const response = await fetch('/api/delete', {
@@ -273,6 +271,7 @@ async function deleteItem(event) {
         if (!response.ok) throw new Error(`Delete failed (HTTP ${response.status}).`);
         // Fetch the server's authoritative computed fields and formatted dates.
         await loadItems();
+        ui.confirmDialog.close();
         closeItemAfterSaveOrDelete();
     } catch (error) {
         showError(error.message);
@@ -280,9 +279,19 @@ async function deleteItem(event) {
         deleting = false;
         ui.save.disabled = false;
         ui.delete.disabled = false;
+        ui.confirmDelete.disabled = false;
     }
 }
 
+function confirmDeleteItem() {
+    if (saving || deleting || !selectedItem) return;
+
+    ui.confirmMessage.textContent =
+        `Are you sure you want to delete "${selectedItem.name}"?`;
+
+    ui.confirmDialog.showModal();
+    ui.cancelDelete.focus();
+}
 
 function closeItemAfterSaveOrDelete() {
     ui.dialog.classList.add('is-hidden');
@@ -316,8 +325,11 @@ function init() {
         ui.form.elements.namedItem('name').focus();
     });
     ui.form.addEventListener('submit', saveItem);
-    ui.delete.addEventListener('click', deleteItem);
-    ui.dialog.addEventListener('keydown', event => {
+    ui.delete.addEventListener('click', confirmDeleteItem);
+    ui.cancelDelete.addEventListener('click', () => {
+        ui.confirmDialog.close();
+    });
+    ui.confirmDelete.addEventListener('click', deleteItem);    ui.dialog.addEventListener('keydown', event => {
         if (event.key === 'Escape' && !saving) closeItem();
     });
     loadItems().catch(error => {
