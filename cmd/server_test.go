@@ -15,10 +15,13 @@ import (
 
 type fakeProvider struct {
 	savedItem         models.Item
+	deletedItem       models.Item
 	listedOutputItems []models.OutputItem
 	saveCalled        bool
+	deleteCalled      bool
 	saveErr           error
 	listErr           error
+	deleteErr         error
 }
 
 func (f *fakeProvider) Save(item models.Item) error {
@@ -29,6 +32,12 @@ func (f *fakeProvider) Save(item models.Item) error {
 func (f *fakeProvider) SaveItems(items []models.Item) ([]models.Item, error) {
 	f.saveCalled = true
 	return nil, f.listErr
+}
+
+func (f *fakeProvider) Delete(item models.Item) error {
+	f.deletedItem = item
+	f.deleteCalled = true
+	return f.deleteErr
 }
 
 func (f *fakeProvider) List() ([]models.Item, error) {
@@ -133,7 +142,7 @@ func TestSaveItemHandler_Error(t *testing.T) {
 	handler(recorder, req)
 
 	if recorder.Code != http.StatusInternalServerError {
-		t.Errorf("go status %d, want %d", recorder.Code, http.StatusInternalServerError)
+		t.Errorf("got status %d, want %d", recorder.Code, http.StatusInternalServerError)
 	}
 }
 
@@ -156,6 +165,53 @@ func TestSaveItemHandler_BadRequest(t *testing.T) {
 	}
 	if provider.saveCalled {
 		t.Error("save called when it shouldn't")
+	}
+}
+
+func TestDeleteItemHandler_Success(t *testing.T) {
+	provider := &fakeProvider{}
+
+	body := strings.NewReader(`{
+		"id": 1,
+        "name": "Shoe Box"
+    }`)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/delete", body)
+	recorder := httptest.NewRecorder()
+	handler := deleteItemHandler(provider)
+	handler(recorder, req)
+
+	// Check the HTTP status.
+	if recorder.Code != http.StatusOK {
+		t.Errorf("got status %d, want %d", recorder.Code, http.StatusOK)
+	}
+
+	if !provider.deleteCalled {
+		t.Errorf("delete was not called")
+	}
+
+	// Check what was passed to the provider.
+	if provider.deletedItem.Name != "Shoe Box" {
+		t.Errorf("saved name = %q, want %q", provider.savedItem.Name, "Shoe Box")
+	}
+}
+
+func TestDeleteItemHandler_Error(t *testing.T) {
+	provider := &fakeProvider{
+		deleteErr: errors.New("this thing doesn't work"),
+	}
+	body := strings.NewReader(`{
+		"id": 1,
+        "name": "Shoe Box"
+    }`)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/delete", body)
+	recorder := httptest.NewRecorder()
+	handler := deleteItemHandler(provider)
+	handler(recorder, req)
+
+	if recorder.Code != http.StatusInternalServerError {
+		t.Errorf("got status %d, want %d", recorder.Code, http.StatusInternalServerError)
 	}
 }
 

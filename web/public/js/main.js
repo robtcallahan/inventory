@@ -16,6 +16,7 @@ const ui = {
     error: document.getElementById('item-form-error'),
     close: document.getElementById('item-close'),
     edit: document.getElementById('item-edit'),
+    delete: document.getElementById('item-delete'),
     cancel: document.getElementById('item-cancel'),
     save: document.getElementById('item-save'),
 };
@@ -32,6 +33,7 @@ let selectedItem = null;
 let selectedCategory = '';
 let searchText = "";
 let saving = false;
+let deleting = false;
 
 function fieldLabel(key) {
     if (key === 'quantity') return 'Qty';
@@ -150,6 +152,7 @@ function setMode(editing, adding = false) {
     }
     ui.close.classList.toggle('is-hidden', editing);
     ui.edit.classList.toggle('is-hidden', editing);
+    ui.delete.classList.toggle('is-hidden', editing);
     ui.cancel.classList.toggle('is-hidden', !editing);
     ui.save.classList.toggle('is-hidden', !editing);
     if (adding) {
@@ -178,7 +181,6 @@ function closeItem() {
 }
 
 function addItem(event) {
-
     selectedItem = {id: 0};
     setMode(true, true);
     ui.dialog.classList.remove('is-hidden');
@@ -227,6 +229,7 @@ async function saveItem(event) {
     }
     saving = true;
     ui.save.disabled = true;
+    ui.delete.disabled = true;
     showError();
     try {
         const response = await fetch('/api/save', {
@@ -243,10 +246,45 @@ async function saveItem(event) {
     } finally {
         saving = false;
         ui.save.disabled = false;
+        ui.delete.disabled = false;
     }
 }
 
-function closeItemAfterSave() {
+async function deleteItem(event) {
+    event.preventDefault();
+    if (deleting || !selectedItem) return;
+    let payload;
+    try {
+        payload = readItem();
+    } catch (error) {
+        showError(error.message);
+        return;
+    }
+    deleting = true;
+    ui.save.disabled = true;
+    ui.delete.disabled = true;
+    showError();
+    try {
+        const response = await fetch('/api/delete', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        if (!response.ok) throw new Error(`Delete failed (HTTP ${response.status}).`);
+        // Fetch the server's authoritative computed fields and formatted dates.
+        await loadItems();
+        closeItemAfterSaveOrDelete();
+    } catch (error) {
+        showError(error.message);
+    } finally {
+        deleting = false;
+        ui.save.disabled = false;
+        ui.delete.disabled = false;
+    }
+}
+
+
+function closeItemAfterSaveOrDelete() {
     ui.dialog.classList.add('is-hidden');
     selectedItem = null;
 }
@@ -278,6 +316,7 @@ function init() {
         ui.form.elements.namedItem('name').focus();
     });
     ui.form.addEventListener('submit', saveItem);
+    ui.delete.addEventListener('click', deleteItem);
     ui.dialog.addEventListener('keydown', event => {
         if (event.key === 'Escape' && !saving) closeItem();
     });

@@ -8,6 +8,7 @@ import (
 type QueryRepo interface {
 	Save(item models.Item) error
 	SaveItems(items []models.Item) ([]models.Item, error)
+	Delete(item models.Item) error
 	List() ([]models.Item, error)
 	ListByCategory(category string) ([]models.Item, error)
 	TotalByCategory(category string) (int, error)

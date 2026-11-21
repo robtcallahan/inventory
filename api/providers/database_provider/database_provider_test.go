@@ -25,6 +25,10 @@ func (p *fakeRepository) SaveItems(items []models.Item) ([]models.Item, error) {
 	p.fakeItems = append(p.fakeItems, items...)
 	return nil, nil
 }
+func (p *fakeRepository) Delete(item models.Item) error {
+	p.fakeItem = &item
+	return p.fakeError
+}
 func (p *fakeRepository) List() ([]models.Item, error) {
 	return p.fakeItems, p.fakeError
 }
@@ -100,9 +104,53 @@ func Test_Save(t *testing.T) {
 			}
 		})
 	}
-
 }
 
+func Test_Delete(t *testing.T) {
+	fakeRepo := &fakeRepository{fakeItems: []models.Item{}}
+	provider := &DatabaseProvider{Repository: fakeRepo}
+
+	now := time.Now()
+	item := models.Item{
+		Quantity:     1,
+		Name:         "Item 1",
+		Manufacturer: "Manufacturer",
+		Model:        "Model",
+		Description:  "Description",
+		SerialNumber: "Serial Number",
+		Category:     "Category",
+		PurchaseDate: &now,
+		Value:        100,
+	}
+	tests := []struct {
+		name    string
+		wantErr bool
+		fakeErr error
+	}{
+		{
+			name:    "no error",
+			wantErr: false,
+		},
+		{
+			name:    "error",
+			wantErr: true,
+			fakeErr: errors.New("could not delete item"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fakeRepo.fakeError = tt.fakeErr
+			err := provider.Delete(item)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Delete() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if tt.wantErr {
+				return
+			}
+		})
+	}
+
+}
 func Test_List(t *testing.T) {
 	fakeRepo := &fakeRepository{
 		fakeItems: []models.Item{

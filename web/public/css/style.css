@@ -7,6 +7,8 @@
     --color-primary-hover: #304f77;
     --color-accent: #278477;
     --color-accent-hover: #1d6b60;
+    --color-danger: #b42332;
+    --color-danger-hover: #8f1d29;
     --color-page: #eaf1f8;
     --color-surface: #ffffff;
     --color-surface-muted: #f0f5f8;
@@ -65,7 +67,8 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     border-color: var(--color-border);
 }
 .button--secondary:hover { background: var(--color-row-hover); }
-
+.button--danger { background: var(--color-danger); color: #fff; }
+.button--danger:hover { background: var(--color-danger-hover); }
 /* ========================================================================== 
    4. Page header
    ========================================================================== */

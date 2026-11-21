@@ -69,6 +69,25 @@ func saveItemHandler(
 	}
 }
 
+func deleteItemHandler(
+	provider database_provider.DatabaseProviderInterface,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var item models.Item
+		err := json.NewDecoder(r.Body).Decode(&item)
+		if err != nil {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+
+		err = provider.Delete(item)
+		if err != nil {
+			http.Error(w, "delete failed", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
 func server() error {
 	provider, err := database_provider.NewMySQLProvider(&config.Database)
 	if err != nil {
@@ -78,6 +97,7 @@ func server() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/items", listItemsHandler(provider))
 	mux.HandleFunc("POST /api/save", saveItemHandler(provider))
+	mux.HandleFunc("DELETE /api/delete", deleteItemHandler(provider))
 
 	fs := http.FileServer(http.Dir("./web/public"))
 	mux.Handle("/", fs)

@@ -107,6 +107,26 @@ func Test_Save(t *testing.T) {
 	TeardownTestDB(t, conn)
 }
 
+func Test_Delete(t *testing.T) {
+	conn := setupTestDB(t)
+	repo := NewMySQLQueryRepo(conn)
+
+	item := models.Item{
+		Name:        "name",
+		Description: "desc",
+		Value:       100,
+	}
+	err := repo.Save(item)
+	if err != nil {
+		t.Fatalf("could not save item: %v", err)
+	}
+	err = repo.Delete(item)
+	if err != nil {
+		t.Errorf("could not delete item: %v", err)
+	}
+	TeardownTestDB(t, conn)
+}
+
 func Test_SaveAndListItems(t *testing.T) {
 	conn := setupTestDB(t)
 	repo := NewMySQLQueryRepo(conn)

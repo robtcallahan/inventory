@@ -57,6 +57,14 @@ func (r *mysqlQueryRepo) SaveItems(items []models.Item) ([]models.Item, error) {
 	return skipped, err
 }
 
+func (r *mysqlQueryRepo) Delete(item models.Item) error {
+	result := r.Conn.Where("id = ?", item.ID).Delete(item)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
 func (r *mysqlQueryRepo) List() ([]models.Item, error) {
 	var items []models.Item
 	if result := r.Conn.Order("name").Order("description").Find(&items); result.Error != nil {

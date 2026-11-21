@@ -55,11 +55,27 @@
                 <footer class="item-dialog__actions">
                     <button class="button button--secondary" id="item-close" type="button">Close</button>
                     <button class="button button--primary" id="item-edit" type="button">Edit</button>
+                    <button class="button button--danger is-hidden" id="item-delete" type="button">Delete</button>
                     <button class="button button--secondary is-hidden" id="item-cancel" type="button">Cancel</button>
                     <button class="button button--primary is-hidden" id="item-save" type="submit">Save</button>
                 </footer>
             </form>
         </div>
     </div>
+
+    <dialog id="delete-confirm-dialog">
+        <h2>Delete Item?</h2>
+        <p id="delete-confirm-message"></p>
+
+        <div class="dialog-actions">
+            <button type="button" id="cancel-delete">
+                Cancel
+            </button>
+            <button type="button" id="confirm-delete"
+                    class="button--danger">
+                Delete
+            </button>
+        </div>
+    </dialog>
 </body>
 </html>

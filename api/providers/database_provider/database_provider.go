@@ -10,6 +10,7 @@ import (
 type DatabaseProviderInterface interface {
 	Save(item models.Item) error
 	SaveItems(items []models.Item) ([]models.Item, error)
+	Delete(item models.Item) error
 	List() ([]models.Item, error)
 	ListByCategory(category string) ([]models.Item, error)
 	TotalByCategory(category string) (int, error)
@@ -33,7 +34,9 @@ func (p *DatabaseProvider) Save(item models.Item) error {
 func (p *DatabaseProvider) SaveItems(items []models.Item) ([]models.Item, error) {
 	return p.Repository.SaveItems(items)
 }
-
+func (p *DatabaseProvider) Delete(item models.Item) error {
+	return p.Repository.Delete(item)
+}
 func (p *DatabaseProvider) List() ([]models.Item, error) {
 	items, err := p.Repository.List()
 	if err != nil {
