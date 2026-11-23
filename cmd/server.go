@@ -160,7 +160,7 @@ func bulkUpdateHandler(provider database_provider.DatabaseProviderInterface) htt
             return
         }
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]int{"updated": len(updates)})
+		_ = json.NewEncoder(w).Encode(map[string]int{"updated": len(req.IDs)})
 	}
 }
 
