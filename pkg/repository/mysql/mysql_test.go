@@ -451,3 +451,34 @@ func TestMysqlQueryRepo_DeletePhoto(t *testing.T) {
 		t.Errorf("expected 0 photos after deletion, got %d", len(photos))
 	}
 }
+
+func Test_SortedListForOutputPhotoCounts(t *testing.T) {
+ conn := setupTestDB(t)
+ t.Cleanup(func() { TeardownTestDB(t, conn) })
+ repo := NewMySQLQueryRepo(conn)
+ first, err := repo.Save(&models.Item{Name: "Camera", ShortDescription: "Camera one", Quantity: 1, ReplacementValue: 100})
+ if err != nil { t.Fatal(err) }
+ second, err := repo.Save(&models.Item{Name: "Camera", ShortDescription: "Camera two", Quantity: 1, ReplacementValue: 50})
+ if err != nil { t.Fatal(err) }
+ for _, name := range []string{"one.jpg", "two.jpg"} {
+  if _, err := repo.SavePhoto(&models.ItemPhoto{ItemID: first.ID, Filename: name}); err != nil { t.Fatal(err) }
+ }
+ assertCounts := func(expectedFirst, expectedSecond int) {
+  t.Helper()
+  items, err := repo.SortedListForOutput()
+  if err != nil { t.Fatal(err) }
+  if len(items) != 2 { t.Fatalf("got %d items, want 2", len(items)) }
+  counts := map[int]int{}
+  for _, item := range items { counts[item.ID] = item.PhotoCount }
+  if counts[first.ID] != expectedFirst || counts[second.ID] != expectedSecond {
+   t.Errorf("counts = %v, want first=%d second=%d", counts, expectedFirst, expectedSecond)
+  }
+ }
+ assertCounts(2, 0)
+ photos, err := repo.ListPhotos(first.ID)
+ if err != nil { t.Fatal(err) }
+ if err := repo.DeletePhoto(photos[0].ID); err != nil { t.Fatal(err) }
+ assertCounts(1, 0)
+ if _, err := repo.SavePhoto(&models.ItemPhoto{ItemID: second.ID, Filename: "three.jpg"}); err != nil { t.Fatal(err) }
+ assertCounts(1, 1)
+}
