@@ -384,3 +384,11 @@ func Test_DeletePhoto(t *testing.T) {
 		})
 	}
 }
+
+func Test_SortedListForOutputPhotoCounts(t *testing.T) {
+ want := []models.OutputItem{{ID: 1, PhotoCount: 0}, {ID: 2, PhotoCount: 3}}
+ provider := &DatabaseProvider{Repository: &fakeRepository{fakeOutputItems: want}}
+ got, err := provider.SortedListForOutput()
+ if err != nil { t.Fatal(err) }
+ if !reflect.DeepEqual(got, want) { t.Errorf("got %+v, want %+v", got, want) }
+}
