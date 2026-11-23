@@ -99,6 +99,10 @@ func server() error {
 	mux.HandleFunc("GET /api/items", listItemsHandler(provider))
 	mux.HandleFunc("POST /api/save", saveItemHandler(provider))
 	mux.HandleFunc("DELETE /api/delete", deleteItemHandler(provider))
+	mux.HandleFunc("GET /api/items/{id}/photos", listPhotosHandler(provider))
+	mux.HandleFunc("POST /api/items/{id}/photos", uploadPhotoHandler(provider))
+	mux.HandleFunc("GET /api/items/{id}/photos/{filename}", servePhotoHandler(provider))
+	mux.HandleFunc("DELETE /api/items/{id}/photos/{photoID}", deletePhotoHandler(provider))
 
 	fs := http.FileServer(http.Dir("./web/public"))
 	mux.Handle("/", fs)
