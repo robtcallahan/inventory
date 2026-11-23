@@ -32,12 +32,12 @@ const ui = {
     photoViewerClose: document.getElementById('photo-viewer-close'),
 };
 
-const tableFields = ['number', 'quantity', 'name', 'description', 'value',
+const tableFields = ['number', 'quantity', 'name', 'description', 'value', 'resale_value',
     'total_value', 'manufacturer', 'model', 'category', 'purchase_date', 'serial_number'];
-const detailFields = ['quantity', 'name', 'description', 'value', 'total_value',
+const detailFields = ['quantity', 'name', 'description', 'value', 'resale_value', 'total_value',
     'manufacturer', 'model', 'category', 'purchase_date', 'serial_number', 'details'];
-const numericFields = new Set(['quantity', 'value']);
-const moneyFields = new Set(['value', 'total_value']);
+const numericFields = new Set(['quantity', 'value', 'resale_value']);
+const moneyFields = new Set(['value', 'resale_value', 'total_value']);
 
 let items = [];
 let selectedItem = null;
@@ -50,6 +50,8 @@ function fieldLabel(key) {
     if (key === 'quantity') return 'Qty';
     if (key === 'number') return 'Num';
     if (key === 'description') return 'Short Description';
+    if (key === 'value') return 'Replacement Value';
+    if (key === 'resale_value') return 'Resale Value';
     return key.replaceAll('_', ' ').replace(/\b\w/g, char => char.toUpperCase());
 }
 
