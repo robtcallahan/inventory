@@ -53,6 +53,7 @@ type Item struct {
 	PurchasePrice int       `json:"purchase_price"`
 	WebsiteURL   string     `json:"website_url"`
 	ManualURL    string     `json:"manual_url"`
+	InfoComplete bool `json:"info_complete"`
 	Details      string     `gorm:"type:text" json:"details"`
 }
 
@@ -82,6 +83,7 @@ type OutputItem struct {
 	PurchasePrice int `csv:"Purchase Price" json:"purchase_price"`
 	WebsiteURL string `csv:"Website URL" json:"website_url"`
 	ManualURL string `csv:"Manual URL" json:"manual_url"`
+	InfoComplete bool `csv:"Info Complete" json:"info_complete"`
 	Details      string     `csv:"Details" json:"details"`
 	PhotoCount int `json:"photo_count" gorm:"column:photo_count" csv:"-"`
 }
@@ -106,6 +108,7 @@ type HTMLItem struct {
 	PurchasePrice int `json:"purchase_price"`
 	WebsiteURL string `json:"website_url"`
 	ManualURL string `json:"manual_url"`
+	InfoComplete bool `json:"info_complete"`
 	Details      string `json:"details"`
 	PhotoCount int `json:"photo_count"`
 }
@@ -127,5 +130,6 @@ type CSVItem struct {
 	PurchasePrice CurrencyInt `csv:"Purchase Price"`
 	WebsiteURL string `csv:"Website URL"`
 	ManualURL string `csv:"Manual URL"`
+	InfoComplete bool `csv:"Info Complete"`
 	Details      string      `csv:"Details"`
 }
