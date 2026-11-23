@@ -254,6 +254,7 @@ func TestListItemsHandler_Success(t *testing.T) {
 				Quantity:     1,
 				ReplacementValue:        25,
 				TotalValue:   25,
+				PhotoCount: 2,
 				PurchaseDate: &time1,
 			}, {
 				ID:           2,
@@ -261,6 +262,7 @@ func TestListItemsHandler_Success(t *testing.T) {
 				Quantity:     2,
 				ReplacementValue:        10,
 				TotalValue:   20,
+				PhotoCount: 0,
 				PurchaseDate: &time2,
 			},
 		},
@@ -281,6 +283,9 @@ func TestListItemsHandler_Success(t *testing.T) {
 	err := json.Unmarshal(recorder.Body.Bytes(), &got)
 	if err != nil {
 		t.Fatalf("failed to unmarshal response body: %s", err)
+	}
+	if got[0].PhotoCount != 2 || got[1].PhotoCount != 0 {
+		t.Errorf("photo counts = %d, %d; want 2, 0", got[0].PhotoCount, got[1].PhotoCount)
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got body %+v, want %+v", got, want)
