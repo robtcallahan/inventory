@@ -245,3 +245,6 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 #photo-viewer { max-width: min(95vw, 1100px); max-height: 95vh; padding: 14px; border: none; border-radius: var(--radius-md); background: var(--color-surface); }
 #photo-viewer::backdrop { background: var(--color-overlay); }
 #photo-viewer-image { display: block; max-width: 100%; max-height: 80vh; object-fit: contain; margin-top: 12px; }
+
+/* Drag-and-drop feedback in edit mode */
+.item-photos.is-dragging { outline: 3px dashed #3b82f6; outline-offset: -3px; border-radius: 8px; background: rgba(59,130,246,.09); }
