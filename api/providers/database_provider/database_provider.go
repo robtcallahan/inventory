@@ -15,6 +15,7 @@ type DatabaseProviderInterface interface {
 	List() ([]models.Item, error)
 	ListByCategory(category string) ([]models.Item, error)
 	TotalByCategory(category string) (int, error)
+	// SortedListForOutput includes photo counts for inventory filtering.
 	SortedListForOutput() ([]models.OutputItem, error)
 	SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error)
 	ListPhotos(itemID int) ([]models.ItemPhoto, error)
