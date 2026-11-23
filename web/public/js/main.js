@@ -5,6 +5,7 @@ const ui = {
     filter: document.getElementById('category-filter'),
     photoFilter: document.getElementById('photo-filter'),
     roomFilter: document.getElementById('room-filter'),
+    infoFilter: document.getElementById('info-filter'),
     bulk: document.getElementById('inventory-bulk'),
     bulkDialog: document.getElementById('bulk-dialog'),
     bulkCount: document.getElementById('bulk-count'),
@@ -43,9 +44,9 @@ const ui = {
 };
 
 const tableFields = ['number', 'quantity', 'name', 'short_description', 'replacement_value', 'resale_value',
-    'total_value', 'manufacturer', 'model', 'category', 'room', 'purchase_date', 'serial_number'];
+    'total_value', 'manufacturer', 'model', 'category', 'room', 'info_complete', 'purchase_date', 'serial_number'];
 const detailFields = ['quantity', 'name', 'short_description', 'replacement_value', 'resale_value', 'total_value',
-    'manufacturer', 'model', 'category', 'room', 'condition', 'purchase_source', 'purchase_price', 'purchase_date', 'serial_number', 'website_url', 'manual_url', 'details'];
+    'manufacturer', 'model', 'category', 'room', 'condition', 'purchase_source', 'purchase_price', 'purchase_date', 'serial_number', 'website_url', 'manual_url', 'info_complete', 'details'];
 const numericFields = new Set(['quantity', 'replacement_value', 'resale_value', 'purchase_price']);
 const moneyFields = new Set(['replacement_value', 'resale_value', 'total_value']);
 
@@ -54,6 +55,7 @@ let selectedItem = null;
 let selectedCategory = '';
 let selectedPhotoFilter = 'all';
 let selectedRoom = '';
+let selectedInfoFilter = 'all';
 const selectedIDs = new Set();
 let searchText = "";
 let saving = false;
@@ -63,6 +65,7 @@ function fieldLabel(key) {
     if (key === 'quantity') return 'Qty';
     if (key === 'number') return 'Num';
     if (key === 'room') return 'Room / Location';
+    if (key === 'info_complete') return 'Information Complete';
     if (key === 'website_url') return 'Website URL';
     if (key === 'manual_url') return 'Manual URL';
     if (key === 'short_description') return 'Short Description';
@@ -81,6 +84,7 @@ function visibleItems() {
         const matchesCategory =
             !selectedCategory || item.category === selectedCategory;
         const matchesRoom = !selectedRoom || item.room === selectedRoom;
+        const matchesInfo = selectedInfoFilter === 'all' || (selectedInfoFilter === 'complete' ? item.info_complete : !item.info_complete);
 
         const matchesSearch = [
             item.name,
@@ -101,7 +105,7 @@ function visibleItems() {
         const matchesPhotos = selectedPhotoFilter === 'all' ||
             (selectedPhotoFilter === 'without' && photoCount === 0) ||
             (selectedPhotoFilter === 'with' && photoCount > 0);
-        return matchesCategory && matchesRoom && matchesSearch && matchesPhotos;
+        return matchesCategory && matchesRoom && matchesSearch && matchesPhotos && matchesInfo;
     }).sort((a, b) =>
         a.name.localeCompare(b.name) ||
         a.short_description.localeCompare(b.short_description)
@@ -154,7 +158,7 @@ function renderTable() {
                 td.classList.add('inventory-table__money');
                 td.textContent = money(item[key]);
             } else {
-                td.textContent = String(key === 'number' ? index + 1 : (item[key] ?? ''));
+                td.textContent = key === 'info_complete' ? (item.info_complete ? 'Yes' : 'Needs info') : String(key === 'number' ? index + 1 : (item[key] ?? ''));
             }
             row.append(td);
         }
@@ -188,7 +192,10 @@ function createFields() {
         label.htmlFor = `item-field-${key}`;
         label.textContent = fieldLabel(key);
         let input = key;
-        if (key === "category") {
+        if (key === "info_complete") {
+            input = document.createElement("input");
+            input.type = "checkbox";
+        } else if (key === "category") {
             input = category;
         } else if (key === "details") {
             input = document.createElement("textarea");
@@ -268,7 +275,8 @@ function openItem(item) {
     selectedItem = item;
     showError();
     for (const key of detailFields) {
-        ui.form.elements.namedItem(key).value = item[key] ?? '';
+        if (key === 'info_complete') ui.form.elements.namedItem(key).checked = Boolean(item[key]);
+        else ui.form.elements.namedItem(key).value = item[key] ?? '';
     }
     setMode(false);
     updateItemLinks();
@@ -288,7 +296,8 @@ function addItem(event) {
     showError();
     ui.form.reset();
     for (const key of detailFields) {
-        ui.form.elements.namedItem(key).value = '';
+        if (key === 'info_complete') ui.form.elements.namedItem(key).checked = false;
+        else ui.form.elements.namedItem(key).value = key === 'purchase_price' ? '0' : '';
     }
     ui.photoGallery.replaceChildren();
     ui.photoStatus.textContent = 'Save the item before adding photos.';
@@ -303,10 +312,14 @@ function readItem() {
     const item = { id: selectedItem?.id ?? 0 };
     for (const key of detailFields) {
         if (key === 'total_value') continue; // Computed by the server.
+        if (key === 'info_complete') {
+            item[key] = ui.form.elements.namedItem(key).checked;
+            continue;
+        }
         const value = ui.form.elements.namedItem(key).value.trim();
         if (numericFields.has(key)) {
-            if (!/^\d+$/.test(value)) throw new Error(`${fieldLabel(key)} must be a nonnegative whole number.`);
-            item[key] = Number(value);
+            if (!(key === 'purchase_price' && value === '') && !/^\d+$/.test(value)) throw new Error(`${fieldLabel(key)} must be a nonnegative whole number.`);
+            item[key] = Number(value || 0);
             if (!Number.isSafeInteger(item[key])) throw new Error(`${fieldLabel(key)} is too large.`);
         } else if (key === 'website_url' || key === 'manual_url') {
             if (value) {
@@ -463,7 +476,7 @@ function openBulkEditor() {
 async function applyBulkEdit() {
     const ids = [...selectedIDs];
     const field = ui.bulkField.value;
-    const value = ui.bulkValue.value.trim();
+    const value = ui.bulkField.value === 'info_complete' ? ui.bulkValue.value : ui.bulkValue.value.trim();
     if (!ids.length) return;
     if (!confirm('Set ' + fieldLabel(field) + ' to ' + (value || '(blank)') + ' on ' + ids.length + ' items?')) return;
     ui.bulkApply.disabled = true;
@@ -496,6 +509,10 @@ function init() {
         selectedPhotoFilter = ui.photoFilter.value;
         renderTable();
     });
+    ui.infoFilter.addEventListener('change', () => {
+        selectedInfoFilter = ui.infoFilter.value;
+        renderTable();
+    });
     ui.roomFilter.addEventListener('change', () => {
         selectedRoom = ui.roomFilter.value;
         renderTable();
@@ -510,7 +527,13 @@ function init() {
         else if (field === 'purchase_source') ui.bulkValue.setAttribute('list', 'source-options');
         else if (field === 'condition') ui.bulkValue.setAttribute('list', 'condition-options');
         else ui.bulkValue.removeAttribute('list');
-        ui.bulkValue.type = field.endsWith('_url') ? 'url' : 'text';
+        if (field === 'info_complete') {
+            ui.bulkValue.type = 'text';
+            ui.bulkValue.placeholder = 'true or false';
+        } else {
+            ui.bulkValue.type = field.endsWith('_url') ? 'url' : 'text';
+            ui.bulkValue.placeholder = '';
+        }
     });
     ui.fields.addEventListener('input', event => {
         if (['website_url', 'manual_url'].includes(event.target.name)) updateItemLinks();
