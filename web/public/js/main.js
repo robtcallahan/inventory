@@ -120,7 +120,7 @@ function renderTable() {
     });
 
     ui.count.textContent = displayed.length;
-    ui.replacement_value.textContent = money(displayed.reduce((sum, item) => sum + Number(item.total_value || 0), 0));
+    ui.value.textContent = money(displayed.reduce((sum, item) => sum + Number(item.total_value || 0), 0));
 }
 
 function createFields() {
@@ -190,7 +190,7 @@ function openItem(item) {
     selectedItem = item;
     showError();
     for (const key of detailFields) {
-        ui.form.elements.namedItem(key).replacement_value = item[key] ?? '';
+        ui.form.elements.namedItem(key).value = item[key] ?? '';
     }
     setMode(false);
     loadPhotos(item.id);
@@ -218,7 +218,7 @@ function readItem() {
     const item = { id: selectedItem?.id ?? 0 };
     for (const key of detailFields) {
         if (key === 'total_value') continue; // Computed by the server.
-        const value = ui.form.elements.namedItem(key).replacement_value.trim();
+        const value = ui.form.elements.namedItem(key).value.trim();
         if (numericFields.has(key)) {
             if (!/^\d+$/.test(value)) throw new Error(`${fieldLabel(key)} must be a nonnegative whole number.`);
             item[key] = Number(value);
@@ -322,7 +322,7 @@ function closeItemAfterSaveOrDelete() {
 }
 
 function searchFilter(event) {
-    searchText = event.target.replacement_value.trim().toLowerCase();
+    searchText = event.target.value.trim().toLowerCase();
     renderTable();
 }
 
@@ -336,7 +336,7 @@ async function loadItems() {
 function init() {
     createFields();
     ui.filter.addEventListener('change', () => {
-        selectedCategory = ui.filter.replacement_value;
+        selectedCategory = ui.filter.value;
         renderTable();
     });
     ui.search.addEventListener('input', searchFilter)
@@ -428,7 +428,7 @@ async function uploadPhotoFile(file) {
     if (!file || !itemID) return;
     if (file.size > 10 * 1024 * 1024) {
         ui.photoStatus.textContent = 'Photos must be 10 MB or smaller.';
-        ui.photoInput.replacement_value = '';
+        ui.photoInput.value = '';
         return;
     }
     const form = new FormData();
@@ -442,7 +442,7 @@ async function uploadPhotoFile(file) {
     } catch (error) {
         ui.photoStatus.textContent = error.message;
     } finally {
-        ui.photoInput.replacement_value = '';
+        ui.photoInput.value = '';
         ui.photoInput.disabled = false;
     }
 }
