@@ -40,7 +40,7 @@ func uploadPhotoHandler(provider database_provider.DatabaseProviderInterface) ht
   id,err:=photoItemID(r);if err!=nil {http.Error(w,err.Error(),400);return}
   // Check the item exists before accepting its photo.
   item,err:=provider.Get(id);if err!=nil || item.ID==0 {http.Error(w,"item not found",404);return}
-  r.Body=http.MaxBytesReader(w,r.Body,maxPhotoBytes+1<<20)
+  r.Body=http.MaxBytesReader(w,r.Body,maxPhotoBytes+(1<<20))
   if err=r.ParseMultipartForm(maxPhotoBytes);err!=nil {http.Error(w,"invalid or oversized upload (10 MB max)",400);return}
   file,_,err:=r.FormFile("photo");if err!=nil {http.Error(w,"photo is required",400);return};defer file.Close()
   header:=make([]byte,512);n,err:=io.ReadFull(file,header);if err!=nil && err!=io.ErrUnexpectedEOF && err!=io.EOF {http.Error(w,"unable to read photo",400);return}
