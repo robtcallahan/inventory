@@ -96,7 +96,8 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 }
 .inventory-toolbar {
     display: grid;
-    grid-template-columns: auto minmax(180px, 1fr) auto auto auto;   align-items: center;
+    grid-template-columns: repeat(3, auto) minmax(160px, 1fr) auto auto auto auto;
+    align-items: center;
     gap: 16px;
     padding: 16px 20px;
     background: var(--color-page);
@@ -251,3 +252,26 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 
 /* Drag-and-drop feedback in edit mode */
 .item-photos.is-dragging { outline: 3px dashed #3b82f6; outline-offset: -3px; border-radius: 8px; background: rgba(59,130,246,.09); }
+
+/* Room filtering, selection and bulk-edit controls */
+.inventory-toolbar { gap: 12px; }
+.inventory-toolbar__search .input-control { min-width: 100px; width: 100%; }
+.inventory-table th:first-child, .inventory-table td:first-child { width: 36px; text-align: center; }
+.inventory-table td:first-child input { cursor: pointer; }
+.item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(130px, 34%) minmax(0, 1fr) auto; }
+.item-fields__link { font-size: .85rem; white-space: nowrap; }
+.bulk-dialog { width: min(95vw, 480px); border: none; border-radius: var(--radius-lg); padding: 24px; color: var(--color-text); }
+.bulk-dialog::backdrop { background: var(--color-overlay); }
+.bulk-dialog label { display: block; font-weight: 600; margin: 14px 0 6px; }
+.bulk-dialog select, .bulk-dialog input { width: 100%; }
+#bulk-error { color: var(--color-danger); }
+@media (max-width: 1150px) and (min-width: 701px) {
+    .inventory-toolbar { grid-template-columns: repeat(3, auto) minmax(140px, 1fr); }
+    .inventory-toolbar__count, .inventory-toolbar__value { text-align: left; }
+}
+@media (max-width: 700px) {
+    .inventory-toolbar { grid-template-columns: 1fr 1fr; }
+    .inventory-toolbar__search { grid-column: 1 / -1; }
+    .item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(100px, 38%) minmax(0, 1fr); }
+    .item-fields__link { grid-column: 2; }
+}
