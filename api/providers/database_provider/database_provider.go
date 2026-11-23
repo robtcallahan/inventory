@@ -11,6 +11,7 @@ type DatabaseProviderInterface interface {
 	Save(item *models.Item) (*models.Item, error)
 	Get(id int) (models.Item, error)
 	SaveItems(items []models.Item) ([]models.Item, error)
+	BulkUpdate(ids []int, field string, value any) error
 	Delete(item models.Item) error
 	List() ([]models.Item, error)
 	ListByCategory(category string) ([]models.Item, error)
@@ -39,6 +40,9 @@ func (p *DatabaseProvider) Save(item *models.Item) (*models.Item, error) {
 func (p *DatabaseProvider) Get(id int) (models.Item, error) { return p.Repository.Get(id) }
 func (p *DatabaseProvider) SaveItems(items []models.Item) ([]models.Item, error) {
 	return p.Repository.SaveItems(items)
+}
+func (p *DatabaseProvider) BulkUpdate(ids []int, field string, value any) error {
+	return p.Repository.BulkUpdate(ids, field, value)
 }
 func (p *DatabaseProvider) Delete(item models.Item) error {
 	return p.Repository.Delete(item)
