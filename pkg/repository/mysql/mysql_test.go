@@ -90,6 +90,7 @@ func Test_Save(t *testing.T) {
 		Name:        "name",
 		Description: "desc",
 		Value:       100,
+		ResaleValue: 75,
 	}
 
 	item, err := repo.Save(want)
@@ -103,8 +104,7 @@ func Test_Save(t *testing.T) {
 	if got.ID != 1 {
 		t.Fatalf("expected id: 1, got %d", got.ID)
 	}
-	if got.Name != want.Name || got.Description != want.Description || got.Value != want.
-		Value {
+	if got.Name != want.Name || got.Description != want.Description || got.Value != want.Value || got.ResaleValue != want.ResaleValue {
 		t.Errorf("expected: %v, got: %v", want, got)
 	}
 }
