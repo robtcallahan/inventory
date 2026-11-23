@@ -102,7 +102,8 @@ func (r *mysqlQueryRepo) TotalByCategory(category string) (int, error) {
 func (r *mysqlQueryRepo) SortedListForOutput() ([]models.OutputItem, error) {
 	var items []models.OutputItem
 	if result := r.Conn.Table("items").
-		Select("*, (quantity * replacement_value) AS total_value").
+		Select("items.*, (items.quantity * items.replacement_value) AS total_value, COALESCE(photo_counts.photo_count, 0) AS photo_count").
+		Joins("LEFT JOIN (SELECT item_id, COUNT(*) AS photo_count FROM item_photos GROUP BY item_id) AS photo_counts ON photo_counts.item_id = items.id").
 		Order("total_value DESC").Order("name").Order("short_description").
 		Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)
