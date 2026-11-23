@@ -49,6 +49,7 @@ let deleting = false;
 function fieldLabel(key) {
     if (key === 'quantity') return 'Qty';
     if (key === 'number') return 'Num';
+    if (key === 'description') return 'Short Description';
     return key.replaceAll('_', ' ').replace(/\b\w/g, char => char.toUpperCase());
 }
 
