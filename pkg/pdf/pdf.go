@@ -42,7 +42,7 @@ func PDF(fileName string, items []models.OutputItem) error {
 				Table: &template.ReportTable{
 					//Header:       []string{"Qty", "Name", "Manufacturer", "Model", "Cost", "Category", "Pur Date", "Serial"},
 					//ColumnWidths: []float64{5, 20, 15, 5, 10, 20, 10, 10},
-					Header:       []string{" ", "Qty", "Name", "Descr", "Man", "Model", "Cost", "Category", "Pur Date"},
+					Header:       []string{" ", "Qty", "Name", "Short Desc", "Man", "Model", "Repl Value", "Category", "Pur Date"},
 					ColumnWidths: []float64{2, 3, 10, 20, 15, 20, 10, 10, 10},
 					Rows:         rows,
 				},
