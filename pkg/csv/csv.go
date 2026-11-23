@@ -72,7 +72,8 @@ func checkCSVHeaders(csvFile string, sample any) error {
 	}
 	var missing []string
 	for _, want := range csvHeaders(sample) {
-		if !have[normalizeHeader(want)] {
+		// New optional columns must not break imports of older spreadsheets.
+		if !have[normalizeHeader(want)] && !optionalInventoryHeader(want) {
 			missing = append(missing, want)
 		}
 	}
@@ -80,4 +81,13 @@ func checkCSVHeaders(csvFile string, sample any) error {
 		return fmt.Errorf("CSV file %s is missing expected headers: %s", csvFile, strings.Join(missing, ", "))
 	}
 	return nil
+}
+
+// Additional item metadata columns are optional for legacy CSV imports.
+func optionalInventoryHeader(header string) bool {
+	switch normalizeHeader(header) {
+	case "room", "condition", "purchase source", "purchase price", "website url", "manual url":
+		return true
+	}
+	return false
 }
