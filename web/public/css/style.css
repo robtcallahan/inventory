@@ -96,7 +96,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 }
 .inventory-toolbar {
     display: grid;
-    grid-template-columns: repeat(3, auto) minmax(160px, 1fr) auto auto auto auto;
+    grid-template-columns: repeat(3, auto) minmax(160px, 1fr) auto auto auto auto auto;
     align-items: center;
     gap: 16px;
     padding: 16px 20px;
@@ -255,7 +255,11 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 
 /* Room filtering, selection and bulk-edit controls */
 .inventory-toolbar { gap: 12px; }
-.inventory-toolbar__search .input-control { min-width: 100px; width: 100%; }
+.inventory-toolbar__search .input-control {
+    min-width: 90px;
+    width: 110px;
+}
+/*.inventory-toolbar__search .input-control { min-width: 100px; width: 100%; }*/
 .inventory-table th:first-child, .inventory-table td:first-child { width: 36px; text-align: center; }
 .inventory-table td:first-child input { cursor: pointer; }
 .item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(130px, 34%) minmax(0, 1fr) auto; }

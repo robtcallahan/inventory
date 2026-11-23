@@ -9,3 +9,6 @@ config.json
 
 # Uploaded inventory photographs
 /photos/
+
+# Manual database dumps
+/db-dumps/
