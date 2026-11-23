@@ -86,7 +86,7 @@ func checkCSVHeaders(csvFile string, sample any) error {
 // Additional item metadata columns are optional for legacy CSV imports.
 func optionalInventoryHeader(header string) bool {
 	switch normalizeHeader(header) {
-	case "room", "condition", "purchase source", "purchase price", "website url", "manual url":
+	case "room", "condition", "purchase source", "purchase price", "website url", "manual url", "info complete":
 		return true
 	}
 	return false
