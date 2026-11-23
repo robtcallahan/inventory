@@ -22,7 +22,15 @@ const ui = {
     confirmDialog: document.getElementById('delete-confirm-dialog'),
     confirmMessage: document.getElementById('delete-confirm-message'),
     confirmDelete: document.getElementById('confirm-delete'),
-    cancelDelete: document.getElementById('cancel-delete'),};
+    cancelDelete: document.getElementById('cancel-delete'),
+    photoGallery: document.getElementById('item-photo-gallery'),
+    photoInput: document.getElementById('item-photo-input'),
+    photoUploadLabel: document.getElementById('item-photo-upload-label'),
+    photoStatus: document.getElementById('item-photo-status'),
+    photoViewer: document.getElementById('photo-viewer'),
+    photoViewerImage: document.getElementById('photo-viewer-image'),
+    photoViewerClose: document.getElementById('photo-viewer-close'),
+};
 
 const tableFields = ['number', 'quantity', 'name', 'description', 'value',
     'total_value', 'manufacturer', 'model', 'category', 'purchase_date', 'serial_number'];
@@ -165,6 +173,8 @@ function setMode(editing, adding = false) {
     ui.delete.classList.toggle('is-hidden', editing);
     ui.cancel.classList.toggle('is-hidden', !editing);
     ui.save.classList.toggle('is-hidden', !editing);
+    ui.photoUploadLabel.classList.toggle('is-hidden', !editing || adding || !selectedItem?.id);
+    ui.photoGallery.querySelectorAll('.photo-delete').forEach(button => button.classList.toggle('is-hidden', !editing));
     if (adding) {
         ui.dialogTitle.textContent = "Add Item";
     } else if (editing) {
@@ -180,6 +190,7 @@ function openItem(item) {
         ui.form.elements.namedItem(key).value = item[key] ?? '';
     }
     setMode(false);
+    loadPhotos(item.id);
     ui.dialog.classList.remove('is-hidden');
     ui.edit.focus();
 }
@@ -192,6 +203,8 @@ function closeItem() {
 
 function addItem(event) {
     selectedItem = {id: 0};
+    ui.photoGallery.replaceChildren();
+    ui.photoStatus.textContent = 'Save the item before adding photos.';
     setMode(true, true);
     ui.dialog.classList.remove('is-hidden');
     ui.edit.focus();
@@ -332,6 +345,8 @@ function init() {
         ui.form.elements.namedItem('name').focus();
     });
     ui.form.addEventListener('submit', saveItem);
+    ui.photoInput.addEventListener('change', uploadSelectedPhoto);
+    ui.photoViewerClose.addEventListener('click', () => ui.photoViewer.close());
     ui.delete.addEventListener('click', confirmDeleteItem);
     ui.cancelDelete.addEventListener('click', () => {
         ui.confirmDialog.close();
@@ -347,3 +362,79 @@ function init() {
 }
 
 init();
+
+async function loadPhotos(itemID) {
+    ui.photoGallery.replaceChildren();
+    ui.photoStatus.textContent = '';
+    if (!itemID) return;
+    try {
+        const response = await fetch(`/api/items/${itemID}/photos`);
+        if (!response.ok) throw new Error('Unable to load photos.');
+        const photos = await response.json();
+        if (selectedItem?.id !== itemID) return;
+        if (!photos.length) ui.photoStatus.textContent = 'No photos yet.';
+        for (const photo of photos) {
+            const tile = document.createElement('div');
+            tile.className = 'photo-tile';
+            const url = `/api/items/${itemID}/photos/${encodeURIComponent(photo.filename)}`;
+            const view = document.createElement('button');
+            view.type = 'button';
+            view.className = 'photo-view';
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = 'Inventory photo';
+            img.loading = 'lazy';
+            view.append(img);
+            view.addEventListener('click', () => {
+                ui.photoViewerImage.src = url;
+                ui.photoViewer.showModal();
+            });
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'button button--danger photo-delete';
+            remove.textContent = 'Delete';
+            remove.classList.toggle('is-hidden', ui.save.classList.contains('is-hidden'));
+            remove.addEventListener('click', async () => {
+                if (!confirm('Delete this photo?')) return;
+                remove.disabled = true;
+                try {
+                    const result = await fetch(`/api/items/${itemID}/photos/${photo.id}`, {method:'DELETE'});
+                    if (!result.ok) throw new Error('Unable to delete photo.');
+                    await loadPhotos(itemID);
+                } catch (error) {
+                    ui.photoStatus.textContent = error.message;
+                    remove.disabled = false;
+                }
+            });
+            tile.append(view, remove);
+            ui.photoGallery.append(tile);
+        }
+    } catch (error) {
+        ui.photoStatus.textContent = error.message;
+    }
+}
+
+async function uploadSelectedPhoto() {
+    const file = ui.photoInput.files[0];
+    const itemID = selectedItem?.id;
+    if (!file || !itemID) return;
+    if (file.size > 10 * 1024 * 1024) {
+        ui.photoStatus.textContent = 'Photos must be 10 MB or smaller.';
+        ui.photoInput.value = '';
+        return;
+    }
+    const form = new FormData();
+    form.append('photo', file);
+    ui.photoInput.disabled = true;
+    ui.photoStatus.textContent = 'Uploading photo…';
+    try {
+        const response = await fetch(`/api/items/${itemID}/photos`, {method:'POST',body:form});
+        if (!response.ok) throw new Error(await response.text() || 'Upload failed.');
+        await loadPhotos(itemID);
+    } catch (error) {
+        ui.photoStatus.textContent = error.message;
+    } finally {
+        ui.photoInput.value = '';
+        ui.photoInput.disabled = false;
+    }
+}
