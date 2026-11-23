@@ -10,7 +10,7 @@ The uploaded plan records 93 imported items as of 2026-11-14. The web
 list/category filter and first PDF export are implemented. The existing
 checklist states are retained below; newer work is listed separately.
 
-## Phase 1 — Core: an item goes in, the list gives it back (done)
+## Phase 1 — Core: an itemPhoto goes in, the list gives it back (done)
 
 - [X] 1.1 Item type with the V1 fields: name, manufacturer, model,
   value, description, quantity, serial number, category, purchase date
@@ -48,11 +48,11 @@ checklist states are retained below; newer work is listed separately.
 
 Skipped 2026-11-12 — the database backend comes first instead. Photo
 storage is settled (files on disk, filename pointer in the DB, see
-Phase 9); photo upload is a web feature (Phase 9). Serial numbers are
+Phase 9); itemPhoto upload is a web feature (Phase 9). Serial numbers are
 already in the struct. These items are parked, not dropped.
 
-- [ ] 5.1 Photo support per item (deferred)
-- [ ] 5.2 Website URL per item (deferred)
+- [ ] 5.1 Photo support per itemPhoto (deferred)
+- [ ] 5.2 Website URL per itemPhoto (deferred)
 
 ## Phase 6 — Database backend (MySQL)
 
@@ -135,9 +135,9 @@ on it, no converting later.
   import, this replaces the sheet as the entry point)
 - [X] 8.6 Color scheme: blues and natural colors
 
-## Phase 9 — Web: photo upload
+## Phase 9 — Web: itemPhoto upload
 
-- [ ] 9.1 Upload photos to an item from the web UI
+- [ ] 9.1 Upload photos to an itemPhoto from the web UI
 - [ ] 9.2 Photos stored on disk in local storage; the DB column holds
   a pointer to the file (a file name)
 - [ ] 9.3 Item view shows its photos
@@ -186,9 +186,9 @@ requirement; unchecked does not mean no tests exist.
 
 - [ ] 14.1 Inventory existing routes, handlers, request/response formats, and error paths
 - [ ] 14.2 Add `httptest` coverage for listing all items and filtering by category (list handler test exists; category case to verify)
-- [ ] 14.3 Test item detail endpoint: found, not found, and invalid ID (verify whether a separate detail route exists)
-- [ ] 14.4 Test create-item endpoint: valid payload, missing fields, invalid values, and duplicate (save handler tests cover success, invalid JSON, bad request, duplicate; check create-specific cases)
-- [ ] 14.5 Test update-item endpoint: valid changes, not found, invalid payload, and duplicate (save handler tests exist; check update-specific cases)
+- [ ] 14.3 Test itemPhoto detail endpoint: found, not found, and invalid ID (verify whether a separate detail route exists)
+- [ ] 14.4 Test create-itemPhoto endpoint: valid payload, missing fields, invalid values, and duplicate (save handler tests cover success, invalid JSON, bad request, duplicate; check create-specific cases)
+- [ ] 14.5 Test update-itemPhoto endpoint: valid changes, not found, invalid payload, and duplicate (save handler tests exist; check update-specific cases)
 - [ ] 14.6 Test handler responses for database failures and expected HTTP status codes (save and delete error tests exist; verify complete coverage)
 - [ ] 14.7 Ensure handler tests are isolated and deterministic; document how to run them
 
@@ -221,32 +221,32 @@ Rob reports that portions of Phase 16 are complete, including whole-dollar/thous
 - [ ] 17.2 Add purchase price separately from current estimated replacement value
 - [ ] 17.3 Clarify existing Value field semantics and migrate data without losing values
 - [ ] 17.4 Add condition field with a small, documented set of values
-- [ ] 17.5 Display purchase date, serial number, details, and website URL in item detail view
+- [ ] 17.5 Display purchase date, serial number, details, and website URL in itemPhoto detail view
 - [ ] 17.6 Allow filtering by room/location as well as category
 - [ ] 17.7 Document how replacement estimates are entered and reviewed over time
 
 ## Phase 18 — Receipts and attachments
 
 - [ ] 18.1 Define receipt attachment metadata and on-disk storage layout
-- [ ] 18.2 Upload and associate a receipt with an item
-- [ ] 18.3 View/download attached receipts from item details
+- [ ] 18.2 Upload and associate a receipt with an itemPhoto
+- [ ] 18.3 View/download attached receipts from itemPhoto details
 - [ ] 18.4 Validate file type/size and prevent unsafe file paths
-- [ ] 18.5 Include photo and receipt files in backup/restore procedure
+- [ ] 18.5 Include itemPhoto and receipt files in backup/restore procedure
 
 ## Phase 19 — Dashboard, search, and reporting
 
-- [ ] 19.1 Build dashboard showing total replacement value, item count, and category totals
+- [ ] 19.1 Build dashboard showing total replacement value, itemPhoto count, and category totals
 - [ ] 19.2 Add room/location totals and identify high-value items
-- [ ] 19.3 Add search across item name, description, manufacturer, and model
+- [ ] 19.3 Add search across itemPhoto name, description, manufacturer, and model
 - [ ] 19.4 Add an insurance-oriented PDF summary by category and location
 - [ ] 19.5 Improve PDF money formatting, wrapping, and row background consistency
-- [ ] 19.6 Consider a second, roomier PDF report for full item details and attachments
+- [ ] 19.6 Consider a second, roomier PDF report for full itemPhoto details and attachments
 - [ ] 19.7 Document that insurance policies may have special limits for selected categories
 
 ## Phase 20 — Backup, recovery, and release readiness
 
 - [ ] 20.1 Document MySQL backup and restore commands
-- [ ] 20.2 Back up item photos and receipts alongside database data
+- [ ] 20.2 Back up itemPhoto photos and receipts alongside database data
 - [ ] 20.3 Test restoring a backup into a separate database and file directory
 - [ ] 20.4 Add a simple, repeatable local backup workflow
 - [ ] 20.5 Review configuration, secrets handling, and ignored files before release
@@ -254,10 +254,10 @@ Rob reports that portions of Phase 16 are complete, including whole-dollar/thous
 
 ## Standing decisions
 
-- Value is the per-item (unit) amount in whole dollars; TotalValue is Value × Quantity. Clarify how Value relates to replacement value before adding a separate purchase-price field.
+- Value is the per-itemPhoto (unit) amount in whole dollars; TotalValue is Value × Quantity. Clarify how Value relates to replacement value before adding a separate purchase-price field.
 - Name is generic; Description is the short specific name; Details holds longer text.
 - Export sort: TotalValue descending, then name and description ascending.
-- Unique item key: (name, description). CSV import works and skips duplicates.
+- Unique itemPhoto key: (name, description). CSV import works and skips duplicates.
 - MySQL is the source of truth; Goose manages schema migrations. The spreadsheet is not a live data source; there is no Sheets API integration.
 - The CLI provides migrations and CSV import; the web app is the intended entry point for new items.
 - Photos are stored on disk with a database reference to the file; uploads belong in the web UI.
@@ -274,10 +274,10 @@ Rob reports that portions of Phase 16 are complete, including whole-dollar/thous
 ## Recent UI and data notes (2026-11-22)
 
 - Item Details is now a multiline textarea; it inherits the form font and follows view/edit disabled state.
-- Purchase Date, Serial Number, and Details display in the item dialog; 17.5 remains partial because website URL is outstanding.
+- Purchase Date, Serial Number, and Details display in the itemPhoto dialog; 17.5 remains partial because website URL is outstanding.
 - Reimporting the spreadsheet created an unintended row with Name `1`; correcting the spreadsheet and removing the extra row resolved the unique (name, description) conflict. Review import data quality on future imports.
 - The Category dropdown appearance is deferred for later styling review.
 
-## Next session — Phase 9 photo uploads
+## Next session — Phase 9 itemPhoto uploads
 
-Priority for the next session: take more item photographs and begin implementing photo uploads. Start with the file storage layout and database filename reference (9.2), then the upload route and UI (9.1), and displaying photos in item details (9.3). Review existing repository code before implementation.
+Priority for the next session: take more itemPhoto photographs and begin implementing itemPhoto uploads. Start with the file storage layout and database filename reference (9.2), then the upload route and UI (9.1), and displaying photos in itemPhoto details (9.3). Review existing repository code before implementation.

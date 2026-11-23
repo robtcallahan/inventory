@@ -19,25 +19,32 @@ func NewMySQLQueryRepo(conn *gorm.DB) repository.QueryRepo {
 	}
 }
 
-func (r *mysqlQueryRepo) Save(item models.Item) error {
-	return r.Conn.Transaction(func(tx *gorm.DB) error {
-		if item.ID == 0 {
-			result := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&item)
-			if result.Error != nil {
-				return result.Error
-			}
-			if result.RowsAffected == 0 {
-				return models.ErrAlreadyExists
-			}
-			return nil
-		}
-
-		result := tx.Save(&item)
+func (r *mysqlQueryRepo) Save(item *models.Item) (*models.Item, error) {
+	if item.ID == 0 {
+		result := r.Conn.Clauses(clause.OnConflict{DoNothing: true}).Create(&item)
 		if result.Error != nil {
-			return result.Error
+			return nil, result.Error
 		}
-		return nil
-	})
+		if result.RowsAffected == 0 {
+			return nil, models.ErrAlreadyExists
+		}
+		return item, nil
+	}
+
+	result := r.Conn.Save(&item)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return item, nil
+}
+
+func (r *mysqlQueryRepo) Get(id int) (models.Item, error) {
+	var item models.Item
+	result := r.Conn.First(&item, id)
+	if result.Error != nil {
+		return models.Item{}, result.Error
+	}
+	return item, nil
 }
 
 func (r *mysqlQueryRepo) SaveItems(items []models.Item) ([]models.Item, error) {
@@ -101,4 +108,12 @@ func (r *mysqlQueryRepo) SortedListForOutput() ([]models.OutputItem, error) {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)
 	}
 	return items, nil
+}
+
+func (r *mysqlQueryRepo) SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error) {
+	result := r.Conn.Save(&itemPhoto)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return itemPhoto, nil
 }

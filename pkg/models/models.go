@@ -36,7 +36,7 @@ func (c *CurrencyInt) UnmarshalCSV(csv string) error {
 }
 
 type Item struct {
-	ID           uint       `json:"id"`
+	ID           int        `json:"id"`
 	Quantity     int        `json:"quantity"`
 	Name         string     `json:"name"`
 	Value        int        `json:"value"`
@@ -49,8 +49,15 @@ type Item struct {
 	Details      string     `json:"details"`
 }
 
+type ItemPhoto struct {
+	ID        int       `gorm:"primaryKey;autoIncrement" json:"id"`
+	ItemID    int       `gorm:"not null;index" json:"item_id"`
+	Filename  string    `gorm:"size:255;not null" json:"filename"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type OutputItem struct {
-	ID           uint       `csv:"id" json:"id"`
+	ID           int        `csv:"id" json:"id"`
 	Quantity     int        `csv:"Quantity" json:"quantity"`
 	Name         string     `csv:"Name" json:"name"`
 	Value        int        `csv:"Value" json:"value"`
@@ -65,7 +72,7 @@ type OutputItem struct {
 }
 
 type HTMLItem struct {
-	ID           uint   `json:"id"`
+	ID           int    `json:"id"`
 	Number       int    `json:"number"`
 	Quantity     int    `json:"quantity"`
 	Name         string `json:"name"`

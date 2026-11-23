@@ -14,7 +14,8 @@ import (
 )
 
 type fakeProvider struct {
-	savedItem         models.Item
+	itemID            int
+	savedItem         *models.Item
 	deletedItem       models.Item
 	listedOutputItems []models.OutputItem
 	saveCalled        bool
@@ -22,12 +23,19 @@ type fakeProvider struct {
 	saveErr           error
 	listErr           error
 	deleteErr         error
+	savedPhoto        *models.ItemPhoto
+	savedPhotoErr     error
+	savePhotoCalled   bool
 }
 
-func (f *fakeProvider) Save(item models.Item) error {
+func (f *fakeProvider) Save(item *models.Item) (*models.Item, error) {
 	f.savedItem = item
 	f.saveCalled = true
-	return f.saveErr
+	return f.savedItem, f.saveErr
+}
+func (f *fakeProvider) Get(id int) (models.Item, error) {
+	f.itemID = id
+	return models.Item{}, f.listErr
 }
 func (f *fakeProvider) SaveItems(items []models.Item) ([]models.Item, error) {
 	f.saveCalled = true
@@ -54,6 +62,12 @@ func (f *fakeProvider) TotalByCategory(category string) (int, error) {
 
 func (f *fakeProvider) SortedListForOutput() ([]models.OutputItem, error) {
 	return f.listedOutputItems, f.listErr
+}
+
+func (f *fakeProvider) SavePhoto(photo *models.ItemPhoto) (*models.ItemPhoto, error) {
+	f.savedPhoto = photo
+	f.savePhotoCalled = true
+	return photo, f.savedPhotoErr
 }
 
 var _ database_provider.DatabaseProviderInterface = (*fakeProvider)(nil)

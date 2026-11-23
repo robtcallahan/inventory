@@ -10,16 +10,23 @@ import (
 )
 
 type fakeRepository struct {
-	fakeItems       []models.Item
-	fakeItem        *models.Item
-	fakeOutputItems []models.OutputItem
-	fakeError       error
+	fakeID           int
+	fakeItems        []models.Item
+	fakeItem         *models.Item
+	fakeOutputItems  []models.OutputItem
+	fakeError        error
+	fakeSavePhoto    *models.ItemPhoto
+	fakeSavePhotoErr error
 }
 
-func (p *fakeRepository) Save(item models.Item) error {
-	p.fakeItem = &item
-	p.fakeItems = append(p.fakeItems, item)
-	return p.fakeError
+func (p *fakeRepository) Save(item *models.Item) (*models.Item, error) {
+	p.fakeItem = item
+	p.fakeItems = append(p.fakeItems, *item)
+	return nil, p.fakeError
+}
+func (p *fakeRepository) Get(id int) (models.Item, error) {
+	p.fakeID = id
+	return models.Item{}, nil
 }
 func (p *fakeRepository) SaveItems(items []models.Item) ([]models.Item, error) {
 	p.fakeItems = append(p.fakeItems, items...)
@@ -54,12 +61,17 @@ func (p *fakeRepository) SortedListForOutput() ([]models.OutputItem, error) {
 	return p.fakeOutputItems, p.fakeError
 }
 
+func (p *fakeRepository) SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error) {
+	p.fakeSavePhoto = itemPhoto
+	return itemPhoto, p.fakeError
+}
+
 func Test_Save(t *testing.T) {
 	fakeRepo := &fakeRepository{fakeItems: []models.Item{}}
 	provider := &DatabaseProvider{Repository: fakeRepo}
 
 	now := time.Now()
-	item := models.Item{
+	item := &models.Item{
 		Quantity:     1,
 		Name:         "Item 1",
 		Manufacturer: "Manufacturer",
@@ -79,7 +91,7 @@ func Test_Save(t *testing.T) {
 	}{
 		{
 			name:    "no error",
-			want:    &item,
+			want:    item,
 			wantErr: false,
 		},
 		{
@@ -92,7 +104,7 @@ func Test_Save(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fakeRepo.fakeError = tt.fakeErr
-			err := provider.Save(item)
+			_, err := provider.Save(item)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Save() error = %v, wantErr %v", err, tt.wantErr)
 			}

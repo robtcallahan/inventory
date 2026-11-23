@@ -57,7 +57,7 @@ func saveItemHandler(
 			return
 		}
 
-		err = provider.Save(item)
+		_, err = provider.Save(&item)
 		if errors.Is(err, models.ErrAlreadyExists) {
 			http.Error(w, "item already exists", http.StatusConflict)
 			return

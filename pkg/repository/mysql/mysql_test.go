@@ -4,6 +4,7 @@ import (
 	cfg "inventory/pkg/config"
 	"inventory/pkg/models"
 	"inventory/pkg/repository"
+	"reflect"
 	"testing"
 
 	"github.com/pressly/goose/v3"
@@ -83,26 +84,51 @@ func TeardownTestDB(t *testing.T, conn *gorm.DB) {
 func Test_Save(t *testing.T) {
 	conn := setupTestDB(t)
 	repo := NewMySQLQueryRepo(conn)
-	wantOne := models.Item{
+	want := &models.Item{
 		Name:        "name",
 		Description: "desc",
 		Value:       100,
 	}
 
-	err := repo.Save(wantOne)
+	item, err := repo.Save(want)
 	if err != nil {
 		t.Fatalf("could not save item: %v", err)
 	}
-	got, err := repo.List()
+	got, err := repo.Get(item.ID)
 	if err != nil {
-		t.Fatalf("could not list items: %v", err)
+		t.Fatalf("could not get item with id: %d, %v", item.ID, err.Error())
 	}
-	if len(got) != 1 {
-		t.Fatalf("expected 1 item, got %d", len(got))
+	if got.ID != 1 {
+		t.Fatalf("expected id: 1, got %d", got.ID)
 	}
-	if got[0].Name != wantOne.Name || got[0].Description != wantOne.Description || got[0].Value != wantOne.
+	if got.Name != want.Name || got.Description != want.Description || got.Value != want.
 		Value {
-		t.Errorf("expected: %v, got: %v", wantOne, got)
+		t.Errorf("expected: %v, got: %v", want, got)
+	}
+	TeardownTestDB(t, conn)
+}
+
+func Test_Get(t *testing.T) {
+	conn := setupTestDB(t)
+	repo := NewMySQLQueryRepo(conn)
+	want := &models.Item{
+		Name:        "name",
+		Description: "desc",
+		Value:       300,
+	}
+	item, err := repo.Save(want)
+	if err != nil {
+		t.Fatalf("could not save item: %v", err)
+	}
+	got, err := repo.Get(item.ID)
+	if err != nil {
+		t.Fatalf("could not get item with id: %d, %v", item.ID, err.Error())
+	}
+	if got.ID != 1 {
+		t.Fatalf("expected id: 1, got %d", got.ID)
+	}
+	if got.Name != want.Name || got.Description != want.Description {
+		t.Errorf("expected: %v, got: %v", want, got)
 	}
 	TeardownTestDB(t, conn)
 }
@@ -111,16 +137,16 @@ func Test_Delete(t *testing.T) {
 	conn := setupTestDB(t)
 	repo := NewMySQLQueryRepo(conn)
 
-	item := models.Item{
+	item := &models.Item{
 		Name:        "name",
 		Description: "desc",
 		Value:       100,
 	}
-	err := repo.Save(item)
+	_, err := repo.Save(item)
 	if err != nil {
 		t.Fatalf("could not save item: %v", err)
 	}
-	err = repo.Delete(item)
+	err = repo.Delete(*item)
 	if err != nil {
 		t.Errorf("could not delete item: %v", err)
 	}
@@ -260,6 +286,33 @@ func Test_SkippingDuplicates(t *testing.T) {
 	}
 	if len(skippedSecondSave) != 4 {
 		t.Fatalf("expected 4 items on second save, got %d", len(skippedSecondSave))
+	}
+	TeardownTestDB(t, conn)
+}
+
+func TestMysqlQueryRepo_SavePhoto(t *testing.T) {
+	conn := setupTestDB(t)
+	repo := NewMySQLQueryRepo(conn)
+	wantItem := &models.Item{
+		Name:        "name",
+		Description: "desc",
+		Value:       100,
+	}
+
+	item, err := repo.Save(wantItem)
+	if err != nil {
+		t.Fatalf("could not save item: %v", err)
+	}
+
+	wantPhoto := models.ItemPhoto{
+		ItemID: item.ID,
+	}
+	photo, err := repo.Get(item.ID)
+	if err != nil {
+		t.Fatalf("could not save photo: %v", err)
+	}
+	if !reflect.DeepEqual(photo, wantPhoto) {
+		t.Errorf("expected photo %v, got %v", wantPhoto, photo)
 	}
 	TeardownTestDB(t, conn)
 }

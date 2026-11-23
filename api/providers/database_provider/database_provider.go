@@ -8,13 +8,15 @@ import (
 )
 
 type DatabaseProviderInterface interface {
-	Save(item models.Item) error
+	Save(item *models.Item) (*models.Item, error)
+	Get(id int) (models.Item, error)
 	SaveItems(items []models.Item) ([]models.Item, error)
 	Delete(item models.Item) error
 	List() ([]models.Item, error)
 	ListByCategory(category string) ([]models.Item, error)
 	TotalByCategory(category string) (int, error)
 	SortedListForOutput() ([]models.OutputItem, error)
+	SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error)
 }
 type DatabaseProvider struct {
 	Repository repository.QueryRepo
@@ -28,9 +30,10 @@ func NewMySQLProvider(dbCfg *config.DBConfig) (DatabaseProviderInterface, error)
 	return &DatabaseProvider{Repository: mysql.NewMySQLQueryRepo(conn)}, nil
 }
 
-func (p *DatabaseProvider) Save(item models.Item) error {
+func (p *DatabaseProvider) Save(item *models.Item) (*models.Item, error) {
 	return p.Repository.Save(item)
 }
+func (p *DatabaseProvider) Get(id int) (models.Item, error) { return p.Repository.Get(id) }
 func (p *DatabaseProvider) SaveItems(items []models.Item) ([]models.Item, error) {
 	return p.Repository.SaveItems(items)
 }
@@ -64,4 +67,8 @@ func (p *DatabaseProvider) SortedListForOutput() ([]models.OutputItem, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+func (p *DatabaseProvider) SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error) {
+	return p.Repository.SavePhoto(itemPhoto)
 }
