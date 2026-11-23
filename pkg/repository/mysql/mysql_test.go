@@ -439,8 +439,15 @@ func TestMysqlQueryRepo_DeletePhoto(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not save photo: %v", err)
 	}
-	err = repo.DeletePhoto(gotPhoto.ItemID)
+	err = repo.DeletePhoto(gotPhoto.ID)
 	if err != nil {
 		t.Errorf("could not delete item: %v", err)
+	}
+	photos, err := repo.ListPhotos(item.ID)
+	if err != nil {
+		t.Fatalf("could not list photos after deletion: %v", err)
+	}
+	if len(photos) != 0 {
+		t.Errorf("expected 0 photos after deletion, got %d", len(photos))
 	}
 }

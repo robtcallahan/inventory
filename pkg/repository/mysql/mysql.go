@@ -111,9 +111,8 @@ func (r *mysqlQueryRepo) SortedListForOutput() ([]models.OutputItem, error) {
 }
 
 func (r *mysqlQueryRepo) SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error) {
-	result := r.Conn.Create(&itemPhoto)
-	if result.Error != nil {
-		return nil, result.Error
+	if err := r.Conn.Create(itemPhoto).Error; err != nil {
+		return nil, err
 	}
 	return itemPhoto, nil
 }
@@ -132,10 +131,8 @@ func (r *mysqlQueryRepo) ListPhotos(itemID int) ([]models.ItemPhoto, error) {
 
 	return photos, nil
 }
-func (r *mysqlQueryRepo) DeletePhoto(itemID int) error {
-	result := r.Conn.Table("item_photos").Where("item_id = ?", itemID).Delete(&models.ItemPhoto{})
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
+func (r *mysqlQueryRepo) DeletePhoto(photoID int) error {
+	return r.Conn.
+		Where("id = ?", photoID).
+		Delete(&models.ItemPhoto{}).Error
 }

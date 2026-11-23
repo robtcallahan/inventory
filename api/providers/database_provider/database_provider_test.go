@@ -69,10 +69,10 @@ func (p *fakeRepository) SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPho
 }
 func (p *fakeRepository) ListPhotos(itemID int) ([]models.ItemPhoto, error) {
 	p.fakeID = itemID
-	return []models.ItemPhoto{}, p.fakePhotosErr
+	return p.fakePhotos, p.fakePhotosErr
 }
-func (p *fakeRepository) DeletePhoto(itemID int) error {
-	p.fakeID = itemID
+func (p *fakeRepository) DeletePhoto(photoID int) error {
+	p.fakeID = photoID
 	return p.fakeError
 }
 
@@ -262,5 +262,125 @@ func Test_SortedListForOutput(t *testing.T) {
 	}
 	if got[4].Description != fakeRepo.fakeOutputItems[4].Description {
 		t.Errorf("got item[4].Name = %v, want %v", got[4].Description, fakeRepo.fakeOutputItems[4].Description)
+	}
+}
+
+func Test_SavePhoto(t *testing.T) {
+	tests := []struct {
+		name    string
+		fakeErr error
+	}{
+		{name: "success"},
+		{name: "repository error", fakeErr: errors.New("could not save photo")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fakeRepo := &fakeRepository{
+				fakeSavePhotoErr: tt.fakeErr,
+			}
+			provider := &DatabaseProvider{Repository: fakeRepo}
+
+			want := &models.ItemPhoto{
+				ItemID:   42,
+				Filename: "photo1.jpg",
+			}
+
+			got, err := provider.SavePhoto(want)
+
+			if !errors.Is(err, tt.fakeErr) {
+				t.Fatalf("SavePhoto() error = %v, want %v", err, tt.fakeErr)
+			}
+
+			if fakeRepo.fakeSavePhoto != want {
+				t.Errorf("SavePhoto() passed %p, want %p",
+					fakeRepo.fakeSavePhoto, want)
+			}
+
+			if tt.fakeErr == nil && !reflect.DeepEqual(got, want) {
+				t.Errorf("SavePhoto() = %+v, want %+v", got, want)
+			}
+		})
+	}
+}
+
+func Test_ListPhotos(t *testing.T) {
+	tests := []struct {
+		name    string
+		photos  []models.ItemPhoto
+		fakeErr error
+	}{
+		{
+			name: "multiple photos",
+			photos: []models.ItemPhoto{
+				{ID: 1, ItemID: 42, Filename: "photo1.jpg"},
+				{ID: 2, ItemID: 42, Filename: "photo2.jpg"},
+			},
+		},
+		{
+			name:   "no photos",
+			photos: []models.ItemPhoto{},
+		},
+		{
+			name:    "repository error",
+			fakeErr: errors.New("could not list photos"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fakeRepo := &fakeRepository{
+				fakePhotos:    tt.photos,
+				fakePhotosErr: tt.fakeErr,
+			}
+			provider := &DatabaseProvider{Repository: fakeRepo}
+
+			const itemID = 42
+			got, err := provider.ListPhotos(itemID)
+
+			if !errors.Is(err, tt.fakeErr) {
+				t.Fatalf("ListPhotos() error = %v, want %v", err, tt.fakeErr)
+			}
+
+			if fakeRepo.fakeID != itemID {
+				t.Errorf("ListPhotos() itemID = %d, want %d",
+					fakeRepo.fakeID, itemID)
+			}
+
+			if tt.fakeErr == nil && !reflect.DeepEqual(got, tt.photos) {
+				t.Errorf("ListPhotos() = %+v, want %+v", got, tt.photos)
+			}
+		})
+	}
+}
+
+func Test_DeletePhoto(t *testing.T) {
+	tests := []struct {
+		name    string
+		fakeErr error
+	}{
+		{name: "success"},
+		{name: "repository error", fakeErr: errors.New("could not delete photo")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fakeRepo := &fakeRepository{
+				fakeError: tt.fakeErr,
+			}
+			provider := &DatabaseProvider{Repository: fakeRepo}
+
+			const photoID = 17
+			err := provider.DeletePhoto(photoID)
+
+			if !errors.Is(err, tt.fakeErr) {
+				t.Fatalf("DeletePhoto() error = %v, want %v", err, tt.fakeErr)
+			}
+
+			if fakeRepo.fakeID != photoID {
+				t.Errorf("DeletePhoto() photoID = %d, want %d",
+					fakeRepo.fakeID, photoID)
+			}
+		})
 	}
 }

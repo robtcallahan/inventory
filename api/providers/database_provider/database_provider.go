@@ -18,6 +18,7 @@ type DatabaseProviderInterface interface {
 	SortedListForOutput() ([]models.OutputItem, error)
 	SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error)
 	ListPhotos(itemID int) ([]models.ItemPhoto, error)
+	DeletePhoto(photoID int) error
 }
 type DatabaseProvider struct {
 	Repository repository.QueryRepo
@@ -76,6 +77,6 @@ func (p *DatabaseProvider) SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemP
 func (p *DatabaseProvider) ListPhotos(itemID int) ([]models.ItemPhoto, error) {
 	return p.Repository.ListPhotos(itemID)
 }
-func (p *DatabaseProvider) DeletePhoto(itemID int) error {
-	return p.Repository.DeletePhoto(itemID)
+func (p *DatabaseProvider) DeletePhoto(photoID int) error {
+	return p.Repository.DeletePhoto(photoID)
 }

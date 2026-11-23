@@ -16,5 +16,5 @@ type QueryRepo interface {
 	SortedListForOutput() ([]models.OutputItem, error)
 	SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error)
 	ListPhotos(itemID int) ([]models.ItemPhoto, error)
-	DeletePhoto(itemID int) error
+	DeletePhoto(photoID int) error
 }

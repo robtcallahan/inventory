@@ -26,6 +26,11 @@ type fakeProvider struct {
 	savedPhoto        *models.ItemPhoto
 	savedPhotoErr     error
 	savePhotoCalled   bool
+	listedPhotos      []models.ItemPhoto
+	listPhotosErr     error
+	deletePhotoCalled bool
+	deletedPhotoID    int
+	deletePhotoErr    error
 }
 
 func (f *fakeProvider) Save(item *models.Item) (*models.Item, error) {
@@ -69,10 +74,14 @@ func (f *fakeProvider) SavePhoto(photo *models.ItemPhoto) (*models.ItemPhoto, er
 	f.savePhotoCalled = true
 	return photo, f.savedPhotoErr
 }
-
-func (p *fakeProvider) ListPhotos(itemID int) ([]models.ItemPhoto, error) {
-	p.itemID = itemID
-	return []models.ItemPhoto{}, p.savedPhotoErr
+func (f *fakeProvider) ListPhotos(itemID int) ([]models.ItemPhoto, error) {
+	f.itemID = itemID
+	return f.listedPhotos, f.listPhotosErr
+}
+func (f *fakeProvider) DeletePhoto(photoID int) error {
+	f.deletedPhotoID = photoID
+	f.deletePhotoCalled = true
+	return f.deletePhotoErr
 }
 
 var _ database_provider.DatabaseProviderInterface = (*fakeProvider)(nil)
