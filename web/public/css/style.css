@@ -123,7 +123,25 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 
 .inventory-table__money { text-align: right !important; font-variant-numeric: tabular-nums; }
 
-/* ========================================================================== 
+/*.inventory-toolbar__search .input-control { min-width: 100px; width: 100%; }*/
+.inventory-table th:first-child, .inventory-table td:first-child { width: 36px; text-align: center; }
+.inventory-table td:first-child input { cursor: pointer; }
+.item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(130px, 34%) minmax(0, 1fr) auto; }
+.item-fields__link { font-size: .85rem; white-space: nowrap; }
+.bulk-dialog { width: min(95vw, 480px); border: none; border-radius: var(--radius-lg); padding: 24px; color: var(--color-text); }
+.bulk-dialog::backdrop { background: var(--color-overlay); }
+.bulk-dialog label { display: block; font-weight: 600; margin: 14px 0 6px; }
+.bulk-dialog select, .bulk-dialog input { width: 100%; }
+#bulk-error { color: var(--color-danger); }
+
+/* Room filtering, selection and bulk-edit controls */
+.inventory-toolbar { gap: 12px; }
+.inventory-toolbar__search .input-control {
+    min-width: 90px;
+    width: 110px;
+}
+
+/* ==========================================================================
    6. Item details dialog
    ========================================================================== */
 .item-dialog {
@@ -216,26 +234,6 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     margin-top: 24px;
 }
 
-/* ==========================================================================
-   7. Responsive adjustments
-   ========================================================================== */
-@media (max-width: 700px) {
-    .site-header { margin: 10px 12px 14px; }
-    .inventory-panel { margin: 0 12px 16px; }
-    .inventory-toolbar { grid-template-columns: 1fr 1fr; gap: 12px; }
-    .inventory-toolbar__filter { grid-column: 1 / -1; }
-    .inventory-toolbar__count { text-align: left; }
-    .inventory-toolbar__value { text-align: right; }
-    .item-dialog { padding: 12px; }
-    .item-dialog__header { padding: 16px; }
-    .item-dialog__body { padding: 12px 14px; }
-    .item-dialog__actions { padding: 14px; }
-    .item-fields__row { grid-template-columns: minmax(100px, 38%) 1fr; }
-}
-
-.form-error { margin: 12px 6px 0; color: #a32d2d; font-weight: 600; }
-.button:disabled { opacity: 0.65; cursor: wait; }
-
 /* Item photo gallery */
 .item-photos { margin-top: 20px; border-top: 1px solid var(--color-border); padding-top: 14px; }
 .item-photos h3 { margin: 0 0 12px; color: var(--color-primary); }
@@ -253,22 +251,23 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 /* Drag-and-drop feedback in edit mode */
 .item-photos.is-dragging { outline: 3px dashed #3b82f6; outline-offset: -3px; border-radius: 8px; background: rgba(59,130,246,.09); }
 
-/* Room filtering, selection and bulk-edit controls */
-.inventory-toolbar { gap: 12px; }
-.inventory-toolbar__search .input-control {
-    min-width: 90px;
-    width: 110px;
+/* ==========================================================================
+   7. Responsive adjustments
+   ========================================================================== */
+@media (max-width: 700px) {
+    .site-header { margin: 10px 12px 14px; }
+    .inventory-panel { margin: 0 12px 16px; }
+    .inventory-toolbar { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .inventory-toolbar__filter { grid-column: 1 / -1; }
+    .inventory-toolbar__count { text-align: left; }
+    .inventory-toolbar__value { text-align: right; }
+    .item-dialog { padding: 12px; }
+    .item-dialog__header { padding: 16px; }
+    .item-dialog__body { padding: 12px 14px; }
+    .item-dialog__actions { padding: 14px; }
+    .item-fields__row { grid-template-columns: minmax(100px, 38%) 1fr; }
 }
-/*.inventory-toolbar__search .input-control { min-width: 100px; width: 100%; }*/
-.inventory-table th:first-child, .inventory-table td:first-child { width: 36px; text-align: center; }
-.inventory-table td:first-child input { cursor: pointer; }
-.item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(130px, 34%) minmax(0, 1fr) auto; }
-.item-fields__link { font-size: .85rem; white-space: nowrap; }
-.bulk-dialog { width: min(95vw, 480px); border: none; border-radius: var(--radius-lg); padding: 24px; color: var(--color-text); }
-.bulk-dialog::backdrop { background: var(--color-overlay); }
-.bulk-dialog label { display: block; font-weight: 600; margin: 14px 0 6px; }
-.bulk-dialog select, .bulk-dialog input { width: 100%; }
-#bulk-error { color: var(--color-danger); }
+
 @media (max-width: 1150px) and (min-width: 701px) {
     .inventory-toolbar { grid-template-columns: repeat(3, auto) minmax(140px, 1fr); }
     .inventory-toolbar__count, .inventory-toolbar__value { text-align: left; }
@@ -279,3 +278,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     .item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(100px, 38%) minmax(0, 1fr); }
     .item-fields__link { grid-column: 2; }
 }
+
+.form-error { margin: 12px 6px 0; color: #a32d2d; font-weight: 600; }
+.button:disabled { opacity: 0.65; cursor: wait; }
+
