@@ -351,8 +351,8 @@ func TestBulkUpdateRejectsDuplicateIDs(t *testing.T) {
 		strings.NewReader(`{"ids":[1,1],"field":"room","value":"Kitchen"}`))
 	recorder := httptest.NewRecorder()
 	bulkUpdateHandler(provider)(recorder, req)
-	if recorder.Code != http.StatusBadRequest || provider.saveCalled {
-		t.Errorf("status %d; save called %v", recorder.Code, provider.saveCalled)
+	if recorder.Code != http.StatusBadRequest || provider.bulkField != "" {
+		t.Errorf("status %d; bulk field %q", recorder.Code, provider.bulkField)
 	}
 }
 
