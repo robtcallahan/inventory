@@ -63,6 +63,7 @@ func saveItemHandler(
 			return
 		}
 		if err != nil {
+			log.Printf("Failed to save item: %v", err)
 			http.Error(w, "save failed", http.StatusInternalServerError)
 			return
 		}

@@ -125,15 +125,22 @@ function createFields() {
         label.className = 'item-fields__label';
         label.htmlFor = `item-field-${key}`;
         label.textContent = fieldLabel(key);
-        const input = key === 'category'
-            ? category
-            : document.createElement('input');
+        let input = key;
+        if (key === "category") {
+            input = category;
+        } else if (key === "details") {
+            input = document.createElement("textarea");
+            input.rows = 3;
+        } else {
+            input = document.createElement("input");
+            input.type = numericFields.has(key) ? 'number' : 'text';
+        }
         input.className = 'item-fields__input';
         input.id = `item-field-${key}`;
         input.name = key;
-        if (key !== 'category') {
-            input.type = numericFields.has(key) ? 'number' : 'text';
-        }
+        // if (key !== 'category') {
+        //     input.type = numericFields.has(key) ? 'number' : 'text';
+        // }
         if (numericFields.has(key)) {
             input.step = '1';
             input.min = '0';
@@ -150,7 +157,7 @@ function showError(message = '') {
 }
 
 function setMode(editing, adding = false) {
-    for (const input of ui.fields.querySelectorAll('input, select')) {
+    for (const input of ui.fields.querySelectorAll('input, select, textarea')) {
         input.disabled = !editing || input.name === 'total_value';
     }
     ui.close.classList.toggle('is-hidden', editing);
@@ -243,7 +250,7 @@ async function saveItem(event) {
         if (!response.ok) throw new Error(`Save failed (HTTP ${response.status}).`);
         // Fetch the server's authoritative computed fields and formatted dates.
         await loadItems();
-        closeItemAfterSave();
+        closeItemAfterSaveOrDelete();
     } catch (error) {
         showError(error.message);
     } finally {
@@ -329,7 +336,8 @@ function init() {
     ui.cancelDelete.addEventListener('click', () => {
         ui.confirmDialog.close();
     });
-    ui.confirmDelete.addEventListener('click', deleteItem);    ui.dialog.addEventListener('keydown', event => {
+    ui.confirmDelete.addEventListener('click', deleteItem);
+    ui.dialog.addEventListener('keydown', event => {
         if (event.key === 'Escape' && !saving) closeItem();
     });
     loadItems().catch(error => {

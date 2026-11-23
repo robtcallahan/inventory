@@ -154,17 +154,31 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .item-fields { width: 100%; }
 .item-fields__row { display: grid; grid-template-columns: minmax(130px, 34%) 1fr; gap: 12px; align-items: center; padding: 8px 6px; }
 .item-fields__row + .item-fields__row { border-top: 1px solid var(--color-border); }
-.item-fields__label { color: var(--color-text-muted); font-weight: 600; }
+.item-fields__row textarea.item-fields__input {
+    width: 100%;
+    min-width: 0;
+    min-height: 90px;
+    box-sizing: border-box;
+    resize: vertical;
+    font-family: inherit;
+}
+.item-fields__label { color: var(--color-text-muted); font-weight: 600; font-size: 0.86rem; padding: 3px 10px; }
 .item-fields__input {
     width: 100%;
-    min-height: 38px;
-    padding: 8px 10px;
+    min-height: 32px;
+    padding: 3px 10px;
+    font-size: 0.86rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     background: var(--color-surface);
     color: var(--color-text);
 }
-.item-fields__input:disabled, .item-fields__input:read-only {
+.item-fields__input:is(textarea) {
+    width: 100%;
+    min-height: 90px;
+    resize: vertical;
+    box-sizing: border-box;
+}.item-fields__input:disabled, .item-fields__input:read-only {
     background: var(--color-surface-muted);
     color: var(--color-text);
     opacity: 1;

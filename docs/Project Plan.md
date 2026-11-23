@@ -144,8 +144,8 @@ on it, no converting later.
 
 ## Phase 10 — Web: search and totals (later)
 
-- [ ] 10.1 Search items by name, manufacturer, or model
-- [ ] 10.2 Totals view (per-category totals, Value × Quantity)
+- [X] 10.1 Search items by name, manufacturer, or model
+- [X] 10.2 Totals view (per-category totals, Value × Quantity)
 
 ## Phase 11 — Multi-user (later, only if others get interested)
 
@@ -175,32 +175,43 @@ possible.
   wrapped line (Rob may PR a fix). Idea: a second, roomier PDF for
   Details, which is too long for the dense table.
 
-## Phase 14 — HTTP handlers: functional tests
+## Phase 14 — HTTP handlers: functional tests (implemented; coverage reconciliation pending)
+
+Existing automated tests in `server_test.go` confirmed by Rob on 2026-11-22:
+SaveItem handler — invalid JSON, success, duplicate, error, and bad request;
+DeleteItem handler — success and error; ListItem handler — test present.
+These tests were previously omitted from the checklist status. The specific
+scenarios below remain unchecked until the tests are matched against each
+requirement; unchecked does not mean no tests exist.
 
 - [ ] 14.1 Inventory existing routes, handlers, request/response formats, and error paths
-- [ ] 14.2 Add `httptest` coverage for listing all items and filtering by category
-- [ ] 14.3 Test item detail endpoint: found, not found, and invalid ID
-- [ ] 14.4 Test create-item endpoint: valid payload, missing fields, invalid values, and duplicate
-- [ ] 14.5 Test update-item endpoint: valid changes, not found, invalid payload, and duplicate
-- [ ] 14.6 Test handler responses for database failures and expected HTTP status codes
+- [ ] 14.2 Add `httptest` coverage for listing all items and filtering by category (list handler test exists; category case to verify)
+- [ ] 14.3 Test item detail endpoint: found, not found, and invalid ID (verify whether a separate detail route exists)
+- [ ] 14.4 Test create-item endpoint: valid payload, missing fields, invalid values, and duplicate (save handler tests cover success, invalid JSON, bad request, duplicate; check create-specific cases)
+- [ ] 14.5 Test update-item endpoint: valid changes, not found, invalid payload, and duplicate (save handler tests exist; check update-specific cases)
+- [ ] 14.6 Test handler responses for database failures and expected HTTP status codes (save and delete error tests exist; verify complete coverage)
 - [ ] 14.7 Ensure handler tests are isolated and deterministic; document how to run them
 
-## Phase 15 — Database and migration test coverage
+## Phase 15 — Database and migration test coverage (reported complete; verification pending)
 
-- [ ] 15.1 Audit MySQL repository test coverage against every public repository method
-- [ ] 15.2 Add tests for empty results, duplicate-key behavior, and invalid data
-- [ ] 15.3 Verify totals and sorting with multiple quantities and tied values
-- [ ] 15.4 Make `inventory_test` setup and cleanup repeatable without touching production data
-- [ ] 15.5 Verify Goose migrations against a clean test database
-- [ ] 15.6 Document test prerequisites and a single command for running the suite
+Rob reports on 2026-11-22 that Phase 15's repository coverage, empty-result and duplicate-key tests, totals/sorting tests, test database isolation, migration checks, and test instructions have been done. Retain these as reported complete pending a quick source review; this is not a new test run.
 
-## Phase 16 — Frontend code organization and usability
+- [X] 15.1 Audit MySQL repository test coverage against every public repository method
+- [X] 15.2 Add tests for empty results, duplicate-key behavior, and invalid data
+- [X] 15.3 Verify totals and sorting with multiple quantities and tied values
+- [X] 15.4 Make `inventory_test` setup and cleanup repeatable without touching production data
+- [X] 15.5 Verify Goose migrations against a clean test database
+- [X] 15.6 Document test prerequisites and a single command for running the suite
+
+## Phase 16 — Frontend code organization and usability (partially complete; review later)
+
+Rob reports that portions of Phase 16 are complete, including whole-dollar/thousands-separator formatting. Responsive narrow-screen table work (16.5) is not currently a priority; revisit later.
 
 - [ ] 16.1 Review JavaScript responsibilities: API requests, state, rendering, and events
 - [ ] 16.2 Separate reusable formatting/helpers from DOM rendering without changing behavior
 - [ ] 16.3 Consolidate CSS rules and variables; remove obsolete/duplicate overrides
-- [ ] 16.4 Restore consistent thousands separators and whole-dollar formatting throughout UI
-- [ ] 16.5 Improve responsive table behavior on narrower screens
+- [X] 16.4 Restore consistent thousands separators and whole-dollar formatting throughout UI (reported complete 2026-11-22)
+- [ ] 16.5 Improve responsive table behavior on narrower screens (deferred by choice)
 - [ ] 16.6 Add clear loading, empty-list, success, and error states
 - [ ] 16.7 Add lightweight frontend tests for formatting and other pure functions
 
@@ -259,3 +270,14 @@ possible.
 - Existing checklist marks above were preserved from the uploaded plan, including historical items whose descriptions mention earlier intentions. Phase 7's original unchecked tasks should be reconciled individually rather than silently marked complete.
 - The user confirmed the CSV import is complete and skips duplicates. The older 'one-shot only / no re-runnable import' assumptions were removed from Standing decisions.
 - New phases are proposals, not claims that features or tests are currently missing; confirm against the latest repository before implementation.
+
+## Recent UI and data notes (2026-11-22)
+
+- Item Details is now a multiline textarea; it inherits the form font and follows view/edit disabled state.
+- Purchase Date, Serial Number, and Details display in the item dialog; 17.5 remains partial because website URL is outstanding.
+- Reimporting the spreadsheet created an unintended row with Name `1`; correcting the spreadsheet and removing the extra row resolved the unique (name, description) conflict. Review import data quality on future imports.
+- The Category dropdown appearance is deferred for later styling review.
+
+## Next session — Phase 9 photo uploads
+
+Priority for the next session: take more item photographs and begin implementing photo uploads. Start with the file storage layout and database filename reference (9.2), then the upload route and UI (9.1), and displaying photos in item details (9.3). Review existing repository code before implementation.
