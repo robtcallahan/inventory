@@ -71,6 +71,7 @@ type OutputItem struct {
 	PurchaseDate *time.Time `csv:"Purchase Date" json:"purchase_date"`
 	SerialNumber string     `csv:"Serial Number" json:"serial_number"`
 	Details      string     `csv:"Details" json:"details"`
+	PhotoCount int `json:"photo_count" gorm:"column:photo_count" csv:"-"`
 }
 
 type HTMLItem struct {
@@ -88,6 +89,7 @@ type HTMLItem struct {
 	PurchaseDate string `json:"purchase_date"`
 	SerialNumber string `json:"serial_number"`
 	Details      string `json:"details"`
+	PhotoCount int `json:"photo_count"`
 }
 
 type CSVItem struct {
