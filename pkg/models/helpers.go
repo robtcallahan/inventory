@@ -32,6 +32,7 @@ func OutputItemsToHTML(items []OutputItem) []HTMLItem {
 			PurchaseDate: purchaseDate,
 			SerialNumber: item.SerialNumber,
 			Details:      item.Details,
+			PhotoCount:   item.PhotoCount,
 		}
 		htmlItems = append(htmlItems, htmlItem)
 	}
