@@ -14,10 +14,10 @@ import (
 type CSVOutputItem struct {
 	Quantity     int    `csv:"Quantity"`
 	Name         string `csv:"Name"`
-	Value        int    `csv:"Replacement Value"`
+	ReplacementValue        int    `csv:"Replacement Value"`
 	ResaleValue  int    `csv:"Resale Value"`
 	TotalCost    int    `csv:"Total Cost"`
-	Description  string `csv:"Short Description"`
+	ShortDescription  string `csv:"Short Description"`
 	Manufacturer string `csv:"Manufacturer"`
 	Model        string `csv:"Model"`
 	Category     string `csv:"Category"`
