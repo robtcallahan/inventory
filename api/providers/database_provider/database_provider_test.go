@@ -17,6 +17,8 @@ type fakeRepository struct {
 	fakeError        error
 	fakeSavePhoto    *models.ItemPhoto
 	fakeSavePhotoErr error
+	fakePhotos       []models.ItemPhoto
+	fakePhotosErr    error
 }
 
 func (p *fakeRepository) Save(item *models.Item) (*models.Item, error) {
@@ -63,7 +65,15 @@ func (p *fakeRepository) SortedListForOutput() ([]models.OutputItem, error) {
 
 func (p *fakeRepository) SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error) {
 	p.fakeSavePhoto = itemPhoto
-	return itemPhoto, p.fakeError
+	return itemPhoto, p.fakeSavePhotoErr
+}
+func (p *fakeRepository) ListPhotos(itemID int) ([]models.ItemPhoto, error) {
+	p.fakeID = itemID
+	return []models.ItemPhoto{}, p.fakePhotosErr
+}
+func (p *fakeRepository) DeletePhoto(itemID int) error {
+	p.fakeID = itemID
+	return p.fakeError
 }
 
 func Test_Save(t *testing.T) {

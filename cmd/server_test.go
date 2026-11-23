@@ -70,6 +70,11 @@ func (f *fakeProvider) SavePhoto(photo *models.ItemPhoto) (*models.ItemPhoto, er
 	return photo, f.savedPhotoErr
 }
 
+func (p *fakeProvider) ListPhotos(itemID int) ([]models.ItemPhoto, error) {
+	p.itemID = itemID
+	return []models.ItemPhoto{}, p.savedPhotoErr
+}
+
 var _ database_provider.DatabaseProviderInterface = (*fakeProvider)(nil)
 
 func TestSaveItemHandler_InvalidJSON(t *testing.T) {

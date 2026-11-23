@@ -4,7 +4,6 @@ import (
 	cfg "inventory/pkg/config"
 	"inventory/pkg/models"
 	"inventory/pkg/repository"
-	"reflect"
 	"testing"
 
 	"github.com/pressly/goose/v3"
@@ -76,13 +75,16 @@ func TeardownTestDB(t *testing.T, conn *gorm.DB) {
 	if err != nil {
 		t.Fatalf("get sql.DB: %v", err)
 	}
-	if err := goose.Down(sqlDB, "../../../migrations"); err != nil {
-		t.Fatalf("migrate down on test db: %v", err)
+	if err := goose.Reset(sqlDB, "../../../migrations"); err != nil {
+		t.Fatalf("reset test db: %v", err)
 	}
 }
 
 func Test_Save(t *testing.T) {
 	conn := setupTestDB(t)
+	t.Cleanup(func() {
+		TeardownTestDB(t, conn)
+	})
 	repo := NewMySQLQueryRepo(conn)
 	want := &models.Item{
 		Name:        "name",
@@ -105,11 +107,13 @@ func Test_Save(t *testing.T) {
 		Value {
 		t.Errorf("expected: %v, got: %v", want, got)
 	}
-	TeardownTestDB(t, conn)
 }
 
 func Test_Get(t *testing.T) {
 	conn := setupTestDB(t)
+	t.Cleanup(func() {
+		TeardownTestDB(t, conn)
+	})
 	repo := NewMySQLQueryRepo(conn)
 	want := &models.Item{
 		Name:        "name",
@@ -130,11 +134,13 @@ func Test_Get(t *testing.T) {
 	if got.Name != want.Name || got.Description != want.Description {
 		t.Errorf("expected: %v, got: %v", want, got)
 	}
-	TeardownTestDB(t, conn)
 }
 
 func Test_Delete(t *testing.T) {
 	conn := setupTestDB(t)
+	t.Cleanup(func() {
+		TeardownTestDB(t, conn)
+	})
 	repo := NewMySQLQueryRepo(conn)
 
 	item := &models.Item{
@@ -150,11 +156,13 @@ func Test_Delete(t *testing.T) {
 	if err != nil {
 		t.Errorf("could not delete item: %v", err)
 	}
-	TeardownTestDB(t, conn)
 }
 
 func Test_SaveAndListItems(t *testing.T) {
 	conn := setupTestDB(t)
+	t.Cleanup(func() {
+		TeardownTestDB(t, conn)
+	})
 	repo := NewMySQLQueryRepo(conn)
 
 	skipped, err := repo.SaveItems(want)
@@ -189,11 +197,13 @@ func Test_SaveAndListItems(t *testing.T) {
 			t.Errorf("expected want.Category: %s, got %s", want[wantI[i]].Category, item.Category)
 		}
 	}
-	TeardownTestDB(t, conn)
 }
 
 func Test_ListByCategory(t *testing.T) {
 	conn := setupTestDB(t)
+	t.Cleanup(func() {
+		TeardownTestDB(t, conn)
+	})
 	repo := NewMySQLQueryRepo(conn)
 	_, err := repo.SaveItems(want)
 	if err != nil {
@@ -225,11 +235,13 @@ func Test_ListByCategory(t *testing.T) {
 			t.Errorf("expected want.Category: %s, got %s", want[wantI[i]].Category, item.Category)
 		}
 	}
-	TeardownTestDB(t, conn)
 }
 
 func Test_TotalByCategory(t *testing.T) {
 	conn := setupTestDB(t)
+	t.Cleanup(func() {
+		TeardownTestDB(t, conn)
+	})
 	repo := NewMySQLQueryRepo(conn)
 	_, err := repo.SaveItems(want)
 	if err != nil {
@@ -243,11 +255,13 @@ func Test_TotalByCategory(t *testing.T) {
 	if got != 700 {
 		t.Fatalf("expected 700, got %d", got)
 	}
-	TeardownTestDB(t, conn)
 }
 
 func Test_SortedListForOutput(t *testing.T) {
 	conn := setupTestDB(t)
+	t.Cleanup(func() {
+		TeardownTestDB(t, conn)
+	})
 	repo := NewMySQLQueryRepo(conn)
 	_, err := repo.SaveItems(want)
 	if err != nil {
@@ -267,11 +281,13 @@ func Test_SortedListForOutput(t *testing.T) {
 			t.Errorf("expected want.Name: %s, got %s", wantI[i], item.Name)
 		}
 	}
-	TeardownTestDB(t, conn)
 }
 
 func Test_SkippingDuplicates(t *testing.T) {
 	conn := setupTestDB(t)
+	t.Cleanup(func() {
+		TeardownTestDB(t, conn)
+	})
 	repo := NewMySQLQueryRepo(conn)
 	skippedFirstSave, err := repo.SaveItems(want)
 	if err != nil {
@@ -287,11 +303,13 @@ func Test_SkippingDuplicates(t *testing.T) {
 	if len(skippedSecondSave) != 4 {
 		t.Fatalf("expected 4 items on second save, got %d", len(skippedSecondSave))
 	}
-	TeardownTestDB(t, conn)
 }
 
 func TestMysqlQueryRepo_SavePhoto(t *testing.T) {
 	conn := setupTestDB(t)
+	t.Cleanup(func() {
+		TeardownTestDB(t, conn)
+	})
 	repo := NewMySQLQueryRepo(conn)
 	wantItem := &models.Item{
 		Name:        "name",
@@ -303,16 +321,126 @@ func TestMysqlQueryRepo_SavePhoto(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not save item: %v", err)
 	}
-
-	wantPhoto := models.ItemPhoto{
-		ItemID: item.ID,
+	wantPhoto := &models.ItemPhoto{
+		ItemID:   item.ID,
+		Filename: "test_photo.jpg",
 	}
-	photo, err := repo.Get(item.ID)
+	photo, err := repo.SavePhoto(wantPhoto)
 	if err != nil {
 		t.Fatalf("could not save photo: %v", err)
 	}
-	if !reflect.DeepEqual(photo, wantPhoto) {
-		t.Errorf("expected photo %v, got %v", wantPhoto, photo)
+	if photo.ID == 0 {
+		t.Fatal("expected a generated photo ID")
 	}
-	TeardownTestDB(t, conn)
+}
+
+func TestMysqlQueryRepo_ListPhotos(t *testing.T) {
+	conn := setupTestDB(t)
+	t.Cleanup(func() {
+		TeardownTestDB(t, conn)
+	})
+	repo := NewMySQLQueryRepo(conn)
+
+	// Create three items.
+	item1, err := repo.Save(&models.Item{
+		Name: "item1", Description: "desc1",
+	})
+	if err != nil {
+		t.Fatalf("could not save item1: %v", err)
+	}
+
+	item2, err := repo.Save(&models.Item{
+		Name: "item2", Description: "desc2",
+	})
+	if err != nil {
+		t.Fatalf("could not save item2: %v", err)
+	}
+
+	item3, err := repo.Save(&models.Item{
+		Name: "item3", Description: "desc3",
+	})
+	if err != nil {
+		t.Fatalf("could not save item3: %v", err)
+	}
+
+	// Add two photos to item1 and one to item2.
+	testPhotos := []*models.ItemPhoto{
+		{ItemID: item1.ID, Filename: "photo1.jpg"},
+		{ItemID: item1.ID, Filename: "photo2.jpg"},
+		{ItemID: item2.ID, Filename: "photo3.jpg"},
+	}
+
+	for _, photo := range testPhotos {
+		if _, err := repo.SavePhoto(photo); err != nil {
+			t.Fatalf("could not save photo %s: %v", photo.Filename, err)
+		}
+	}
+
+	// Item1 should have exactly two photos.
+	photos, err := repo.ListPhotos(item1.ID)
+	if err != nil {
+		t.Fatalf("could not list photos: %v", err)
+	}
+
+	if len(photos) != 2 {
+		t.Fatalf("expected 2 photos, got %d", len(photos))
+	}
+
+	if photos[0].Filename != "photo1.jpg" ||
+		photos[1].Filename != "photo2.jpg" {
+		t.Errorf("unexpected photos for item1: %+v", photos)
+	}
+
+	// Item2 should have only its own photo.
+	photos, err = repo.ListPhotos(item2.ID)
+	if err != nil {
+		t.Fatalf("could not list item2 photos: %v", err)
+	}
+
+	if len(photos) != 1 {
+		t.Fatalf("expected 1 photo for item2, got %d", len(photos))
+	}
+
+	if photos[0].Filename != "photo3.jpg" {
+		t.Errorf("expected photo3.jpg, got %s", photos[0].Filename)
+	}
+
+	// Item3 should have no photos.
+	photos, err = repo.ListPhotos(item3.ID)
+	if err != nil {
+		t.Fatalf("could not list item3 photos: %v", err)
+	}
+
+	if len(photos) != 0 {
+		t.Errorf("expected 0 photos for item3, got %d", len(photos))
+	}
+}
+func TestMysqlQueryRepo_DeletePhoto(t *testing.T) {
+	conn := setupTestDB(t)
+	t.Cleanup(func() {
+		TeardownTestDB(t, conn)
+	})
+	repo := NewMySQLQueryRepo(conn)
+	item, err := repo.Save(&models.Item{
+		Name: "item1", Description: "desc1",
+	})
+	if err != nil {
+		t.Fatalf("could not save item: %v", err)
+	}
+	gotItem, err := repo.Get(item.ID)
+	if err != nil {
+		t.Fatalf("could not get item: %v", err)
+	}
+	photo := &models.ItemPhoto{
+		ItemID:   gotItem.ID,
+		Filename: "photo.jpg",
+	}
+	gotPhoto, err := repo.SavePhoto(photo)
+	if err != nil {
+		t.Fatalf("could not save photo: %v", err)
+	}
+	err = repo.DeletePhoto(gotPhoto.ItemID)
+	if err != nil {
+		t.Errorf("could not delete item: %v", err)
+	}
 }

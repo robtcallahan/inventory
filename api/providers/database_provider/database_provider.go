@@ -17,6 +17,7 @@ type DatabaseProviderInterface interface {
 	TotalByCategory(category string) (int, error)
 	SortedListForOutput() ([]models.OutputItem, error)
 	SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error)
+	ListPhotos(itemID int) ([]models.ItemPhoto, error)
 }
 type DatabaseProvider struct {
 	Repository repository.QueryRepo
@@ -71,4 +72,10 @@ func (p *DatabaseProvider) SortedListForOutput() ([]models.OutputItem, error) {
 
 func (p *DatabaseProvider) SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error) {
 	return p.Repository.SavePhoto(itemPhoto)
+}
+func (p *DatabaseProvider) ListPhotos(itemID int) ([]models.ItemPhoto, error) {
+	return p.Repository.ListPhotos(itemID)
+}
+func (p *DatabaseProvider) DeletePhoto(itemID int) error {
+	return p.Repository.DeletePhoto(itemID)
 }

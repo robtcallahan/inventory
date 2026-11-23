@@ -15,4 +15,6 @@ type QueryRepo interface {
 	TotalByCategory(category string) (int, error)
 	SortedListForOutput() ([]models.OutputItem, error)
 	SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error)
+	ListPhotos(itemID int) ([]models.ItemPhoto, error)
+	DeletePhoto(itemID int) error
 }

@@ -111,9 +111,31 @@ func (r *mysqlQueryRepo) SortedListForOutput() ([]models.OutputItem, error) {
 }
 
 func (r *mysqlQueryRepo) SavePhoto(itemPhoto *models.ItemPhoto) (*models.ItemPhoto, error) {
-	result := r.Conn.Save(&itemPhoto)
+	result := r.Conn.Create(&itemPhoto)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return itemPhoto, nil
+}
+
+func (r *mysqlQueryRepo) ListPhotos(itemID int) ([]models.ItemPhoto, error) {
+	var photos []models.ItemPhoto
+
+	result := r.Conn.
+		Where("item_id = ?", itemID).
+		Order("created_at ASC, id ASC").
+		Find(&photos)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return photos, nil
+}
+func (r *mysqlQueryRepo) DeletePhoto(itemID int) error {
+	result := r.Conn.Table("item_photos").Where("item_id = ?", itemID).Delete(&models.ItemPhoto{})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }
