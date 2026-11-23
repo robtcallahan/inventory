@@ -3,6 +3,7 @@
 // DOM hooks use IDs. CSS classes describe appearance; is-* classes describe state.
 const ui = {
     filter: document.getElementById('category-filter'),
+    photoFilter: document.getElementById('photo-filter'),
     search: document.getElementById('search-filter'),
     count: document.getElementById('inventory-count'),
     value: document.getElementById('inventory-value'),
@@ -42,6 +43,7 @@ const moneyFields = new Set(['replacement_value', 'resale_value', 'total_value']
 let items = [];
 let selectedItem = null;
 let selectedCategory = '';
+let selectedPhotoFilter = 'all';
 let searchText = "";
 let saving = false;
 let deleting = false;
@@ -76,7 +78,11 @@ function visibleItems() {
             String(value ?? "").toLowerCase().includes(searchText)
         );
 
-        return matchesCategory && matchesSearch;
+        const photoCount = Number(item.photo_count || 0);
+        const matchesPhotos = selectedPhotoFilter === 'all' ||
+            (selectedPhotoFilter === 'without' && photoCount === 0) ||
+            (selectedPhotoFilter === 'with' && photoCount > 0);
+        return matchesCategory && matchesSearch && matchesPhotos;
     }).sort((a, b) =>
         a.name.localeCompare(b.name) ||
         a.short_description.localeCompare(b.short_description)
@@ -344,6 +350,10 @@ function init() {
         selectedCategory = ui.filter.value;
         renderTable();
     });
+    ui.photoFilter.addEventListener('change', () => {
+        selectedPhotoFilter = ui.photoFilter.value;
+        renderTable();
+    });
     ui.search.addEventListener('input', searchFilter)
     ui.add.addEventListener('click', addItem);
     ui.close.addEventListener('click', closeItem);
@@ -410,6 +420,7 @@ async function loadPhotos(itemID) {
                     const result = await fetch(`/api/items/${itemID}/photos/${photo.id}`, {method:'DELETE'});
                     if (!result.ok) throw new Error('Unable to delete photo.');
                     await loadPhotos(itemID);
+                    await loadItems();
                 } catch (error) {
                     ui.photoStatus.textContent = error.message;
                     remove.disabled = false;
@@ -444,6 +455,7 @@ async function uploadPhotoFile(file) {
         const response = await fetch(`/api/items/${itemID}/photos`, {method:'POST',body:form});
         if (!response.ok) throw new Error(await response.text() || 'Upload failed.');
         await loadPhotos(itemID);
+        await loadItems();
     } catch (error) {
         ui.photoStatus.textContent = error.message;
     } finally {
