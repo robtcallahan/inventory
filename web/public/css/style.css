@@ -96,7 +96,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 }
 .inventory-toolbar {
     display: grid;
-    grid-template-columns: auto auto minmax(180px, 1fr) auto auto auto;
+    grid-template-columns: repeat(3, auto) minmax(160px, 1fr) auto auto auto auto auto;
     align-items: center;
     gap: 16px;
     padding: 16px 20px;
@@ -123,7 +123,25 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 
 .inventory-table__money { text-align: right !important; font-variant-numeric: tabular-nums; }
 
-/* ========================================================================== 
+/*.inventory-toolbar__search .input-control { min-width: 100px; width: 100%; }*/
+.inventory-table th:first-child, .inventory-table td:first-child { width: 36px; text-align: center; }
+.inventory-table td:first-child input { cursor: pointer; }
+.item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(130px, 34%) minmax(0, 1fr) auto; }
+.item-fields__link { font-size: .85rem; white-space: nowrap; }
+.bulk-dialog { width: min(95vw, 480px); border: none; border-radius: var(--radius-lg); padding: 24px; color: var(--color-text); }
+.bulk-dialog::backdrop { background: var(--color-overlay); }
+.bulk-dialog label { display: block; font-weight: 600; margin: 14px 0 6px; }
+.bulk-dialog select, .bulk-dialog input { width: 100%; }
+#bulk-error { color: var(--color-danger); }
+
+/* Room filtering, selection and bulk-edit controls */
+.inventory-toolbar { gap: 12px; }
+.inventory-toolbar__search .input-control {
+    min-width: 90px;
+    width: 110px;
+}
+
+/* ==========================================================================
    6. Item details dialog
    ========================================================================== */
 .item-dialog {
@@ -216,6 +234,23 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     margin-top: 24px;
 }
 
+/* Item photo gallery */
+.item-photos { margin-top: 20px; border-top: 1px solid var(--color-border); padding-top: 14px; }
+.item-photos h3 { margin: 0 0 12px; color: var(--color-primary); }
+.item-photo-gallery { display: grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: 12px; margin-bottom: 12px; }
+.photo-tile { display: flex; flex-direction: column; gap: 5px; }
+.photo-view { border: 1px solid var(--color-border); padding: 0; background: var(--color-surface-muted); border-radius: var(--radius-sm); overflow: hidden; aspect-ratio: 1; }
+.photo-view img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-delete { min-height: 30px; padding: 5px; font-size: .8rem; }
+#item-photo-upload-label { display: inline-block; cursor: pointer; }
+#item-photo-status { color: var(--color-text-muted); font-size: .85rem; }
+#photo-viewer { max-width: min(95vw, 1100px); max-height: 95vh; padding: 14px; border: none; border-radius: var(--radius-md); background: var(--color-surface); }
+#photo-viewer::backdrop { background: var(--color-overlay); }
+#photo-viewer-image { display: block; max-width: 100%; max-height: 80vh; object-fit: contain; margin-top: 12px; }
+
+/* Drag-and-drop feedback in edit mode */
+.item-photos.is-dragging { outline: 3px dashed #3b82f6; outline-offset: -3px; border-radius: 8px; background: rgba(59,130,246,.09); }
+
 /* ==========================================================================
    7. Responsive adjustments
    ========================================================================== */
@@ -233,22 +268,17 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     .item-fields__row { grid-template-columns: minmax(100px, 38%) 1fr; }
 }
 
+@media (max-width: 1150px) and (min-width: 701px) {
+    .inventory-toolbar { grid-template-columns: repeat(3, auto) minmax(140px, 1fr); }
+    .inventory-toolbar__count, .inventory-toolbar__value { text-align: left; }
+}
+@media (max-width: 700px) {
+    .inventory-toolbar { grid-template-columns: 1fr 1fr; }
+    .inventory-toolbar__search { grid-column: 1 / -1; }
+    .item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(100px, 38%) minmax(0, 1fr); }
+    .item-fields__link { grid-column: 2; }
+}
+
 .form-error { margin: 12px 6px 0; color: #a32d2d; font-weight: 600; }
 .button:disabled { opacity: 0.65; cursor: wait; }
 
-/* Item photo gallery */
-.item-photos { margin-top: 20px; border-top: 1px solid var(--color-border); padding-top: 14px; }
-.item-photos h3 { margin: 0 0 12px; color: var(--color-primary); }
-.item-photo-gallery { display: grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: 12px; margin-bottom: 12px; }
-.photo-tile { display: flex; flex-direction: column; gap: 5px; }
-.photo-view { border: 1px solid var(--color-border); padding: 0; background: var(--color-surface-muted); border-radius: var(--radius-sm); overflow: hidden; aspect-ratio: 1; }
-.photo-view img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.photo-delete { min-height: 30px; padding: 5px; font-size: .8rem; }
-#item-photo-upload-label { display: inline-block; cursor: pointer; }
-#item-photo-status { color: var(--color-text-muted); font-size: .85rem; }
-#photo-viewer { max-width: min(95vw, 1100px); max-height: 95vh; padding: 14px; border: none; border-radius: var(--radius-md); background: var(--color-surface); }
-#photo-viewer::backdrop { background: var(--color-overlay); }
-#photo-viewer-image { display: block; max-width: 100%; max-height: 80vh; object-fit: contain; margin-top: 12px; }
-
-/* Drag-and-drop feedback in edit mode */
-.item-photos.is-dragging { outline: 3px dashed #3b82f6; outline-offset: -3px; border-radius: 8px; background: rgba(59,130,246,.09); }

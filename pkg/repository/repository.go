@@ -9,6 +9,7 @@ type QueryRepo interface {
 	Save(item *models.Item) (*models.Item, error)
 	Get(id int) (models.Item, error)
 	SaveItems(items []models.Item) ([]models.Item, error)
+	BulkUpdate(ids []int, field string, value any) error
 	Delete(item models.Item) error
 	List() ([]models.Item, error)
 	ListByCategory(category string) ([]models.Item, error)

@@ -34,6 +34,9 @@ func (p *fakeRepository) SaveItems(items []models.Item) ([]models.Item, error) {
 	p.fakeItems = append(p.fakeItems, items...)
 	return nil, nil
 }
+func (p *fakeRepository) BulkUpdate(ids []int, field string, value any) error {
+	return p.fakeError
+}
 func (p *fakeRepository) Delete(item models.Item) error {
 	p.fakeItem = &item
 	return p.fakeError

@@ -24,6 +24,13 @@ type CSVOutputItem struct {
 	PurchaseDate string `csv:"Purchase Date"`
 	SerialNumber string `csv:"Serial Number"`
 	Details      string `csv:"Details"`
+	Room string `csv:"Room"`
+	Condition string `csv:"Condition"`
+	PurchaseSource string `csv:"Purchase Source"`
+	PurchasePrice int `csv:"Purchase Price"`
+	WebsiteURL string `csv:"Website URL"`
+	ManualURL string `csv:"Manual URL"`
+	InfoComplete bool `csv:"Info Complete"`
 }
 
 func Test_ItemsExportToCSVFile(t *testing.T) {
@@ -35,7 +42,7 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 	denonDate, _ := time.Parse("01/02/2006", "05/22/2021")
 
 	items := []OutputItem{
-		{Quantity: 1, Name: "Piano", ReplacementValue: 2632, ResaleValue: 1800, TotalValue: 2632, ShortDescription: "RD-2000 EX Premium Digital Stage", PurchaseDate: &pianoDate},
+		{Quantity: 1, Name: "Piano", ReplacementValue: 2632, ResaleValue: 1800, TotalValue: 2632, ShortDescription: "RD-2000 EX Premium Digital Stage", PurchaseDate: &pianoDate, Room: "Living Room", Condition: "Good", PurchaseSource: "Music Store", PurchasePrice: 2000, WebsiteURL: "https://example.com/piano", ManualURL: "https://example.com/manual", InfoComplete: true},
 		{Quantity: 1, Name: "Computer", ReplacementValue: 2070, TotalValue: 2070, ShortDescription: "MacBook Pro 16-inch, M3 Pro, 36GB/512GB", PurchaseDate: &macDate},
 		{Quantity: 1, Name: "AV Receiver", ReplacementValue: 1907, TotalValue: 1907, ShortDescription: "AVR-X4700H", PurchaseDate: &denonDate},
 		{Quantity: 2, Name: "Studio Monitor", ReplacementValue: 179, TotalValue: 358, ShortDescription: "ROKIT 5 G4"},
@@ -55,7 +62,7 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []string{"Qty", "Name", "Replacement Value", "Resale Value", "Total Cost", "Short Description", "Manufacturer", "Model", "Category", "Purchase Date", "Serial Num", "Details"}
+	want := []string{"Qty", "Name", "Replacement Value", "Resale Value", "Total Cost", "Short Description", "Manufacturer", "Model", "Category", "Purchase Date", "Serial Num", "Details", "Room", "Condition", "Purchase Source", "Purchase Price", "Website URL", "Manual URL", "Info Complete"}
 	if !slices.Equal(headers, want) {
 		t.Errorf("got header %v, want %v", headers, want)
 	}
@@ -89,6 +96,11 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 	if readItems[0].PurchaseDate != "07/07/2025" || readItems[1].PurchaseDate != "10/12/2026" {
 		t.Errorf("expected items[0].PurchaseDate: \"07/07/2025\", items[1].PurchaseDate: \"10/12/2026\", got %v & %v",
 			readItems[0].PurchaseDate, readItems[1].PurchaseDate)
+	}
+	if readItems[0].Room != items[0].Room || readItems[0].Condition != items[0].Condition ||
+		readItems[0].PurchaseSource != items[0].PurchaseSource || readItems[0].PurchasePrice != items[0].PurchasePrice ||
+		readItems[0].WebsiteURL != items[0].WebsiteURL || readItems[0].ManualURL != items[0].ManualURL || readItems[0].InfoComplete != items[0].InfoComplete {
+		t.Errorf("new metadata fields did not survive CSV export: got %+v, want %+v", readItems[0], items[0])
 	}
 	_ = outputFilePtr.Close()
 }

@@ -8,6 +8,9 @@ import (
 	"inventory/pkg/models"
 	"log"
 	"net/http"
+	"strings"
+	"net/url"
+	"gorm.io/gorm"
 
 	"github.com/spf13/cobra"
 )
@@ -89,6 +92,78 @@ func deleteItemHandler(
 	}
 }
 
+
+type bulkUpdateRequest struct {
+	IDs []int `json:"ids"`
+	Field string `json:"field"`
+	Value string `json:"value"`
+}
+
+// Bulk editing deliberately updates only the requested field, preserving all other item data.
+// All IDs are validated before the first write.
+func bulkUpdateHandler(provider database_provider.DatabaseProviderInterface) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req bulkUpdateRequest
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&req); err != nil {
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			return
+		}
+		if len(req.IDs) == 0 || len(req.IDs) > 1000 {
+			http.Error(w, "Select between 1 and 1000 items", http.StatusBadRequest)
+			return
+		}
+		value := strings.TrimSpace(req.Value)
+		maxLen := 100
+		switch req.Field {
+		case "room", "purchase_source":
+		case "info_complete":
+			if value != "true" && value != "false" {
+				http.Error(w, "Info Complete must be true or false", http.StatusBadRequest)
+				return
+			}
+		case "category", "condition":
+			maxLen = 20
+		case "website_url", "manual_url":
+			maxLen = 2048
+			if value != "" {
+				u, err := url.Parse(value)
+				if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+					http.Error(w, "URL must be an http(s) address", http.StatusBadRequest)
+					return
+				}
+			}
+		default:
+			http.Error(w, "Unsupported bulk field", http.StatusBadRequest)
+			return
+		}
+		if len(value) > maxLen {
+			http.Error(w, "Value is too long", http.StatusBadRequest)
+			return
+		}
+		seen := make(map[int]bool)
+        for _, id := range req.IDs {
+            if id <= 0 || seen[id] {
+                http.Error(w, "Invalid or duplicate item ID", http.StatusBadRequest)
+                return
+            }
+            seen[id] = true
+        }
+        var updateValue any = value
+        if req.Field == "info_complete" { updateValue = value == "true" }
+        if err := provider.BulkUpdate(req.IDs, req.Field, updateValue); err != nil {
+            if errors.Is(err, gorm.ErrRecordNotFound) {
+                http.Error(w, "Item not found; no changes made", http.StatusNotFound)
+            } else {
+                log.Printf("Bulk update failed: %v", err)
+                http.Error(w, "Bulk update failed; no changes made", http.StatusInternalServerError)
+            }
+            return
+        }
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]int{"updated": len(req.IDs)})
+	}
+}
+
 func server() error {
 	provider, err := database_provider.NewMySQLProvider(&config.Database)
 	if err != nil {
@@ -98,6 +173,7 @@ func server() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/items", listItemsHandler(provider))
 	mux.HandleFunc("POST /api/save", saveItemHandler(provider))
+	mux.HandleFunc("POST /api/items/bulk", bulkUpdateHandler(provider))
 	mux.HandleFunc("DELETE /api/delete", deleteItemHandler(provider))
 	mux.HandleFunc("GET /api/items/{id}/photos", listPhotosHandler(provider))
 	mux.HandleFunc("POST /api/items/{id}/photos", uploadPhotoHandler(provider))

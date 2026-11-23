@@ -33,12 +33,25 @@
                     <option value="with">With Photos</option>
                 </select>
             </div>
+            <div class="inventory-toolbar__filter">
+                <label class="field-label" for="info-filter">Info</label>
+                <select class="select-control" id="info-filter">
+                    <option value="all">All Items</option>
+                    <option value="incomplete">Needs More Info</option>
+                    <option value="complete">Complete</option>
+                </select>
+            </div>
+            <div class="inventory-toolbar__filter">
+                <label class="field-label" for="room-filter">Room</label>
+                <select class="select-control" id="room-filter"><option value="">All Rooms</option></select>
+            </div>
             <div class="inventory-toolbar__search">
                 <label class="field-label" for="search-filter">Search</label>
                 <input class="input-control" id="search-filter" type="text">
             </div>
-            <p class="inventory-toolbar__count">Total Items: <span id="inventory-count">0</span></p>
-            <p class="inventory-toolbar__value">Total Value: <span id="inventory-value">$0</span></p>
+            <p class="inventory-toolbar__count">Items: <span id="inventory-count">0</span></p>
+            <p class="inventory-toolbar__value">Value: <span id="inventory-value">$0</span></p>
+            <button class="button button--secondary" id="inventory-bulk" type="button" disabled>Bulk Edit (0)</button>
             <button class="button button--primary" id="inventory-add" type="button">Add</button>
         </div>
         <div class="inventory-table-scroll">
@@ -49,6 +62,24 @@
         </div>
     </main>
 
+    <datalist id="room-options"></datalist>
+    <datalist id="completion-options"><option value="true"></option><option value="false"></option></datalist>
+    <datalist id="source-options"><option value="Amazon"></option><option value="Walmart"></option><option value="Best Buy"></option><option value="Apple"></option><option value="Gift"></option><option value="Other"></option></datalist>
+    <dialog id="bulk-dialog" class="bulk-dialog">
+        <h2>Bulk Edit</h2>
+        <p id="bulk-count"></p>
+        <label for="bulk-field">Field to change</label>
+        <select id="bulk-field" class="select-control">
+            <option value="room">Room / Location</option><option value="category">Category</option>
+            <option value="condition">Condition</option><option value="purchase_source">Purchase Source</option>
+            <option value="website_url">Website URL</option><option value="manual_url">Manual URL</option>
+            <option value="info_complete">Information Complete</option>
+        </select>
+        <label for="bulk-value">New value (blank clears this field)</label>
+        <input id="bulk-value" class="item-fields__input" type="text" list="room-options">
+        <p id="bulk-error" role="alert"></p>
+        <div class="dialog-actions"><button class="button button--secondary" id="bulk-cancel" type="button">Cancel</button><button class="button button--primary" id="bulk-apply" type="button">Apply to selected</button></div>
+    </dialog>
     <div class="item-dialog is-hidden" id="item-dialog" role="dialog" aria-modal="true" aria-labelledby="item-dialog-title">
         <div class="item-dialog__panel">
             <header class="item-dialog__header">

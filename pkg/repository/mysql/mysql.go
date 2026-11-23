@@ -64,6 +64,24 @@ func (r *mysqlQueryRepo) SaveItems(items []models.Item) ([]models.Item, error) {
 	return skipped, err
 }
 
+// BulkUpdate locks all requested rows and updates only one whitelisted column atomically.
+func (r *mysqlQueryRepo) BulkUpdate(ids []int, field string, value any) error {
+    allowed := map[string]bool{"room": true, "category": true, "condition": true, "purchase_source": true, "website_url": true, "manual_url": true, "info_complete": true}
+    if !allowed[field] || len(ids) == 0 {
+        return fmt.Errorf("invalid bulk update field or IDs")
+    }
+    return r.Conn.Transaction(func(tx *gorm.DB) error {
+        var found []models.Item
+        if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id IN ?", ids).Find(&found).Error; err != nil {
+            return err
+        }
+        if len(found) != len(ids) {
+            return gorm.ErrRecordNotFound
+        }
+        return tx.Model(&models.Item{}).Where("id IN ?", ids).Update(field, value).Error
+    })
+}
+
 func (r *mysqlQueryRepo) Delete(item models.Item) error {
 	result := r.Conn.Where("id = ?", item.ID).Delete(item)
 	if result.Error != nil {

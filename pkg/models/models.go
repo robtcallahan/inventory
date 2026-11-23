@@ -47,6 +47,13 @@ type Item struct {
 	Category     string     `json:"category"`
 	PurchaseDate *time.Time `json:"purchase_date"`
 	SerialNumber string     `json:"serial_number"`
+	Room         string     `json:"room"`
+	Condition    string     `json:"condition"`
+	PurchaseSource string   `json:"purchase_source"`
+	PurchasePrice int       `json:"purchase_price"`
+	WebsiteURL   string     `json:"website_url"`
+	ManualURL    string     `json:"manual_url"`
+	InfoComplete bool `json:"info_complete"`
 	Details      string     `gorm:"type:text" json:"details"`
 }
 
@@ -70,6 +77,13 @@ type OutputItem struct {
 	Category     string     `csv:"Category" json:"category"`
 	PurchaseDate *time.Time `csv:"Purchase Date" json:"purchase_date"`
 	SerialNumber string     `csv:"Serial Number" json:"serial_number"`
+	Room string `csv:"Room" json:"room"`
+	Condition string `csv:"Condition" json:"condition"`
+	PurchaseSource string `csv:"Purchase Source" json:"purchase_source"`
+	PurchasePrice int `csv:"Purchase Price" json:"purchase_price"`
+	WebsiteURL string `csv:"Website URL" json:"website_url"`
+	ManualURL string `csv:"Manual URL" json:"manual_url"`
+	InfoComplete bool `csv:"Info Complete" json:"info_complete"`
 	Details      string     `csv:"Details" json:"details"`
 	PhotoCount int `json:"photo_count" gorm:"column:photo_count" csv:"-"`
 }
@@ -88,6 +102,13 @@ type HTMLItem struct {
 	Category     string `json:"category"`
 	PurchaseDate string `json:"purchase_date"`
 	SerialNumber string `json:"serial_number"`
+	Room string `json:"room"`
+	Condition string `json:"condition"`
+	PurchaseSource string `json:"purchase_source"`
+	PurchasePrice int `json:"purchase_price"`
+	WebsiteURL string `json:"website_url"`
+	ManualURL string `json:"manual_url"`
+	InfoComplete bool `json:"info_complete"`
 	Details      string `json:"details"`
 	PhotoCount int `json:"photo_count"`
 }
@@ -103,5 +124,12 @@ type CSVItem struct {
 	Category     string      `csv:"Category"`
 	PurchaseDate string      `csv:"Purchase Date"`
 	SerialNumber string      `csv:"Serial Number"`
+	Room string `csv:"Room"`
+	Condition string `csv:"Condition"`
+	PurchaseSource string `csv:"Purchase Source"`
+	PurchasePrice CurrencyInt `csv:"Purchase Price"`
+	WebsiteURL string `csv:"Website URL"`
+	ManualURL string `csv:"Manual URL"`
+	InfoComplete bool `csv:"Info Complete"`
 	Details      string      `csv:"Details"`
 }
