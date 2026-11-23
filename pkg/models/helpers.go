@@ -37,6 +37,7 @@ func OutputItemsToHTML(items []OutputItem) []HTMLItem {
 			PurchasePrice: item.PurchasePrice,
 			WebsiteURL: item.WebsiteURL,
 			ManualURL: item.ManualURL,
+			InfoComplete: item.InfoComplete,
 			Details:      item.Details,
 			PhotoCount:   item.PhotoCount,
 		}
@@ -74,6 +75,7 @@ func CSVToItem(csvItems []CSVItem) ([]Item, error) {
 			PurchasePrice: int(i.PurchasePrice),
 			WebsiteURL: i.WebsiteURL,
 			ManualURL: i.ManualURL,
+			InfoComplete: i.InfoComplete,
 			Details:      i.Details,
 		}
 		items = append(items, item)
@@ -90,7 +92,7 @@ func ItemsExportToCSVFile(fileName string, items []OutputItem) error {
 
 	w := stdcsv.NewWriter(file)
 	record := []string{"Qty", "Name", "Replacement Value", "Resale Value", "Total Cost", "Short Description", "Manufacturer", "Model", "Category",
-		"Purchase Date", "Serial Num", "Details", "Room", "Condition", "Purchase Source", "Purchase Price", "Website URL", "Manual URL"}
+		"Purchase Date", "Serial Num", "Details", "Room", "Condition", "Purchase Source", "Purchase Price", "Website URL", "Manual URL", "Info Complete"}
 	if err = w.Write(record); err != nil {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
@@ -118,6 +120,7 @@ func ItemsExportToCSVFile(fileName string, items []OutputItem) error {
 			strconv.Itoa(t.PurchasePrice),
 			t.WebsiteURL,
 			t.ManualURL,
+			strconv.FormatBool(t.InfoComplete),
 		}
 		if err := w.Write(record); err != nil {
 			return fmt.Errorf("error writing to file: %w", err)
