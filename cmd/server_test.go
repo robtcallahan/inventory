@@ -24,6 +24,10 @@ type fakeProvider struct {
 	saveErr           error
 	listErr           error
 	deleteErr         error
+	bulkIDs []int
+	bulkField string
+	bulkValue any
+	bulkErr error
 	savedPhoto        *models.ItemPhoto
 	savedPhotoErr     error
 	savePhotoCalled   bool
@@ -48,6 +52,10 @@ func (f *fakeProvider) SaveItems(items []models.Item) ([]models.Item, error) {
 	return nil, f.listErr
 }
 
+func (f *fakeProvider) BulkUpdate(ids []int, field string, value any) error {
+	f.bulkIDs, f.bulkField, f.bulkValue = ids, field, value
+	return f.bulkErr
+}
 func (f *fakeProvider) Delete(item models.Item) error {
 	f.deletedItem = item
 	f.deleteCalled = true
@@ -321,9 +329,8 @@ func TestBulkUpdateRoomPreservesOtherFields(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status %d: %s", recorder.Code, recorder.Body.String())
 	}
-	if provider.savedItem.Room != "Kitchen" || provider.savedItem.Name != "Coffee Maker" ||
-		provider.savedItem.ReplacementValue != 200 || provider.savedItem.Details != "Keep this note" {
-		t.Errorf("unexpected saved item: %+v", provider.savedItem)
+	if provider.bulkField != "room" || provider.bulkValue != "Kitchen" || len(provider.bulkIDs) != 1 || provider.bulkIDs[0] != 7 {
+		t.Errorf("unexpected bulk update: %+v", provider)
 	}
 }
 
@@ -333,7 +340,7 @@ func TestBulkUpdateRejectsUnsupportedField(t *testing.T) {
 		strings.NewReader(`{"ids":[1],"field":"replacement_value","value":"0"}`))
 	recorder := httptest.NewRecorder()
 	bulkUpdateHandler(provider)(recorder, req)
-	if recorder.Code != http.StatusBadRequest || provider.saveCalled {
+	if recorder.Code != http.StatusBadRequest || provider.bulkField != "" {
 		t.Errorf("status %d; save called %v", recorder.Code, provider.saveCalled)
 	}
 }
@@ -347,4 +354,15 @@ func TestBulkUpdateRejectsDuplicateIDs(t *testing.T) {
 	if recorder.Code != http.StatusBadRequest || provider.saveCalled {
 		t.Errorf("status %d; save called %v", recorder.Code, provider.saveCalled)
 	}
+}
+
+func TestBulkUpdateInformationComplete(t *testing.T) {
+    provider := &fakeProvider{}
+    req := httptest.NewRequest(http.MethodPost, "/api/items/bulk",
+        strings.NewReader(`{"ids":[2,3],"field":"info_complete","value":"true"}`))
+    recorder := httptest.NewRecorder()
+    bulkUpdateHandler(provider)(recorder, req)
+    if recorder.Code != http.StatusOK || provider.bulkField != "info_complete" || provider.bulkValue != true {
+        t.Errorf("status %d, field %s, value %v", recorder.Code, provider.bulkField, provider.bulkValue)
+    }
 }
