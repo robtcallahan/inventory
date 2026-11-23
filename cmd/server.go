@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strings"
 	"net/url"
+	"gorm.io/gorm"
 
 	"github.com/spf13/cobra"
 )
@@ -115,6 +116,11 @@ func bulkUpdateHandler(provider database_provider.DatabaseProviderInterface) htt
 		maxLen := 100
 		switch req.Field {
 		case "room", "purchase_source":
+		case "info_complete":
+			if value != "true" && value != "false" {
+				http.Error(w, "Info Complete must be true or false", http.StatusBadRequest)
+				return
+			}
 		case "category", "condition":
 			maxLen = 20
 		case "website_url", "manual_url":
@@ -135,35 +141,24 @@ func bulkUpdateHandler(provider database_provider.DatabaseProviderInterface) htt
 			return
 		}
 		seen := make(map[int]bool)
-		var updates []models.Item
-		for _, id := range req.IDs {
-			if id <= 0 || seen[id] {
-				http.Error(w, "Invalid or duplicate item ID", http.StatusBadRequest)
-				return
-			}
-			seen[id] = true
-			item, err := provider.Get(id)
-			if err != nil {
-				http.Error(w, "Item not found; no changes made", http.StatusNotFound)
-				return
-			}
-			switch req.Field {
-			case "room": item.Room = value
-			case "category": item.Category = value
-			case "condition": item.Condition = value
-			case "purchase_source": item.PurchaseSource = value
-			case "website_url": item.WebsiteURL = value
-			case "manual_url": item.ManualURL = value
-			}
-			updates = append(updates, item)
-		}
-		for i := range updates {
-			if _, err := provider.Save(&updates[i]); err != nil {
-				log.Printf("Bulk update stopped after %d of %d items: %v", i, len(updates), err)
-				http.Error(w, fmt.Sprintf("Updated %d of %d items; remaining items unchanged", i, len(updates)), http.StatusInternalServerError)
-				return
-			}
-		}
+        for _, id := range req.IDs {
+            if id <= 0 || seen[id] {
+                http.Error(w, "Invalid or duplicate item ID", http.StatusBadRequest)
+                return
+            }
+            seen[id] = true
+        }
+        var updateValue any = value
+        if req.Field == "info_complete" { updateValue = value == "true" }
+        if err := provider.BulkUpdate(req.IDs, req.Field, updateValue); err != nil {
+            if errors.Is(err, gorm.ErrRecordNotFound) {
+                http.Error(w, "Item not found; no changes made", http.StatusNotFound)
+            } else {
+                log.Printf("Bulk update failed: %v", err)
+                http.Error(w, "Bulk update failed; no changes made", http.StatusInternalServerError)
+            }
+            return
+        }
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]int{"updated": len(updates)})
 	}
