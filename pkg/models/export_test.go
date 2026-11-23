@@ -14,9 +14,10 @@ import (
 type CSVOutputItem struct {
 	Quantity     int    `csv:"Quantity"`
 	Name         string `csv:"Name"`
-	Value        int    `csv:"Value"`
+	Value        int    `csv:"Replacement Value"`
+	ResaleValue  int    `csv:"Resale Value"`
 	TotalCost    int    `csv:"Total Cost"`
-	Description  string `csv:"Description"`
+	Description  string `csv:"Short Description"`
 	Manufacturer string `csv:"Manufacturer"`
 	Model        string `csv:"Model"`
 	Category     string `csv:"Category"`
@@ -54,7 +55,7 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []string{"Qty", "Name", "Value", "Total Cost", "Description", "Manufacturer", "Model", "Category", "Purchase Date", "Serial Num", "Details"}
+	want := []string{"Qty", "Name", "Replacement Value", "Resale Value", "Total Cost", "Short Description", "Manufacturer", "Model", "Category", "Purchase Date", "Serial Num", "Details"}
 	if !slices.Equal(headers, want) {
 		t.Errorf("got header %v, want %v", headers, want)
 	}
