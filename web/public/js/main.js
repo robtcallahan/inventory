@@ -467,6 +467,8 @@ function openBulkEditor() {
     ui.bulkCount.textContent = 'Update ' + selectedIDs.size + ' selected item(s). Only the chosen field will change.';
     ui.bulkField.value = 'room';
     ui.bulkValue.value = '';
+    ui.bulkValue.type = 'text';
+    ui.bulkValue.placeholder = '';
     ui.bulkError.textContent = '';
     ui.bulkValue.setAttribute('list', 'room-options');
     ui.bulkDialog.showModal();
