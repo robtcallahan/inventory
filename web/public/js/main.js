@@ -282,7 +282,8 @@ function openItem(item) {
     updateItemLinks();
     loadPhotos(item.id);
     ui.dialog.classList.remove('is-hidden');
-    ui.edit.focus();
+    ui.edit.focus({ preventScroll: true });
+    ui.dialog.querySelector('.item-dialog__panel').scrollTop = 0;
 }
 
 function closeItem() {

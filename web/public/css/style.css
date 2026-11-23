@@ -98,7 +98,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     display: grid;
     grid-template-columns: repeat(3, auto) minmax(160px, 1fr) auto auto auto auto auto;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     padding: 16px 20px;
     background: var(--color-page);
     color: var(--color-primary);
@@ -123,19 +123,14 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 
 .inventory-table__money { text-align: right !important; font-variant-numeric: tabular-nums; }
 
-/*.inventory-toolbar__search .input-control { min-width: 100px; width: 100%; }*/
+/* Inventory selection, bulk edit, and search controls */
 .inventory-table th:first-child, .inventory-table td:first-child { width: 36px; text-align: center; }
 .inventory-table td:first-child input { cursor: pointer; }
-.item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(130px, 34%) minmax(0, 1fr) auto; }
-.item-fields__link { font-size: .85rem; white-space: nowrap; }
 .bulk-dialog { width: min(95vw, 480px); border: none; border-radius: var(--radius-lg); padding: 24px; color: var(--color-text); }
 .bulk-dialog::backdrop { background: var(--color-overlay); }
 .bulk-dialog label { display: block; font-weight: 600; margin: 14px 0 6px; }
 .bulk-dialog select, .bulk-dialog input { width: 100%; }
 #bulk-error { color: var(--color-danger); }
-
-/* Room filtering, selection and bulk-edit controls */
-.inventory-toolbar { gap: 12px; }
 .inventory-toolbar__search .input-control {
     min-width: 90px;
     width: 110px;
@@ -175,6 +170,8 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .item-dialog__body { padding: 18px 26px 12px; }
 .item-fields { width: 100%; }
 .item-fields__row { display: grid; grid-template-columns: minmax(130px, 34%) 1fr; gap: 12px; align-items: center; padding: 8px 6px; }
+.item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(130px, 34%) minmax(0, 1fr) auto; }
+.item-fields__link { font-size: .85rem; white-space: nowrap; }
 .item-fields__row + .item-fields__row { border-top: 1px solid var(--color-border); }
 .item-fields__row textarea.item-fields__input {
     width: 100%;
@@ -200,7 +197,8 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     min-height: 90px;
     resize: vertical;
     box-sizing: border-box;
-}.item-fields__input:disabled, .item-fields__input:read-only {
+}
+.item-fields__input:disabled, .item-fields__input:read-only {
     background: var(--color-surface-muted);
     color: var(--color-text);
     opacity: 1;
@@ -259,6 +257,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     .inventory-panel { margin: 0 12px 16px; }
     .inventory-toolbar { grid-template-columns: 1fr 1fr; gap: 12px; }
     .inventory-toolbar__filter { grid-column: 1 / -1; }
+    .inventory-toolbar__search { grid-column: 1 / -1; }
     .inventory-toolbar__count { text-align: left; }
     .inventory-toolbar__value { text-align: right; }
     .item-dialog { padding: 12px; }
@@ -266,17 +265,13 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     .item-dialog__body { padding: 12px 14px; }
     .item-dialog__actions { padding: 14px; }
     .item-fields__row { grid-template-columns: minmax(100px, 38%) 1fr; }
+    .item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(100px, 38%) minmax(0, 1fr); }
+    .item-fields__link { grid-column: 2; }
 }
 
 @media (max-width: 1150px) and (min-width: 701px) {
     .inventory-toolbar { grid-template-columns: repeat(3, auto) minmax(140px, 1fr); }
     .inventory-toolbar__count, .inventory-toolbar__value { text-align: left; }
-}
-@media (max-width: 700px) {
-    .inventory-toolbar { grid-template-columns: 1fr 1fr; }
-    .inventory-toolbar__search { grid-column: 1 / -1; }
-    .item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(100px, 38%) minmax(0, 1fr); }
-    .item-fields__link { grid-column: 2; }
 }
 
 .form-error { margin: 12px 6px 0; color: #a32d2d; font-weight: 600; }
