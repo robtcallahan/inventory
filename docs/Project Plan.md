@@ -137,10 +137,10 @@ on it, no converting later.
 
 ## Phase 9 — Web: itemPhoto upload
 
-- [ ] 9.1 Upload photos to an itemPhoto from the web UI
-- [ ] 9.2 Photos stored on disk in local storage; the DB column holds
+- [X] 9.1 Upload photos to an itemPhoto from the web UI
+- [X] 9.2 Photos stored on disk in local storage; the DB column holds
   a pointer to the file (a file name)
-- [ ] 9.3 Item view shows its photos
+- [X] 9.3 Item view shows its photos
 
 ## Phase 10 — Web: search and totals (later)
 
