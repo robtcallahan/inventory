@@ -21,14 +21,14 @@ func PDF(fileName string, items []models.OutputItem) error {
 			strconv.Itoa(i + 1),
 			strconv.Itoa(t.Quantity),
 			t.Name,
-			t.Description,
+			t.ShortDescription,
 			makeBlank(t.Manufacturer),
 			makeBlank(t.Model),
 			models.FormatAccounting(float64(t.TotalValue), 8),
 			makeBlank(t.Category),
 			makeBlank(purchaseDate),
 			//makeBlank(t.SerialNumber),
-			//t.Description,
+			//t.ShortDescription,
 		})
 	}
 	reportData := template.ReportData{

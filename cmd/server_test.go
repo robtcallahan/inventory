@@ -180,7 +180,7 @@ func TestSaveItemHandler_BadRequest(t *testing.T) {
 	}
 	body := strings.NewReader(`{
         "name": "Coffee Maker",
-		"value": "49.99"
+		"replacement_value": "49.99"
     }`)
 
 	req := httptest.NewRequest(http.MethodPost, "/api/save", body)
@@ -252,14 +252,14 @@ func TestListItemsHandler_Success(t *testing.T) {
 				ID:           1,
 				Name:         "Coffee Maker",
 				Quantity:     1,
-				Value:        25,
+				ReplacementValue:        25,
 				TotalValue:   25,
 				PurchaseDate: &time1,
 			}, {
 				ID:           2,
 				Name:         "Blender",
 				Quantity:     2,
-				Value:        10,
+				ReplacementValue:        10,
 				TotalValue:   20,
 				PurchaseDate: &time2,
 			},

@@ -52,8 +52,8 @@ func importCSV() error {
 		for _, skippedItem := range skipped {
 			for i, item := range items {
 				// find the skipped item in the items slice to determine the row which is i+2
-				if item.Name == skippedItem.Name && item.Description == skippedItem.Description {
-					fmt.Printf("%3d %-30s %s\n", i+2, item.Name, item.Description)
+				if item.Name == skippedItem.Name && item.ShortDescription == skippedItem.ShortDescription {
+					fmt.Printf("%3d %-30s %s\n", i+2, item.Name, item.ShortDescription)
 					break
 				}
 			}

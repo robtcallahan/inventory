@@ -32,12 +32,12 @@ const ui = {
     photoViewerClose: document.getElementById('photo-viewer-close'),
 };
 
-const tableFields = ['number', 'quantity', 'name', 'description', 'value', 'resale_value',
+const tableFields = ['number', 'quantity', 'name', 'short_description', 'replacement_value', 'resale_value',
     'total_value', 'manufacturer', 'model', 'category', 'purchase_date', 'serial_number'];
-const detailFields = ['quantity', 'name', 'description', 'value', 'resale_value', 'total_value',
+const detailFields = ['quantity', 'name', 'short_description', 'replacement_value', 'resale_value', 'total_value',
     'manufacturer', 'model', 'category', 'purchase_date', 'serial_number', 'details'];
-const numericFields = new Set(['quantity', 'value', 'resale_value']);
-const moneyFields = new Set(['value', 'resale_value', 'total_value']);
+const numericFields = new Set(['quantity', 'replacement_value', 'resale_value']);
+const moneyFields = new Set(['replacement_value', 'resale_value', 'total_value']);
 
 let items = [];
 let selectedItem = null;
@@ -49,8 +49,8 @@ let deleting = false;
 function fieldLabel(key) {
     if (key === 'quantity') return 'Qty';
     if (key === 'number') return 'Num';
-    if (key === 'description') return 'Short Description';
-    if (key === 'value') return 'Replacement Value';
+    if (key === 'short_description') return 'Short Description';
+    if (key === 'replacement_value') return 'Replacement Value';
     if (key === 'resale_value') return 'Resale Value';
     return key.replaceAll('_', ' ').replace(/\b\w/g, char => char.toUpperCase());
 }
@@ -67,7 +67,7 @@ function visibleItems() {
 
         const matchesSearch = [
             item.name,
-            item.description,
+            item.short_description,
             item.manufacturer,
             item.model,
             item.serial_number,
@@ -79,7 +79,7 @@ function visibleItems() {
         return matchesCategory && matchesSearch;
     }).sort((a, b) =>
         a.name.localeCompare(b.name) ||
-        a.description.localeCompare(b.description)
+        a.short_description.localeCompare(b.short_description)
     );
 }
 
@@ -120,7 +120,7 @@ function renderTable() {
     });
 
     ui.count.textContent = displayed.length;
-    ui.value.textContent = money(displayed.reduce((sum, item) => sum + Number(item.total_value || 0), 0));
+    ui.replacement_value.textContent = money(displayed.reduce((sum, item) => sum + Number(item.total_value || 0), 0));
 }
 
 function createFields() {
@@ -190,7 +190,7 @@ function openItem(item) {
     selectedItem = item;
     showError();
     for (const key of detailFields) {
-        ui.form.elements.namedItem(key).value = item[key] ?? '';
+        ui.form.elements.namedItem(key).replacement_value = item[key] ?? '';
     }
     setMode(false);
     loadPhotos(item.id);
@@ -218,7 +218,7 @@ function readItem() {
     const item = { id: selectedItem?.id ?? 0 };
     for (const key of detailFields) {
         if (key === 'total_value') continue; // Computed by the server.
-        const value = ui.form.elements.namedItem(key).value.trim();
+        const value = ui.form.elements.namedItem(key).replacement_value.trim();
         if (numericFields.has(key)) {
             if (!/^\d+$/.test(value)) throw new Error(`${fieldLabel(key)} must be a nonnegative whole number.`);
             item[key] = Number(value);
@@ -322,7 +322,7 @@ function closeItemAfterSaveOrDelete() {
 }
 
 function searchFilter(event) {
-    searchText = event.target.value.trim().toLowerCase();
+    searchText = event.target.replacement_value.trim().toLowerCase();
     renderTable();
 }
 
@@ -336,7 +336,7 @@ async function loadItems() {
 function init() {
     createFields();
     ui.filter.addEventListener('change', () => {
-        selectedCategory = ui.filter.value;
+        selectedCategory = ui.filter.replacement_value;
         renderTable();
     });
     ui.search.addEventListener('input', searchFilter)
@@ -428,7 +428,7 @@ async function uploadPhotoFile(file) {
     if (!file || !itemID) return;
     if (file.size > 10 * 1024 * 1024) {
         ui.photoStatus.textContent = 'Photos must be 10 MB or smaller.';
-        ui.photoInput.value = '';
+        ui.photoInput.replacement_value = '';
         return;
     }
     const form = new FormData();
@@ -442,7 +442,7 @@ async function uploadPhotoFile(file) {
     } catch (error) {
         ui.photoStatus.textContent = error.message;
     } finally {
-        ui.photoInput.value = '';
+        ui.photoInput.replacement_value = '';
         ui.photoInput.disabled = false;
     }
 }

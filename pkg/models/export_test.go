@@ -35,10 +35,10 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 	denonDate, _ := time.Parse("01/02/2006", "05/22/2021")
 
 	items := []OutputItem{
-		{Quantity: 1, Name: "Piano", Value: 2632, ResaleValue: 1800, TotalValue: 2632, Description: "RD-2000 EX Premium Digital Stage", PurchaseDate: &pianoDate},
-		{Quantity: 1, Name: "Computer", Value: 2070, TotalValue: 2070, Description: "MacBook Pro 16-inch, M3 Pro, 36GB/512GB", PurchaseDate: &macDate},
-		{Quantity: 1, Name: "AV Receiver", Value: 1907, TotalValue: 1907, Description: "AVR-X4700H", PurchaseDate: &denonDate},
-		{Quantity: 2, Name: "Studio Monitor", Value: 179, TotalValue: 358, Description: "ROKIT 5 G4"},
+		{Quantity: 1, Name: "Piano", ReplacementValue: 2632, ResaleValue: 1800, TotalValue: 2632, ShortDescription: "RD-2000 EX Premium Digital Stage", PurchaseDate: &pianoDate},
+		{Quantity: 1, Name: "Computer", ReplacementValue: 2070, TotalValue: 2070, ShortDescription: "MacBook Pro 16-inch, M3 Pro, 36GB/512GB", PurchaseDate: &macDate},
+		{Quantity: 1, Name: "AV Receiver", ReplacementValue: 1907, TotalValue: 1907, ShortDescription: "AVR-X4700H", PurchaseDate: &denonDate},
+		{Quantity: 2, Name: "Studio Monitor", ReplacementValue: 179, TotalValue: 358, ShortDescription: "ROKIT 5 G4"},
 	}
 	err := ItemsExportToCSVFile(outputFile, items)
 	if err != nil {
@@ -76,9 +76,9 @@ func Test_ItemsExportToCSVFile(t *testing.T) {
 		t.Errorf("expected items[0].Name: %v, items[3].Name: %v, got %v and %v", items[0].Name, items[3].Name,
 			readItems[0].Name, readItems[3].Name)
 	}
-	if readItems[3].Value != items[3].Value || items[3].TotalValue != readItems[3].TotalCost {
-		t.Errorf("expected items[3].Value: %v, items[3].TotalValue: %v, got %v & %v",
-			items[3].Value, items[3].TotalValue, readItems[3].Value, readItems[3].TotalCost)
+	if readItems[3].ReplacementValue != items[3].ReplacementValue || items[3].TotalValue != readItems[3].TotalCost {
+		t.Errorf("expected items[3].ReplacementValue: %v, items[3].TotalValue: %v, got %v & %v",
+			items[3].ReplacementValue, items[3].TotalValue, readItems[3].ReplacementValue, readItems[3].TotalCost)
 	}
 	if readItems[0].ResaleValue != items[0].ResaleValue {
 		t.Errorf("resale value round trip: got %d, want %d", readItems[0].ResaleValue, items[0].ResaleValue)

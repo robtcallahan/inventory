@@ -16,29 +16,29 @@ var want = []models.Item{
 	{
 		Quantity:    1,
 		Name:        "name3",
-		Description: "desc3",
-		Value:       300,
+		ShortDescription: "desc3",
+		ReplacementValue:       300,
 		Category:    "category2",
 	},
 	{
 		Quantity:    1,
 		Name:        "name1",
-		Description: "desc1",
-		Value:       100,
+		ShortDescription: "desc1",
+		ReplacementValue:       100,
 		Category:    "category1",
 	},
 	{
 		Quantity:    2,
 		Name:        "name2",
-		Description: "desc2",
-		Value:       200,
+		ShortDescription: "desc2",
+		ReplacementValue:       200,
 		Category:    "category2",
 	},
 	{
 		Quantity:    1,
 		Name:        "name4",
-		Description: "desc4",
-		Value:       400,
+		ShortDescription: "desc4",
+		ReplacementValue:       400,
 		Category:    "category3",
 	},
 }
@@ -88,8 +88,8 @@ func Test_Save(t *testing.T) {
 	repo := NewMySQLQueryRepo(conn)
 	want := &models.Item{
 		Name:        "name",
-		Description: "desc",
-		Value:       100,
+		ShortDescription: "desc",
+		ReplacementValue:       100,
 		ResaleValue: 75,
 	}
 
@@ -104,7 +104,7 @@ func Test_Save(t *testing.T) {
 	if got.ID != 1 {
 		t.Fatalf("expected id: 1, got %d", got.ID)
 	}
-	if got.Name != want.Name || got.Description != want.Description || got.Value != want.Value || got.ResaleValue != want.ResaleValue {
+	if got.Name != want.Name || got.ShortDescription != want.ShortDescription || got.ReplacementValue != want.ReplacementValue || got.ResaleValue != want.ResaleValue {
 		t.Errorf("expected: %v, got: %v", want, got)
 	}
 }
@@ -117,8 +117,8 @@ func Test_Get(t *testing.T) {
 	repo := NewMySQLQueryRepo(conn)
 	want := &models.Item{
 		Name:        "name",
-		Description: "desc",
-		Value:       300,
+		ShortDescription: "desc",
+		ReplacementValue:       300,
 	}
 	item, err := repo.Save(want)
 	if err != nil {
@@ -131,7 +131,7 @@ func Test_Get(t *testing.T) {
 	if got.ID != 1 {
 		t.Fatalf("expected id: 1, got %d", got.ID)
 	}
-	if got.Name != want.Name || got.Description != want.Description {
+	if got.Name != want.Name || got.ShortDescription != want.ShortDescription {
 		t.Errorf("expected: %v, got: %v", want, got)
 	}
 }
@@ -145,8 +145,8 @@ func Test_Delete(t *testing.T) {
 
 	item := &models.Item{
 		Name:        "name",
-		Description: "desc",
-		Value:       100,
+		ShortDescription: "desc",
+		ReplacementValue:       100,
 	}
 	_, err := repo.Save(item)
 	if err != nil {
@@ -187,11 +187,11 @@ func Test_SaveAndListItems(t *testing.T) {
 		if item.Name != want[wantI[i]].Name {
 			t.Errorf("expected want.Name: %s, got %s", want[wantI[i]].Name, item.Name)
 		}
-		if item.Description != want[wantI[i]].Description {
-			t.Errorf("expected want.Description: %s, got %s", want[wantI[i]].Description, item.Description)
+		if item.ShortDescription != want[wantI[i]].ShortDescription {
+			t.Errorf("expected want.ShortDescription: %s, got %s", want[wantI[i]].ShortDescription, item.ShortDescription)
 		}
-		if item.Value != want[wantI[i]].Value {
-			t.Errorf("expected want.Value: %d, got %d", want[wantI[i]].Value, item.Value)
+		if item.ReplacementValue != want[wantI[i]].ReplacementValue {
+			t.Errorf("expected want.ReplacementValue: %d, got %d", want[wantI[i]].ReplacementValue, item.ReplacementValue)
 		}
 		if item.Category != want[wantI[i]].Category {
 			t.Errorf("expected want.Category: %s, got %s", want[wantI[i]].Category, item.Category)
@@ -225,11 +225,11 @@ func Test_ListByCategory(t *testing.T) {
 		if item.Name != want[wantI[i]].Name {
 			t.Errorf("expected want.Name: %s, got %s", want[wantI[i]].Name, item.Name)
 		}
-		if item.Description != want[wantI[i]].Description {
-			t.Errorf("expected want.Description: %s, got %s", want[wantI[i]].Description, item.Description)
+		if item.ShortDescription != want[wantI[i]].ShortDescription {
+			t.Errorf("expected want.ShortDescription: %s, got %s", want[wantI[i]].ShortDescription, item.ShortDescription)
 		}
-		if item.Value != want[wantI[i]].Value {
-			t.Errorf("expected want.Value: %d, got %d", want[wantI[i]].Value, item.Value)
+		if item.ReplacementValue != want[wantI[i]].ReplacementValue {
+			t.Errorf("expected want.ReplacementValue: %d, got %d", want[wantI[i]].ReplacementValue, item.ReplacementValue)
 		}
 		if item.Category != want[wantI[i]].Category {
 			t.Errorf("expected want.Category: %s, got %s", want[wantI[i]].Category, item.Category)
@@ -313,8 +313,8 @@ func TestMysqlQueryRepo_SavePhoto(t *testing.T) {
 	repo := NewMySQLQueryRepo(conn)
 	wantItem := &models.Item{
 		Name:        "name",
-		Description: "desc",
-		Value:       100,
+		ShortDescription: "desc",
+		ReplacementValue:       100,
 	}
 
 	item, err := repo.Save(wantItem)
@@ -343,21 +343,21 @@ func TestMysqlQueryRepo_ListPhotos(t *testing.T) {
 
 	// Create three items.
 	item1, err := repo.Save(&models.Item{
-		Name: "item1", Description: "desc1",
+		Name: "item1", ShortDescription: "desc1",
 	})
 	if err != nil {
 		t.Fatalf("could not save item1: %v", err)
 	}
 
 	item2, err := repo.Save(&models.Item{
-		Name: "item2", Description: "desc2",
+		Name: "item2", ShortDescription: "desc2",
 	})
 	if err != nil {
 		t.Fatalf("could not save item2: %v", err)
 	}
 
 	item3, err := repo.Save(&models.Item{
-		Name: "item3", Description: "desc3",
+		Name: "item3", ShortDescription: "desc3",
 	})
 	if err != nil {
 		t.Fatalf("could not save item3: %v", err)
@@ -422,7 +422,7 @@ func TestMysqlQueryRepo_DeletePhoto(t *testing.T) {
 	})
 	repo := NewMySQLQueryRepo(conn)
 	item, err := repo.Save(&models.Item{
-		Name: "item1", Description: "desc1",
+		Name: "item1", ShortDescription: "desc1",
 	})
 	if err != nil {
 		t.Fatalf("could not save item: %v", err)

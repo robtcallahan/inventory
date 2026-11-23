@@ -74,7 +74,7 @@ func (r *mysqlQueryRepo) Delete(item models.Item) error {
 
 func (r *mysqlQueryRepo) List() ([]models.Item, error) {
 	var items []models.Item
-	if result := r.Conn.Order("name").Order("description").Find(&items); result.Error != nil {
+	if result := r.Conn.Order("name").Order("short_description").Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)
 	}
 	return items, nil
@@ -82,7 +82,7 @@ func (r *mysqlQueryRepo) List() ([]models.Item, error) {
 
 func (r *mysqlQueryRepo) ListByCategory(category string) ([]models.Item, error) {
 	var items []models.Item
-	if result := r.Conn.Where("category = ?", category).Order("name").Order("description").Find(&items); result.Error != nil {
+	if result := r.Conn.Where("category = ?", category).Order("name").Order("short_description").Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items for category: %w", result.Error)
 	}
 	return items, nil
@@ -91,7 +91,7 @@ func (r *mysqlQueryRepo) ListByCategory(category string) ([]models.Item, error) 
 func (r *mysqlQueryRepo) TotalByCategory(category string) (int, error) {
 	var total int
 	if result := r.Conn.Model(&models.Item{}).
-		Select("COALESCE(SUM(value * quantity), 0) AS total").
+		Select("COALESCE(SUM(replacement_value * quantity), 0) AS total").
 		Where("category = ?", category).
 		Scan(&total); result.Error != nil {
 		return 0, fmt.Errorf("unable to get total of items: %w", result.Error)
@@ -102,8 +102,8 @@ func (r *mysqlQueryRepo) TotalByCategory(category string) (int, error) {
 func (r *mysqlQueryRepo) SortedListForOutput() ([]models.OutputItem, error) {
 	var items []models.OutputItem
 	if result := r.Conn.Table("items").
-		Select("*, (quantity * value) AS total_value").
-		Order("total_value DESC").Order("name").Order("description").
+		Select("*, (quantity * replacement_value) AS total_value").
+		Order("total_value DESC").Order("name").Order("short_description").
 		Find(&items); result.Error != nil {
 		return nil, fmt.Errorf("unable to get items: %w", result.Error)
 	}

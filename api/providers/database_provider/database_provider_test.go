@@ -54,7 +54,7 @@ func (p *fakeRepository) TotalByCategory(category string) (int, error) {
 	totalValue := 0
 	for _, item := range p.fakeItems {
 		if item.Category == category {
-			totalValue = totalValue + (item.Value * item.Quantity)
+			totalValue = totalValue + (item.ReplacementValue * item.Quantity)
 		}
 	}
 	return totalValue, p.fakeError
@@ -86,11 +86,11 @@ func Test_Save(t *testing.T) {
 		Name:         "Item 1",
 		Manufacturer: "Manufacturer",
 		Model:        "Model",
-		Description:  "Description",
+		ShortDescription:  "Description",
 		SerialNumber: "Serial Number",
 		Category:     "Category",
 		PurchaseDate: &now,
-		Value:        100,
+		ReplacementValue:        100,
 	}
 
 	tests := []struct {
@@ -138,11 +138,11 @@ func Test_Delete(t *testing.T) {
 		Name:         "Item 1",
 		Manufacturer: "Manufacturer",
 		Model:        "Model",
-		Description:  "Description",
+		ShortDescription:  "Description",
 		SerialNumber: "Serial Number",
 		Category:     "Category",
 		PurchaseDate: &now,
-		Value:        100,
+		ReplacementValue:        100,
 	}
 	tests := []struct {
 		name    string
@@ -218,8 +218,8 @@ func Test_ListByCategory(t *testing.T) {
 func Test_TotalByCategory(t *testing.T) {
 	fakeRepo := &fakeRepository{
 		fakeItems: []models.Item{
-			{Name: "KRK Studio Monitors", Value: 179, Quantity: 2, Category: "Music Gear"},
-			{Name: "Macbook Pro", Value: 2070, Quantity: 1, Category: "Computers"},
+			{Name: "KRK Studio Monitors", ReplacementValue: 179, Quantity: 2, Category: "Music Gear"},
+			{Name: "Macbook Pro", ReplacementValue: 2070, Quantity: 1, Category: "Computers"},
 		},
 	}
 	provider := &DatabaseProvider{Repository: fakeRepo}
@@ -237,14 +237,14 @@ func Test_TotalByCategory(t *testing.T) {
 func Test_SortedListForOutput(t *testing.T) {
 	fakeRepo := &fakeRepository{
 		fakeOutputItems: []models.OutputItem{
-			{Name: "MacBook Pro", Description: "2019 MacBook Pro, 16GB, 512 SSD", Value: 2070, Quantity: 1,
+			{Name: "MacBook Pro", ShortDescription: "2019 MacBook Pro, 16GB, 512 SSD", ReplacementValue: 2070, Quantity: 1,
 				TotalValue: 2070, Category: "Computers"},
-			{Name: "KRK Studio Monitors", Description: "KRK Studio Monitors, yellow", Value: 179, Quantity: 2,
+			{Name: "KRK Studio Monitors", ShortDescription: "KRK Studio Monitors, yellow", ReplacementValue: 179, Quantity: 2,
 				TotalValue: 358, Category: "Music Gear"},
-			{Name: "Humidifier", Description: "TommyBoy white humidifier", Value: 250, Quantity: 1, TotalValue: 250, Category: "Appliances"},
-			{Name: "Chef's knife", Description: "Flextone 10\" Chef's knife", Value: 50, Quantity: 2, TotalValue: 100,
+			{Name: "Humidifier", ShortDescription: "TommyBoy white humidifier", ReplacementValue: 250, Quantity: 1, TotalValue: 250, Category: "Appliances"},
+			{Name: "Chef's knife", ShortDescription: "Flextone 10\" Chef's knife", ReplacementValue: 50, Quantity: 2, TotalValue: 100,
 				Category: "Kitchen"},
-			{Name: "Chef's knife", Description: "Harbinger 8\" Chef's knife", Value: 50, Quantity: 2, TotalValue: 100,
+			{Name: "Chef's knife", ShortDescription: "Harbinger 8\" Chef's knife", ReplacementValue: 50, Quantity: 2, TotalValue: 100,
 				Category: "Appliances"},
 		},
 	}
@@ -260,8 +260,8 @@ func Test_SortedListForOutput(t *testing.T) {
 	if got[0].Name != fakeRepo.fakeOutputItems[0].Name {
 		t.Errorf("got item[0].Name = %v, want %v", got[0].Name, fakeRepo.fakeOutputItems[0].Name)
 	}
-	if got[4].Description != fakeRepo.fakeOutputItems[4].Description {
-		t.Errorf("got item[4].Name = %v, want %v", got[4].Description, fakeRepo.fakeOutputItems[4].Description)
+	if got[4].ShortDescription != fakeRepo.fakeOutputItems[4].ShortDescription {
+		t.Errorf("got item[4].Name = %v, want %v", got[4].ShortDescription, fakeRepo.fakeOutputItems[4].ShortDescription)
 	}
 }
 
