@@ -206,6 +206,11 @@ function closeItem() {
 
 function addItem(event) {
     selectedItem = {id: 0};
+    showError();
+    ui.form.reset();
+    for (const key of detailFields) {
+        ui.form.elements.namedItem(key).value = '';
+    }
     ui.photoGallery.replaceChildren();
     ui.photoStatus.textContent = 'Save the item before adding photos.';
     setMode(true, true);
