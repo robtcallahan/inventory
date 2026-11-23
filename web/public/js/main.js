@@ -529,7 +529,8 @@ function init() {
         else ui.bulkValue.removeAttribute('list');
         if (field === 'info_complete') {
             ui.bulkValue.type = 'text';
-            ui.bulkValue.placeholder = 'true or false';
+            ui.bulkValue.placeholder = 'true (complete) or false (needs info)';
+            ui.bulkValue.setAttribute('list', 'completion-options');
         } else {
             ui.bulkValue.type = field.endsWith('_url') ? 'url' : 'text';
             ui.bulkValue.placeholder = '';
