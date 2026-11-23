@@ -6,3 +6,6 @@ tmp/
 inventory
 
 config.json
+
+# Uploaded inventory photographs
+/photos/
