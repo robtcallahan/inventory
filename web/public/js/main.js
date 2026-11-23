@@ -346,6 +346,7 @@ function init() {
     });
     ui.form.addEventListener('submit', saveItem);
     ui.photoInput.addEventListener('change', uploadSelectedPhoto);
+    setupPhotoDropZone();
     ui.photoViewerClose.addEventListener('click', () => ui.photoViewer.close());
     ui.delete.addEventListener('click', confirmDeleteItem);
     ui.cancelDelete.addEventListener('click', () => {
@@ -416,6 +417,10 @@ async function loadPhotos(itemID) {
 
 async function uploadSelectedPhoto() {
     const file = ui.photoInput.files[0];
+    await uploadPhotoFile(file);
+}
+
+async function uploadPhotoFile(file) {
     const itemID = selectedItem?.id;
     if (!file || !itemID) return;
     if (file.size > 10 * 1024 * 1024) {
@@ -437,4 +442,62 @@ async function uploadSelectedPhoto() {
         ui.photoInput.value = '';
         ui.photoInput.disabled = false;
     }
+}
+
+function setupPhotoDropZone() {
+    const zone = document.getElementById('item-photos');
+    let dragDepth = 0;
+    const canUpload = () => selectedItem?.id > 0 &&
+        !ui.photoUploadLabel.classList.contains('is-hidden') &&
+        !ui.photoInput.disabled;
+    const isFileDrag = event => Array.from(event.dataTransfer?.types || []).includes('Files');
+
+    zone.addEventListener('dragenter', event => {
+        if (!isFileDrag(event) || !canUpload()) return;
+        event.preventDefault();
+        dragDepth++;
+        zone.classList.add('is-dragging');
+    });
+    zone.addEventListener('dragover', event => {
+        if (!isFileDrag(event) || !canUpload()) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy';
+    });
+    zone.addEventListener('dragleave', event => {
+        if (!isFileDrag(event)) return;
+        dragDepth = Math.max(0, dragDepth - 1);
+        if (!dragDepth) zone.classList.remove('is-dragging');
+    });
+    zone.addEventListener('drop', async event => {
+        if (!isFileDrag(event)) return;
+        event.preventDefault(); // Never navigate away to the dropped image.
+        dragDepth = 0;
+        zone.classList.remove('is-dragging');
+        if (!canUpload()) {
+            ui.photoStatus.textContent = 'Click Edit to add a photo.';
+            return;
+        }
+        const files = Array.from(event.dataTransfer.files);
+        if (!files.length) {
+            ui.photoStatus.textContent = 'No file received. Try dragging from Finder instead.';
+            return;
+        }
+        if (files.length !== 1) {
+            ui.photoStatus.textContent = 'Please drop one photo at a time.';
+            return;
+        }
+        const file = files[0];
+        if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
+            ui.photoStatus.textContent = 'Please drop a JPEG, PNG, GIF, or WebP photo.';
+            return;
+        }
+        await uploadPhotoFile(file);
+    });
+    // Keep an image dropped outside the gallery from replacing the inventory page.
+    document.addEventListener('dragover', event => {
+        if (isFileDrag(event) && !ui.dialog.classList.contains('is-hidden')) event.preventDefault();
+    });
+    document.addEventListener('drop', event => {
+        if (isFileDrag(event) && !ui.dialog.classList.contains('is-hidden')) event.preventDefault();
+    });
 }
