@@ -15,6 +15,7 @@ import (
 
 type fakeProvider struct {
 	itemID            int
+	getItem models.Item
 	savedItem         *models.Item
 	deletedItem       models.Item
 	listedOutputItems []models.OutputItem
@@ -40,7 +41,7 @@ func (f *fakeProvider) Save(item *models.Item) (*models.Item, error) {
 }
 func (f *fakeProvider) Get(id int) (models.Item, error) {
 	f.itemID = id
-	return models.Item{}, f.listErr
+	return f.getItem, f.listErr
 }
 func (f *fakeProvider) SaveItems(items []models.Item) ([]models.Item, error) {
 	f.saveCalled = true
@@ -305,5 +306,45 @@ func TestListItemsHandler_Error(t *testing.T) {
 	// Check the HTTP status.
 	if recorder.Code != http.StatusInternalServerError {
 		t.Errorf("got status %d, want %d", recorder.Code, http.StatusInternalServerError)
+	}
+}
+
+func TestBulkUpdateRoomPreservesOtherFields(t *testing.T) {
+	provider := &fakeProvider{getItem: models.Item{
+		ID: 7, Name: "Coffee Maker", Room: "Storage",
+		ReplacementValue: 200, Details: "Keep this note",
+	}}
+	req := httptest.NewRequest(http.MethodPost, "/api/items/bulk",
+		strings.NewReader(`{"ids":[7],"field":"room","value":"Kitchen"}`))
+	recorder := httptest.NewRecorder()
+	bulkUpdateHandler(provider)(recorder, req)
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", recorder.Code, recorder.Body.String())
+	}
+	if provider.savedItem.Room != "Kitchen" || provider.savedItem.Name != "Coffee Maker" ||
+		provider.savedItem.ReplacementValue != 200 || provider.savedItem.Details != "Keep this note" {
+		t.Errorf("unexpected saved item: %+v", provider.savedItem)
+	}
+}
+
+func TestBulkUpdateRejectsUnsupportedField(t *testing.T) {
+	provider := &fakeProvider{}
+	req := httptest.NewRequest(http.MethodPost, "/api/items/bulk",
+		strings.NewReader(`{"ids":[1],"field":"replacement_value","value":"0"}`))
+	recorder := httptest.NewRecorder()
+	bulkUpdateHandler(provider)(recorder, req)
+	if recorder.Code != http.StatusBadRequest || provider.saveCalled {
+		t.Errorf("status %d; save called %v", recorder.Code, provider.saveCalled)
+	}
+}
+
+func TestBulkUpdateRejectsDuplicateIDs(t *testing.T) {
+	provider := &fakeProvider{}
+	req := httptest.NewRequest(http.MethodPost, "/api/items/bulk",
+		strings.NewReader(`{"ids":[1,1],"field":"room","value":"Kitchen"}`))
+	recorder := httptest.NewRecorder()
+	bulkUpdateHandler(provider)(recorder, req)
+	if recorder.Code != http.StatusBadRequest || provider.saveCalled {
+		t.Errorf("status %d; save called %v", recorder.Code, provider.saveCalled)
 	}
 }
