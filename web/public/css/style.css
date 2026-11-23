@@ -96,7 +96,8 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 }
 .inventory-toolbar {
     display: grid;
-    grid-template-columns: auto minmax(180px, 1fr) auto auto auto;   align-items: center;
+    grid-template-columns: auto auto minmax(180px, 1fr) auto auto auto;
+    align-items: center;
     gap: 16px;
     padding: 16px 20px;
     background: var(--color-page);
