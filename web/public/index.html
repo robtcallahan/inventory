@@ -50,6 +50,7 @@
             <form class="item-dialog__form" id="item-form">
                 <div class="item-dialog__body">
                     <div class="item-fields" id="item-fields"></div>
+                    <section class="item-photos" id="item-photos"><h3>Photos</h3><div id="item-photo-gallery" class="item-photo-gallery"></div><label class="button button--secondary is-hidden" id="item-photo-upload-label" for="item-photo-input">Add photo</label><input id="item-photo-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp" class="is-hidden"><p id="item-photo-status" role="status"></p></section>
                     <p class="form-error is-hidden" id="item-form-error" role="alert"></p>
                 </div>
                 <footer class="item-dialog__actions">
@@ -63,6 +64,7 @@
         </div>
     </div>
 
+    <dialog id="photo-viewer"><button type="button" id="photo-viewer-close" class="button button--secondary">Close</button><img id="photo-viewer-image" alt="Inventory photo"></dialog>
     <dialog id="delete-confirm-dialog">
         <h2>Delete Item?</h2>
         <p id="delete-confirm-message"></p>
