@@ -40,6 +40,7 @@ type Item struct {
 	Quantity     int        `json:"quantity"`
 	Name         string     `json:"name"`
 	Value        int        `json:"value"`
+	ResaleValue  int        `json:"resale_value"`
 	Description  string     `json:"description"`
 	Manufacturer string     `json:"manufacturer"`
 	Model        string     `json:"model"`
@@ -60,9 +61,10 @@ type OutputItem struct {
 	ID           int        `csv:"id" json:"id"`
 	Quantity     int        `csv:"Quantity" json:"quantity"`
 	Name         string     `csv:"Name" json:"name"`
-	Value        int        `csv:"Value" json:"value"`
+	Value        int        `csv:"Replacement Value" json:"value"`
+	ResaleValue  int        `csv:"Resale Value" json:"resale_value"`
 	TotalValue   int        `csv:"Total Cost" json:"total_value"`
-	Description  string     `csv:"Description" json:"description"`
+	Description  string     `csv:"Short Description" json:"description"`
 	Manufacturer string     `csv:"Manufacturer" json:"manufacturer"`
 	Model        string     `csv:"Model" json:"model"`
 	Category     string     `csv:"Category" json:"category"`
@@ -77,6 +79,7 @@ type HTMLItem struct {
 	Quantity     int    `json:"quantity"`
 	Name         string `json:"name"`
 	Value        int    `json:"value"`
+	ResaleValue  int    `json:"resale_value"`
 	TotalValue   int    `json:"total_value"`
 	Description  string `json:"description"`
 	Manufacturer string `json:"manufacturer"`
@@ -90,8 +93,9 @@ type HTMLItem struct {
 type CSVItem struct {
 	Quantity     int         `csv:"Quantity"`
 	Name         string      `csv:"Name"`
-	Value        CurrencyInt `csv:"Value"`
-	Description  string      `csv:"Description"`
+	Value        CurrencyInt `csv:"Replacement Value"`
+	ResaleValue  CurrencyInt `csv:"Resale Value"`
+	Description  string      `csv:"Short Description"`
 	Manufacturer string      `csv:"Manufacturer"`
 	Model        string      `csv:"Model"`
 	Category     string      `csv:"Category"`
