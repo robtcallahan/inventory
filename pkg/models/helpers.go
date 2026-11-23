@@ -24,6 +24,7 @@ func OutputItemsToHTML(items []OutputItem) []HTMLItem {
 			Name:         item.Name,
 			Description:  item.Description,
 			Value:        item.Value,
+			ResaleValue:  item.ResaleValue,
 			TotalValue:   item.TotalValue,
 			Manufacturer: item.Manufacturer,
 			Model:        item.Model,
@@ -53,6 +54,7 @@ func CSVToItem(csvItems []CSVItem) ([]Item, error) {
 			Quantity:     i.Quantity,
 			Name:         i.Name,
 			Value:        int(i.Value),
+			ResaleValue:  int(i.ResaleValue),
 			Description:  i.Description,
 			Manufacturer: i.Manufacturer,
 			Model:        i.Model,
@@ -74,7 +76,7 @@ func ItemsExportToCSVFile(fileName string, items []OutputItem) error {
 	defer file.Close()
 
 	w := stdcsv.NewWriter(file)
-	record := []string{"Qty", "Name", "Value", "Total Cost", "Description", "Manufacturer", "Model", "Category",
+	record := []string{"Qty", "Name", "Replacement Value", "Resale Value", "Total Cost", "Short Description", "Manufacturer", "Model", "Category",
 		"Purchase Date", "Serial Num", "Details"}
 	if err = w.Write(record); err != nil {
 		return fmt.Errorf("error writing to file: %w", err)
@@ -88,6 +90,7 @@ func ItemsExportToCSVFile(fileName string, items []OutputItem) error {
 			strconv.Itoa(t.Quantity),
 			t.Name,
 			strconv.Itoa(t.Value),
+			strconv.Itoa(t.ResaleValue),
 			strconv.Itoa(t.TotalValue),
 			t.Description,
 			t.Manufacturer,
