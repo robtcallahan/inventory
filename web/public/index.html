@@ -34,6 +34,14 @@
                 </select>
             </div>
             <div class="inventory-toolbar__filter">
+                <label class="field-label" for="info-filter">Information</label>
+                <select class="select-control" id="info-filter">
+                    <option value="all">All Items</option>
+                    <option value="incomplete">Needs More Info</option>
+                    <option value="complete">Complete</option>
+                </select>
+            </div>
+            <div class="inventory-toolbar__filter">
                 <label class="field-label" for="room-filter">Room</label>
                 <select class="select-control" id="room-filter"><option value="">All Rooms</option></select>
             </div>
@@ -64,6 +72,7 @@
             <option value="room">Room / Location</option><option value="category">Category</option>
             <option value="condition">Condition</option><option value="purchase_source">Purchase Source</option>
             <option value="website_url">Website URL</option><option value="manual_url">Manual URL</option>
+            <option value="info_complete">Information Complete</option>
         </select>
         <label for="bulk-value">New value (blank clears this field)</label>
         <input id="bulk-value" class="item-fields__input" type="text" list="room-options">
