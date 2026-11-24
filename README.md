@@ -25,3 +25,36 @@ Existing items receive empty values for the new metadata fields; existing invent
 - CSV export includes the new metadata columns. CSV import accepts older spreadsheets without those columns, treating omitted values as blank/zero. The existing importer **skips duplicate name + short-description entries** rather than updating them, so re-importing a spreadsheet does not update existing records.
 
 Run `go test ./...` with a disposable MySQL test database before deployment, and verify a few add/edit, bulk edit, filtering, and CSV import/export flows in the browser.
+
+## Production layout and configuration
+
+The application supports a persistent `--config` flag on the root command:
+
+```sh
+inventory --config /etc/inventory/config.json server --port 8080
+```
+
+The configuration file supports optional `photos_dir` and `web_dir` properties. When omitted, they default to `photos` and `./web/public`, respectively, to preserve development behavior. Paths are resolved relative to the process working directory unless absolute paths are supplied.
+
+Recommended production paths:
+
+- Executable: `/usr/local/inventory/bin/inventory`
+- Static web files: `/usr/local/inventory/web/public`
+- Config (including database credentials): `/etc/inventory/config.json`
+- Persistent photos: `/var/lib/inventory/photos`
+- Logs: `/var/log/inventory`
+
+Example additional properties in the production config JSON:
+
+```json
+{
+  "photos_dir": "/var/lib/inventory/photos",
+  "web_dir": "/usr/local/inventory/web/public"
+}
+```
+
+Keep the existing `database` and `test_database` properties when adding these fields. Do not commit production credentials or photographs to Git.
+
+### Safe deployment policy
+
+Run `go test ./...` against a **dedicated disposable MySQL test database**, never against production. The repository tests can reset Goose migrations and modify test tables. A deployment must abort before installation if tests or build fail. After tests, stage a new binary and web assets, retain a previous release for rollback, restart the service, and check HTTP health. Coordinate production path changes with the backup script so it continues to include the actual configuration and photographs. **Do not migrate the running service until these steps have been verified.**
