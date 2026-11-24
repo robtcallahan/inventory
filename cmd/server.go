@@ -183,7 +183,7 @@ func server() error {
 	mux.HandleFunc("GET /api/items/{id}/photos/{filename}", servePhotoHandler(provider))
 	mux.HandleFunc("DELETE /api/items/{id}/photos/{photoID}", deletePhotoHandler(provider))
 
-	fs := http.FileServer(http.Dir("./web/public"))
+	fs := http.FileServer(http.Dir(config.WebDir))
 	mux.Handle("/", fs)
 
 	addr := fmt.Sprintf(":%d", serverPort)
