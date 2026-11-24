@@ -4,7 +4,7 @@ set -euo pipefail
 umask 077
 export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/local/mysql/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-LOG_DIR="$HOME/backups/inventory/logs"
+LOG_DIR="/var/log/inventory"
 mkdir -p "$LOG_DIR"
 chmod 700 "$LOG_DIR"
 
