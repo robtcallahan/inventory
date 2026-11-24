@@ -15,6 +15,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var serverPort int
+
 var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "Service HTTP web pages",
@@ -27,6 +29,7 @@ var serverCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(serverCmd)
 	serverCmd.Flags().BoolVar(&options.Debug, "debug", false, "Debug mode")
+	serverCmd.Flags().IntVar(&serverPort, "port", 8080, "HTTP server port")
 }
 
 func listItemsHandler(
@@ -183,8 +186,7 @@ func server() error {
 	fs := http.FileServer(http.Dir("./web/public"))
 	mux.Handle("/", fs)
 
-	fmt.Println("Server listening on http://localhost")
-	log.Fatal(http.ListenAndServe(":80", mux))
-
-	return nil
+	addr := fmt.Sprintf(":%d", serverPort)
+	fmt.Printf("Server listening on http://localhost:%d\n", serverPort)
+	return http.ListenAndServe(addr, mux)
 }

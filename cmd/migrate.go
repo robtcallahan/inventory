@@ -20,7 +20,7 @@ Subcommands:
   down-to VERSION Roll back to a specific version
   redo            Roll back and re-apply the most recent migration
   status          Show applied vs pending migrations`,
-	Args: cobra.ExactArgs(1),
+	Args: cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runMigration(args[0], args[1:])
 	},
