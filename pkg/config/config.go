@@ -19,6 +19,8 @@ type DBConfig struct {
 type Config struct {
 	Database     DBConfig `json:"database"`
 	TestDatabase DBConfig `json:"test_database"`
+	PhotosDir string `json:"photos_dir"`
+	WebDir string `json:"web_dir"`
 }
 
 // ReadConfig ...
@@ -33,5 +35,7 @@ func ReadConfig(file string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not unmarshal config file: %w", err)
 	}
+	if config.PhotosDir == "" { config.PhotosDir = "photos" }
+	if config.WebDir == "" { config.WebDir = "./web/public" }
 	return &config, nil
 }

@@ -16,7 +16,10 @@ import (
  "inventory/pkg/models"
 )
 
-const photoDir = "photos"
+func photoDir() string {
+ if config != nil && config.PhotosDir != "" { return config.PhotosDir }
+ return "photos"
+}
 const maxPhotoBytes int64 = 10 << 20
 
 func photoItemID(r *http.Request) (int,error) {
@@ -48,10 +51,10 @@ func uploadPhotoHandler(provider database_provider.DatabaseProviderInterface) ht
   extensions:=map[string]string{"image/jpeg":".jpg","image/png":".png","image/gif":".gif","image/webp":".webp"}
   ext,ok:=extensions[kind];if !ok {http.Error(w,"JPEG, PNG, GIF or WebP required",400);return}
   if _,err=file.Seek(0,io.SeekStart);err!=nil {http.Error(w,"unable to read photo",500);return}
-  if err=os.MkdirAll(photoDir,0700);err!=nil {http.Error(w,"unable to create photo directory",500);return}
+  if err=os.MkdirAll(photoDir(),0700);err!=nil {http.Error(w,"unable to create photo directory",500);return}
   b:=make([]byte,16);if _,err=rand.Read(b);err!=nil {http.Error(w,"unable to create filename",500);return}
   filename:=hex.EncodeToString(b)+ext
-  path:=filepath.Join(photoDir,filename)
+  path:=filepath.Join(photoDir(),filename)
   out,err:=os.OpenFile(path,os.O_WRONLY|os.O_CREATE|os.O_EXCL,0600);if err!=nil {http.Error(w,"unable to save photo",500);return}
   size,copyErr:=io.Copy(out,io.LimitReader(file,maxPhotoBytes+1));closeErr:=out.Close()
   if copyErr!=nil || closeErr!=nil || size>maxPhotoBytes || size==0 {
@@ -72,7 +75,7 @@ func servePhotoHandler(provider database_provider.DatabaseProviderInterface) htt
   found:=false;for _,p:=range photos {if p.Filename==name {found=true;break}}
   if !found {http.NotFound(w,r);return}
   w.Header().Set("X-Content-Type-Options","nosniff")
-  http.ServeFile(w,r,filepath.Join(photoDir,name))
+  http.ServeFile(w,r,filepath.Join(photoDir(),name))
  }
 }
 
@@ -84,7 +87,7 @@ func deletePhotoHandler(provider database_provider.DatabaseProviderInterface) ht
   var filename string;for _,p:=range photos {if p.ID==photoID {filename=p.Filename;break}}
   if filename=="" {http.NotFound(w,r);return}
   if err=provider.DeletePhoto(photoID);err!=nil {http.Error(w,"unable to delete photo",500);return}
-  if err=os.Remove(filepath.Join(photoDir,filepath.Base(filename)));err!=nil && !os.IsNotExist(err) {log.Printf("remove photo file %s: %v",filename,err)}
+  if err=os.Remove(filepath.Join(photoDir(),filepath.Base(filename)));err!=nil && !os.IsNotExist(err) {log.Printf("remove photo file %s: %v",filename,err)}
   w.WriteHeader(http.StatusNoContent)
  }
 }
