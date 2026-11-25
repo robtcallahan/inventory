@@ -77,4 +77,4 @@ VERIFY
 # Remote activation runs in one authenticated SSH session. sudo runs a fixed
 # root-owned-location deployment transaction, with rollback on any error.
 echo 'Activating release (remote sudo password may be requested)'
-ssh -tt "$HOST" "sudo /bin/bash '$REMOTE/activate-prod.sh' '$REV'"
+ssh -tt "$HOST" "sudo /bin/bash /usr/local/libexec/inventory/activate-prod.sh '$REV'"
