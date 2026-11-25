@@ -9,7 +9,7 @@ MODE="${1:---dry-run}"
 }
 
 HOST='rob@ebay-mac.local'
-BRANCH='production-layout'
+BRANCH='main'
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 [[ "$(git branch --show-current)" == "$BRANCH" ]] || { echo "ERROR: Must be on $BRANCH" >&2; exit 1; }
