@@ -1,7 +1,9 @@
+/* Stylesheet organized by component. Responsive rules follow their component. */
+
 /* ========================================================================== 
    1. Theme tokens
-   Adjust the palette, spacing, and radius here to update the entire UI.
    ========================================================================== */
+/* Adjust the palette, spacing, and radius here to update the entire UI. */
 :root {
     --color-primary: #233b5d;
     --color-primary-hover: #304f77;
@@ -40,7 +42,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .is-hidden { display: none !important; } /* UI state class, toggled by JavaScript. */
 
 /* ========================================================================== 
-   3. Shared controls
+   3. Shared controls and form feedback
    ========================================================================== */
 .field-label { color: var(--color-primary); font-weight: 650; }
 .select-control {
@@ -69,8 +71,11 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .button--secondary:hover { background: var(--color-row-hover); }
 .button--danger { background: var(--color-danger); color: #fff; }
 .button--danger:hover { background: var(--color-danger-hover); }
+.form-error { margin: 12px 6px 0; color: #a32d2d; font-weight: 600; }
+.button:disabled { opacity: 0.65; cursor: wait; }
+
 /* ========================================================================== 
-   4. Page header
+   4. Page header and inventory panel
    ========================================================================== */
 .site-header {
     margin: 12px 24px 18px;
@@ -83,10 +88,6 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 }
 .site-header__title { margin: 0; font-size: clamp(1.5rem, 3vw, 2rem); }
 .site-header__subtitle { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.85; }
-
-/* ========================================================================== 
-   5. Inventory toolbar and table
-   ========================================================================== */
 .inventory-panel {
     margin: 0 24px 24px;
     overflow: hidden;
@@ -94,6 +95,15 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     background: var(--color-surface);
     box-shadow: var(--shadow-panel);
 }
+
+@media (max-width: 700px) {
+    .site-header { margin: 10px 12px 14px; }
+    .inventory-panel { margin: 0 12px 16px; }
+}
+
+/* ========================================================================== 
+   5. Inventory toolbar: filters, search, counts and values
+   ========================================================================== */
 .inventory-toolbar {
     display: grid;
     grid-template-columns: repeat(3, auto) minmax(160px, 1fr) auto auto auto auto auto;
@@ -108,6 +118,28 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .inventory-toolbar__count, .inventory-toolbar__value { margin: 0; font-weight: 650; }
 .inventory-toolbar__count { text-align: center; }
 .inventory-toolbar__value { text-align: right; }
+.inventory-toolbar__search .input-control {
+    min-width: 90px;
+    width: 110px;
+}
+
+@media (max-width: 700px) {
+    .inventory-toolbar { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .inventory-toolbar__filter { grid-column: 1 / -1; }
+    .inventory-toolbar__search { grid-column: 1 / -1; }
+    .inventory-toolbar__count { text-align: left; }
+    .inventory-toolbar__value { text-align: right; }
+}
+
+@media (max-width: 1150px) and (min-width: 701px) {
+    .inventory-toolbar { grid-template-columns: repeat(3, auto) minmax(140px, 1fr); }
+    .inventory-toolbar__count, .inventory-toolbar__value { text-align: left; }
+}
+/* Shared label styling is in section 3. */
+
+/* ========================================================================== 
+   6. Inventory table and selection
+   ========================================================================== */
 .inventory-table-scroll { overflow-x: auto; }
 .inventory-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
 .inventory-table thead { background: var(--color-primary); color: white; }
@@ -120,24 +152,39 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .inventory-table th { font-weight: 650; }
 .inventory-table tbody tr:nth-child(even) { background: var(--color-surface-muted); }
 .inventory-table tbody tr:hover { background: var(--color-row-hover); cursor: pointer; }
-
 .inventory-table__money { text-align: right !important; font-variant-numeric: tabular-nums; }
-
-/* Inventory selection, bulk edit, and search controls */
 .inventory-table th:first-child, .inventory-table td:first-child { width: 36px; text-align: center; }
 .inventory-table td:first-child input { cursor: pointer; }
+
+/* ========================================================================== 
+   7. Bulk edit, delete confirmation and dialog actions
+   ========================================================================== */
 .bulk-dialog { width: min(95vw, 480px); border: none; border-radius: var(--radius-lg); padding: 24px; color: var(--color-text); }
 .bulk-dialog::backdrop { background: var(--color-overlay); }
 .bulk-dialog label { display: block; font-weight: 600; margin: 14px 0 6px; }
 .bulk-dialog select, .bulk-dialog input { width: 100%; }
 #bulk-error { color: var(--color-danger); }
-.inventory-toolbar__search .input-control {
-    min-width: 90px;
-    width: 110px;
+#delete-confirm-dialog {
+     width: min(90vw, 440px);
+     padding: 24px;
+     border: none;
+     border-radius: var(--radius-lg);
+     background: var(--color-surface);
+     color: var(--color-text);
+     box-shadow: var(--shadow-dialog);
+ }
+#delete-confirm-dialog::backdrop {
+    background: rgb(17 30 46 / 35%);
+}
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
 }
 
-/* ==========================================================================
-   6. Item details dialog
+/* ========================================================================== 
+   8. Item details dialog and fields
    ========================================================================== */
 .item-dialog {
     position: fixed;
@@ -149,7 +196,6 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     padding: 12px;
     background: var(--color-overlay);
 }
-
 .item-dialog__panel {
     width: min(100%, 760px);
     height: 100%;
@@ -159,7 +205,6 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     background: var(--color-surface);
     box-shadow: var(--shadow-dialog);
 }
-
 .item-dialog__header {
     padding: 20px 26px;
     background: var(--color-primary);
@@ -211,28 +256,20 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     padding: 16px 26px 20px;
     border-top: 1px solid var(--color-border);
 }
-#delete-confirm-dialog {
-     width: min(90vw, 440px);
-     padding: 24px;
-     border: none;
-     border-radius: var(--radius-lg);
-     background: var(--color-surface);
-     color: var(--color-text);
-     box-shadow: var(--shadow-dialog);
- }
 
-#delete-confirm-dialog::backdrop {
-    background: rgb(17 30 46 / 35%);
+@media (max-width: 700px) {
+    .item-dialog { padding: 12px; }
+    .item-dialog__header { padding: 16px; }
+    .item-dialog__body { padding: 12px 14px; }
+    .item-dialog__actions { padding: 14px; }
+    .item-fields__row { grid-template-columns: minmax(100px, 38%) 1fr; }
+    .item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(100px, 38%) minmax(0, 1fr); }
+    .item-fields__link { grid-column: 2; }
 }
 
-.dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 24px;
-}
-
-/* Item photo gallery */
+/* ========================================================================== 
+   9. Item photographs and photo viewer
+   ========================================================================== */
 .item-photos { margin-top: 20px; border-top: 1px solid var(--color-border); padding-top: 14px; }
 .item-photos h3 { margin: 0 0 12px; color: var(--color-primary); }
 .item-photo-gallery { display: grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: 12px; margin-bottom: 12px; }
@@ -245,35 +282,5 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 #photo-viewer { max-width: min(95vw, 1100px); max-height: 95vh; padding: 14px; border: none; border-radius: var(--radius-md); background: var(--color-surface); }
 #photo-viewer::backdrop { background: var(--color-overlay); }
 #photo-viewer-image { display: block; max-width: 100%; max-height: 80vh; object-fit: contain; margin-top: 12px; }
-
 /* Drag-and-drop feedback in edit mode */
 .item-photos.is-dragging { outline: 3px dashed #3b82f6; outline-offset: -3px; border-radius: 8px; background: rgba(59,130,246,.09); }
-
-/* ==========================================================================
-   7. Responsive adjustments
-   ========================================================================== */
-@media (max-width: 700px) {
-    .site-header { margin: 10px 12px 14px; }
-    .inventory-panel { margin: 0 12px 16px; }
-    .inventory-toolbar { grid-template-columns: 1fr 1fr; gap: 12px; }
-    .inventory-toolbar__filter { grid-column: 1 / -1; }
-    .inventory-toolbar__search { grid-column: 1 / -1; }
-    .inventory-toolbar__count { text-align: left; }
-    .inventory-toolbar__value { text-align: right; }
-    .item-dialog { padding: 12px; }
-    .item-dialog__header { padding: 16px; }
-    .item-dialog__body { padding: 12px 14px; }
-    .item-dialog__actions { padding: 14px; }
-    .item-fields__row { grid-template-columns: minmax(100px, 38%) 1fr; }
-    .item-fields__row:has(.item-fields__link) { grid-template-columns: minmax(100px, 38%) minmax(0, 1fr); }
-    .item-fields__link { grid-column: 2; }
-}
-
-@media (max-width: 1150px) and (min-width: 701px) {
-    .inventory-toolbar { grid-template-columns: repeat(3, auto) minmax(140px, 1fr); }
-    .inventory-toolbar__count, .inventory-toolbar__value { text-align: left; }
-}
-
-.form-error { margin: 12px 6px 0; color: #a32d2d; font-weight: 600; }
-.button:disabled { opacity: 0.65; cursor: wait; }
-
