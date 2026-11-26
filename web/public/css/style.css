@@ -8,6 +8,7 @@
     --color-primary: #233b5d;
     --color-primary-hover: #304f77;
     --color-accent: #278477;
+    --color-active: #278477;
     --color-accent-hover: #1d6b60;
     --color-danger: #b42332;
     --color-danger-hover: #8f1d29;
@@ -116,7 +117,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .inventory-toolbar__totals {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 50px;
 }
 
 .inventory-toolbar__primary {
@@ -140,6 +141,10 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 @media (max-width: 700px) {
     .site-header { margin: 10px 12px 14px; }
     .inventory-panel { margin: 0 12px 16px; }
+}
+
+.select-control.is-active {
+    border-color: var(--color-active);
 }
 
 .inventory-toolbar__filter { display: flex; align-items: center; gap: 10px; }

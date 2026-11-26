@@ -2,10 +2,16 @@
 
 // DOM hooks use IDs. CSS classes describe appearance; is-* classes describe state.
 const ui = {
+    filterButton: document.getElementById('inventory-filter'),
     toolbarFilters: document.getElementById('toolbar-filters'),
+    filtersCount: document.getElementById('filters-count'),
+    filtersCountLabel: document.getElementById('filters-count-label'),
+
+    categoryFilter: document.getElementById('category-filter'),
     photoFilter: document.getElementById('photo-filter'),
-    roomFilter: document.getElementById('room-filter'),
     infoFilter: document.getElementById('info-filter'),
+    roomFilter: document.getElementById('room-filter'),
+
     bulk: document.getElementById('inventory-bulk'),
     bulkDialog: document.getElementById('bulk-dialog'),
     bulkCount: document.getElementById('bulk-count'),
@@ -14,27 +20,30 @@ const ui = {
     bulkError: document.getElementById('bulk-error'),
     bulkApply: document.getElementById('bulk-apply'),
     bulkCancel: document.getElementById('bulk-cancel'),
+
     search: document.getElementById('search-filter'),
     count: document.getElementById('inventory-count'),
     value: document.getElementById('inventory-value'),
     add: document.getElementById('inventory-add'),
-    filter: document.getElementById('inventory-filter'),
     head: document.getElementById('inventory-table-head'),
     body: document.getElementById('inventory-table-body'),
     dialog: document.getElementById('item-dialog'),
     dialogTitle: document.getElementById('item-dialog-title'),
     form: document.getElementById('item-form'),
     fields: document.getElementById('item-fields'),
+
     error: document.getElementById('item-form-error'),
     close: document.getElementById('item-close'),
     edit: document.getElementById('item-edit'),
     delete: document.getElementById('item-delete'),
     cancel: document.getElementById('item-cancel'),
     save: document.getElementById('item-save'),
+
     confirmDialog: document.getElementById('delete-confirm-dialog'),
     confirmMessage: document.getElementById('delete-confirm-message'),
     confirmDelete: document.getElementById('confirm-delete'),
     cancelDelete: document.getElementById('cancel-delete'),
+
     photoGallery: document.getElementById('item-photo-gallery'),
     photoInput: document.getElementById('item-photo-input'),
     photoUploadLabel: document.getElementById('item-photo-upload-label'),
@@ -51,12 +60,15 @@ const detailFields = ['quantity', 'name', 'short_description', 'replacement_valu
 const numericFields = new Set(['quantity', 'replacement_value', 'resale_value', 'purchase_price']);
 const moneyFields = new Set(['replacement_value', 'resale_value', 'total_value']);
 
+const filterSelects = new Set([ui.categoryFilter, ui.photoFilter, ui.infoFilter, ui.roomFilter]);
+let numFilters = 0;
+
 let items = [];
 let selectedItem = null;
 let selectedCategory = '';
-let selectedPhotoFilter = 'all';
+let selectedPhotoFilter = '';
 let selectedRoom = '';
-let selectedInfoFilter = 'all';
+let selectedInfoFilter = '';
 const selectedIDs = new Set();
 let searchText = "";
 let saving = false;
@@ -79,13 +91,25 @@ function money(amount) {
     return '$' + Number(amount || 0).toLocaleString('en-US');
 }
 
+function updateFilterState() {
+    let count = 0;
+    filterSelects.forEach((el) => {
+        const active = el.value !== "";
+        el.classList.toggle('is-active', active);
+        if (active) count++;
+    });
+    ui.filtersCount.innerText = String(count);
+    ui.filtersCount.classList.toggle('is-hidden', count === 0);
+    ui.filtersCountLabel.classList.toggle('is-hidden', count === 0);
+}
 
 function visibleItems() {
+    updateFilterState();
     return items.filter(item => {
         const matchesCategory =
             !selectedCategory || item.category === selectedCategory;
         const matchesRoom = !selectedRoom || item.room === selectedRoom;
-        const matchesInfo = selectedInfoFilter === 'all' || (selectedInfoFilter === 'complete' ? item.info_complete : !item.info_complete);
+        const matchesInfo = selectedInfoFilter === '' || (selectedInfoFilter === 'complete' ? item.info_complete : !item.info_complete);
 
         const matchesSearch = [
             item.name,
@@ -103,7 +127,7 @@ function visibleItems() {
         );
 
         const photoCount = Number(item.photo_count || 0);
-        const matchesPhotos = selectedPhotoFilter === 'all' ||
+        const matchesPhotos = selectedPhotoFilter === '' ||
             (selectedPhotoFilter === 'without' && photoCount === 0) ||
             (selectedPhotoFilter === 'with' && photoCount > 0);
         return matchesCategory && matchesRoom && matchesSearch && matchesPhotos && matchesInfo;
@@ -180,7 +204,7 @@ function renderTable() {
 }
 
 function createFields() {
-    const category = ui.filter.cloneNode(true);
+    const category = ui.categoryFilter.cloneNode(true);
     category.remove(0);  // Remove "All"
     category.id = 'item-field-category';
     category.name = 'category';
@@ -270,7 +294,8 @@ function setMode(editing, adding = false) {
         ui.dialogTitle.textContent = "Edit Item";
     } else {
         ui.dialogTitle.textContent = "Item Details";
-    }}
+    }
+}
 
 function openItem(item) {
     selectedItem = item;
@@ -283,7 +308,7 @@ function openItem(item) {
     updateItemLinks();
     loadPhotos(item.id);
     ui.dialog.classList.remove('is-hidden');
-    ui.edit.focus({ preventScroll: true });
+    ui.edit.focus({preventScroll: true});
     ui.dialog.querySelector('.item-dialog__panel').scrollTop = 0;
 }
 
@@ -311,7 +336,7 @@ function addItem(event) {
 }
 
 function readItem() {
-    const item = { id: selectedItem?.id ?? 0 };
+    const item = {id: selectedItem?.id ?? 0};
     for (const key of detailFields) {
         if (key === 'total_value') continue; // Computed by the server.
         if (key === 'info_complete') {
@@ -326,7 +351,11 @@ function readItem() {
         } else if (key === 'website_url' || key === 'manual_url') {
             if (value) {
                 let parsed;
-                try { parsed = new URL(value); } catch { throw new Error(fieldLabel(key) + ' must be a valid URL.'); }
+                try {
+                    parsed = new URL(value);
+                } catch {
+                    throw new Error(fieldLabel(key) + ' must be a valid URL.');
+                }
                 if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error(fieldLabel(key) + ' must use http or https.');
             }
             item[key] = value;
@@ -367,7 +396,7 @@ async function saveItem(event) {
     try {
         const response = await fetch('/api/save', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload),
         });
         if (!response.ok) throw new Error(`Save failed (HTTP ${response.status}).`);
@@ -386,7 +415,7 @@ async function saveItem(event) {
 async function deleteItem(event) {
     event.preventDefault();
     if (deleting || !selectedItem) return;
-    const payload = { id: selectedItem.id };
+    const payload = {id: selectedItem.id};
     deleting = true;
     ui.save.disabled = true;
     ui.delete.disabled = true;
@@ -395,7 +424,7 @@ async function deleteItem(event) {
     try {
         const response = await fetch('/api/delete', {
             method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload),
         });
         if (!response.ok) throw new Error(`Delete failed (HTTP ${response.status}).`);
@@ -440,7 +469,7 @@ async function loadItems() {
     const knownIDs = new Set(items.map(item => item.id));
     for (const id of selectedIDs) if (!knownIDs.has(id)) selectedIDs.delete(id);
     const roomOptions = [...new Set(items.map(item => String(item.room || '').trim()).filter(Boolean))].sort();
-    ui.roomFilter.replaceChildren(new Option('All Rooms', ''), ...roomOptions.map(room => new Option(room, room)));
+    ui.roomFilter.replaceChildren(new Option('All', ''), ...roomOptions.map(room => new Option(room, room)));
     ui.roomFilter.value = selectedRoom;
     const list = document.getElementById('room-options');
     list.replaceChildren(...roomOptions.map(room => new Option(room, room)));
@@ -457,7 +486,8 @@ function updateItemLinks() {
         try {
             const parsed = new URL(value);
             valid = ['https:', 'http:'].includes(parsed.protocol);
-        } catch {}
+        } catch {
+        }
         anchor.classList.toggle('is-hidden', !valid);
         if (valid) anchor.href = value;
         else anchor.removeAttribute('href');
@@ -497,7 +527,8 @@ async function applyBulkEdit() {
         ui.bulkDialog.close();
     } catch (error) {
         ui.bulkError.textContent = error.message;
-        await loadItems().catch(() => {});
+        await loadItems().catch(() => {
+        });
     } finally {
         ui.bulkApply.disabled = false;
     }
@@ -505,8 +536,11 @@ async function applyBulkEdit() {
 
 function init() {
     createFields();
-    ui.filter.addEventListener('change', () => {
-        selectedCategory = ui.filter.value;
+    ui.filterButton.addEventListener('click', () => {
+        ui.toolbarFilters.classList.toggle('is-hidden');
+    });
+    ui.categoryFilter.addEventListener('change', () => {
+        selectedCategory = ui.categoryFilter.value;
         renderTable();
     });
     ui.photoFilter.addEventListener('change', () => {
@@ -545,9 +579,6 @@ function init() {
     });
     ui.search.addEventListener('input', searchFilter)
     ui.add.addEventListener('click', addItem);
-    ui.filter.addEventListener('click', event => {
-        ui.toolbarFilters.classList.toggle('is-hidden');
-    })
     ui.close.addEventListener('click', closeItem);
     ui.cancel.addEventListener('click', closeItem);
     ui.edit.addEventListener('click', () => {
@@ -609,7 +640,7 @@ async function loadPhotos(itemID) {
                 if (!confirm('Delete this photo?')) return;
                 remove.disabled = true;
                 try {
-                    const result = await fetch(`/api/items/${itemID}/photos/${photo.id}`, {method:'DELETE'});
+                    const result = await fetch(`/api/items/${itemID}/photos/${photo.id}`, {method: 'DELETE'});
                     if (!result.ok) throw new Error('Unable to delete photo.');
                     await loadPhotos(itemID);
                     await loadItems();
@@ -644,7 +675,7 @@ async function uploadPhotoFile(file) {
     ui.photoInput.disabled = true;
     ui.photoStatus.textContent = 'Uploading photo…';
     try {
-        const response = await fetch(`/api/items/${itemID}/photos`, {method:'POST',body:form});
+        const response = await fetch(`/api/items/${itemID}/photos`, {method: 'POST', body: form});
         if (!response.ok) throw new Error(await response.text() || 'Upload failed.');
         await loadPhotos(itemID);
         await loadItems();
