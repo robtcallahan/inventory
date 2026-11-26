@@ -8,23 +8,53 @@
     <script src="js/main.js" defer></script>
 </head>
 <body>
-    <header class="site-header">
-        <h1 class="site-header__title">Home Inventory</h1>
-        <p class="site-header__subtitle">Protecting what matters</p>
-    </header>
+<header class="site-header">
+    <h1 class="site-header__title">Home Inventory</h1>
+    <p class="site-header__subtitle">Protecting what matters</p>
+</header>
 
-    <main class="inventory-panel">
-        <div class="inventory-toolbar">
+<main class="inventory-panel">
+    <div class="inventory-toolbar">
+        <!-- Totals values: count and value -->
+        <div class="inventory-toolbar__totals">
+            <p class="inventory-toolbar__count">Items: <span id="inventory-count">0</span></p>
+            <p class="inventory-toolbar__value">Value: <span id="inventory-value">$0</span></p>
+        </div>
+
+        <!-- Primary; Search, Filters button, Bulk Edit and Add -->
+        <div class="inventory-toolbar__primary">
+            <div class="inventory-toolbar__search">
+                <label class="field-label" for="search-filter">Search</label>
+                <input class="input-control" id="search-filter" type="text">
+            </div>
+            <button class="button button--primary" id="inventory-filter" type="button">Filter</button>
+
+            <button class="button button--secondary" id="inventory-bulk" type="button" disabled>Bulk Edit (0)
+            </button>
+            <button class="button button--primary" id="inventory-add" type="button">Add</button>
+        </div>
+
+        <!-- Filters: Category, Photos, Info, Room and Clear -->
+        <div class="inventory-toolbar__filters is-hidden" id="toolbar-filters">
             <div class="inventory-toolbar__filter">
                 <label class="field-label" for="category-filter">Category</label>
                 <select class="select-control" id="category-filter">
                     <option value="">All</option>
-                    <option>Appliances</option><option>Clothes</option><option>Computers</option>
-                    <option>Electronics</option><option>Entertainment</option><option>Furniture</option>
-                    <option>Gardening</option><option>Kitchen</option><option>Music Gear</option>
-                    <option>Musical Instruments</option><option>Phones &amp; Tablets</option><option>Other</option>
+                    <option>Appliances</option>
+                    <option>Clothes</option>
+                    <option>Computers</option>
+                    <option>Electronics</option>
+                    <option>Entertainment</option>
+                    <option>Furniture</option>
+                    <option>Gardening</option>
+                    <option>Kitchen</option>
+                    <option>Music Gear</option>
+                    <option>Musical Instruments</option>
+                    <option>Phones &amp; Tablets</option>
+                    <option>Other</option>
                 </select>
             </div>
+
             <div class="inventory-toolbar__filter">
                 <label class="field-label" for="photo-filter">Photos</label>
                 <select class="select-control" id="photo-filter">
@@ -33,6 +63,7 @@
                     <option value="with">With Photos</option>
                 </select>
             </div>
+
             <div class="inventory-toolbar__filter">
                 <label class="field-label" for="info-filter">Info</label>
                 <select class="select-control" id="info-filter">
@@ -41,76 +72,97 @@
                     <option value="complete">Complete</option>
                 </select>
             </div>
+
             <div class="inventory-toolbar__filter">
                 <label class="field-label" for="room-filter">Room</label>
-                <select class="select-control" id="room-filter"><option value="">All Rooms</option></select>
+                <select class="select-control" id="room-filter">
+                    <option value="">All Rooms</option>
+                </select>
             </div>
-            <div class="inventory-toolbar__search">
-                <label class="field-label" for="search-filter">Search</label>
-                <input class="input-control" id="search-filter" type="text">
-            </div>
-            <p class="inventory-toolbar__count">Items: <span id="inventory-count">0</span></p>
-            <p class="inventory-toolbar__value">Value: <span id="inventory-value">$0</span></p>
-            <button class="button button--secondary" id="inventory-bulk" type="button" disabled>Bulk Edit (0)</button>
-            <button class="button button--primary" id="inventory-add" type="button">Add</button>
-        </div>
-        <div class="inventory-table-scroll">
-            <table class="inventory-table">
-                <thead id="inventory-table-head"></thead>
-                <tbody id="inventory-table-body"></tbody>
-            </table>
-        </div>
-    </main>
-
-    <datalist id="room-options"></datalist>
-    <datalist id="completion-options"><option value="true"></option><option value="false"></option></datalist>
-    <datalist id="source-options"><option value="Amazon"></option><option value="Walmart"></option><option value="Best Buy"></option><option value="Apple"></option><option value="Gift"></option><option value="Other"></option></datalist>
-    <dialog id="bulk-dialog" class="bulk-dialog">
-        <h2>Bulk Edit</h2>
-        <p id="bulk-count"></p>
-        <label for="bulk-field">Field to change</label>
-        <select id="bulk-field" class="select-control">
-            <option value="room">Room / Location</option><option value="category">Category</option>
-            <option value="condition">Condition</option><option value="purchase_source">Purchase Source</option>
-            <option value="website_url">Website URL</option><option value="manual_url">Manual URL</option>
-            <option value="info_complete">Information Complete</option>
-        </select>
-        <label for="bulk-value">New value (blank clears this field)</label>
-        <input id="bulk-value" class="item-fields__input" type="text" list="room-options">
-        <p id="bulk-error" role="alert"></p>
-        <div class="dialog-actions"><button class="button button--secondary" id="bulk-cancel" type="button">Cancel</button><button class="button button--primary" id="bulk-apply" type="button">Apply to selected</button></div>
-    </dialog>
-    <div class="item-dialog is-hidden" id="item-dialog" role="dialog" aria-modal="true" aria-labelledby="item-dialog-title">
-        <div class="item-dialog__panel">
-            <header class="item-dialog__header">
-                <h2 class="item-dialog__title" id="item-dialog-title">Item Details</h2>
-                <p class="item-dialog__subtitle">View or edit inventory information</p>
-            </header>
-            <form class="item-dialog__form" id="item-form">
-                <div class="item-dialog__body">
-                    <div class="item-fields" id="item-fields"></div>
-                    <section class="item-photos" id="item-photos"><h3>Photos</h3><div id="item-photo-gallery" class="item-photo-gallery"></div><label class="button button--secondary is-hidden" id="item-photo-upload-label" for="item-photo-input">Add photo</label><input id="item-photo-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp" class="is-hidden"><p id="item-photo-status" role="status"></p></section>
-                    <p class="form-error is-hidden" id="item-form-error" role="alert"></p>
-                </div>
-                <footer class="item-dialog__actions">
-                    <button class="button button--secondary" id="item-close" type="button">Close</button>
-                    <button class="button button--primary" id="item-edit" type="button">Edit</button>
-                    <button class="button button--danger is-hidden" id="item-delete" type="button">Delete</button>
-                    <button class="button button--secondary is-hidden" id="item-cancel" type="button">Cancel</button>
-                    <button class="button button--primary is-hidden" id="item-save" type="submit">Save</button>
-                </footer>
-            </form>
         </div>
     </div>
 
-    <dialog id="photo-viewer"><button type="button" id="photo-viewer-close" class="button button--secondary">Close</button><img id="photo-viewer-image" alt="Inventory photo"></dialog>
-    <dialog id="delete-confirm-dialog">
-        <h2>Delete Item?</h2>
-        <p id="delete-confirm-message"></p>
-        <div class="dialog-actions">
-            <button class="button button--secondary" type="button" id="cancel-delete">Cancel</button>
-            <button class="button button--danger" type="button" id="confirm-delete">Delete</button>
-        </div>
-    </dialog>
+    <div class="inventory-table-scroll">
+        <table class="inventory-table">
+            <thead id="inventory-table-head"></thead>
+            <tbody id="inventory-table-body"></tbody>
+        </table>
+    </div>
+</main>
+
+<datalist id="room-options"></datalist>
+<datalist id="completion-options">
+    <option value="true"></option>
+    <option value="false"></option>
+</datalist>
+<datalist id="source-options">
+    <option value="Amazon"></option>
+    <option value="Walmart"></option>
+    <option value="Best Buy"></option>
+    <option value="Apple"></option>
+    <option value="Gift"></option>
+    <option value="Other"></option>
+</datalist>
+<dialog id="bulk-dialog" class="bulk-dialog">
+    <h2>Bulk Edit</h2>
+    <p id="bulk-count"></p>
+    <label for="bulk-field">Field to change</label>
+    <select id="bulk-field" class="select-control">
+        <option value="room">Room / Location</option>
+        <option value="category">Category</option>
+        <option value="condition">Condition</option>
+        <option value="purchase_source">Purchase Source</option>
+        <option value="website_url">Website URL</option>
+        <option value="manual_url">Manual URL</option>
+        <option value="info_complete">Information Complete</option>
+    </select>
+    <label for="bulk-value">New value (blank clears this field)</label>
+    <input id="bulk-value" class="item-fields__input" type="text" list="room-options">
+    <p id="bulk-error" role="alert"></p>
+    <div class="dialog-actions">
+        <button class="button button--secondary" id="bulk-cancel" type="button">Cancel</button>
+        <button class="button button--primary" id="bulk-apply" type="button">Apply to selected</button>
+    </div>
+</dialog>
+<div class="item-dialog is-hidden" id="item-dialog" role="dialog" aria-modal="true" aria-labelledby="item-dialog-title">
+    <div class="item-dialog__panel">
+        <header class="item-dialog__header">
+            <h2 class="item-dialog__title" id="item-dialog-title">Item Details</h2>
+            <p class="item-dialog__subtitle">View or edit inventory information</p>
+        </header>
+        <form class="item-dialog__form" id="item-form">
+            <div class="item-dialog__body">
+                <div class="item-fields" id="item-fields"></div>
+                <section class="item-photos" id="item-photos"><h3>Photos</h3>
+                    <div id="item-photo-gallery" class="item-photo-gallery"></div>
+                    <label class="button button--secondary is-hidden" id="item-photo-upload-label"
+                           for="item-photo-input">Add photo</label><input id="item-photo-input" type="file"
+                                                                          accept="image/jpeg,image/png,image/gif,image/webp"
+                                                                          class="is-hidden">
+                    <p id="item-photo-status" role="status"></p></section>
+                <p class="form-error is-hidden" id="item-form-error" role="alert"></p>
+            </div>
+            <footer class="item-dialog__actions">
+                <button class="button button--secondary" id="item-close" type="button">Close</button>
+                <button class="button button--primary" id="item-edit" type="button">Edit</button>
+                <button class="button button--danger is-hidden" id="item-delete" type="button">Delete</button>
+                <button class="button button--secondary is-hidden" id="item-cancel" type="button">Cancel</button>
+                <button class="button button--primary is-hidden" id="item-save" type="submit">Save</button>
+            </footer>
+        </form>
+    </div>
+</div>
+
+<dialog id="photo-viewer">
+    <button type="button" id="photo-viewer-close" class="button button--secondary">Close</button>
+    <img id="photo-viewer-image" alt="Inventory photo"></dialog>
+<dialog id="delete-confirm-dialog">
+    <h2>Delete Item?</h2>
+    <p id="delete-confirm-message"></p>
+    <div class="dialog-actions">
+        <button class="button button--secondary" type="button" id="cancel-delete">Cancel</button>
+        <button class="button button--danger" type="button" id="confirm-delete">Delete</button>
+    </div>
+</dialog>
 </body>
 </html>

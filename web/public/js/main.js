@@ -2,7 +2,7 @@
 
 // DOM hooks use IDs. CSS classes describe appearance; is-* classes describe state.
 const ui = {
-    filter: document.getElementById('category-filter'),
+    toolbarFilters: document.getElementById('toolbar-filters'),
     photoFilter: document.getElementById('photo-filter'),
     roomFilter: document.getElementById('room-filter'),
     infoFilter: document.getElementById('info-filter'),
@@ -18,6 +18,7 @@ const ui = {
     count: document.getElementById('inventory-count'),
     value: document.getElementById('inventory-value'),
     add: document.getElementById('inventory-add'),
+    filter: document.getElementById('inventory-filter'),
     head: document.getElementById('inventory-table-head'),
     body: document.getElementById('inventory-table-body'),
     dialog: document.getElementById('item-dialog'),
@@ -544,6 +545,9 @@ function init() {
     });
     ui.search.addEventListener('input', searchFilter)
     ui.add.addEventListener('click', addItem);
+    ui.filter.addEventListener('click', event => {
+        ui.toolbarFilters.classList.toggle('is-hidden');
+    })
     ui.close.addEventListener('click', closeItem);
     ui.cancel.addEventListener('click', closeItem);
     ui.edit.addEventListener('click', () => {
