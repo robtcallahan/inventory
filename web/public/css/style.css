@@ -182,10 +182,6 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     display: grid;
     grid-template-columns: auto 1fr;
 }
-.inventory-toolbar__totals.inventory-toolbar__count {
-}
-.inventory-toolbar__totals.inventory-toolbar__value {
-}
 .inventory-toolbar__count, .inventory-toolbar__value {
     font-weight: 650;
 }
@@ -193,17 +189,14 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .inventory-toolbar__count {
     text-align: center;
 }
-s
+
 .inventory-toolbar__value {
     text-align: right;
 }
 
 .inventory-toolbar__primary {
-    /*display: flex;*/
-    /*flex-direction: column;*/
-    /*align-items: center;*/
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 1fr;
     gap: 12px;
 }
 .inventory-toolbar__primary-buttons {
