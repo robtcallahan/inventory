@@ -11,6 +11,7 @@ const ui = {
     photoFilter: document.getElementById('photo-filter'),
     infoFilter: document.getElementById('info-filter'),
     roomFilter: document.getElementById('room-filter'),
+    clearFilters: document.getElementById('clear-filters'),
 
     bulk: document.getElementById('inventory-bulk'),
     bulkDialog: document.getElementById('bulk-dialog'),
@@ -98,9 +99,21 @@ function updateFilterState() {
         el.classList.toggle('is-active', active);
         if (active) count++;
     });
+    ui.filterButton.classList.toggle('is-active', count !== 0);
+    ui.clearFilters.disabled = count === 0;
     ui.filtersCount.innerText = String(count);
     ui.filtersCount.classList.toggle('is-hidden', count === 0);
+    ui.filtersCountLabel.innerText = count === 1 ? "filter selected" : "filters selected";
     ui.filtersCountLabel.classList.toggle('is-hidden', count === 0);
+}
+
+function clearFilters() {
+    // reset all the select elements to ''
+    filterSelects.forEach((el) => {
+        el.value = "";
+    });
+    selectedCategory = selectedPhotoFilter = selectedInfoFilter = selectedRoom = '';
+    renderTable();
 }
 
 function visibleItems() {
@@ -555,6 +568,7 @@ function init() {
         selectedRoom = ui.roomFilter.value;
         renderTable();
     });
+    ui.clearFilters.addEventListener('click', clearFilters)
     ui.bulk.addEventListener('click', openBulkEditor);
     ui.bulkCancel.addEventListener('click', () => ui.bulkDialog.close());
     ui.bulkApply.addEventListener('click', applyBulkEdit);

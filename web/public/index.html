@@ -18,7 +18,8 @@
         <!-- Totals values: count and value -->
         <div class="inventory-toolbar__totals">
             <p class="inventory-toolbar__count">Items: <span id="inventory-count">0</span></p>
-            <p class="inventory-toolbar__value">Value: <span id="inventory-value">$0</span></p>
+            <p class="inventory-toolbar__value" id="inventory-toolbar__value">Value:
+                <span id="inventory-value">$0</span></p>
         </div>
 
         <!-- Primary; Search, Filters button, Bulk Edit and Add -->
@@ -27,13 +28,15 @@
                 <label class="field-label" for="search-filter">Search</label>
                 <input class="input-control" id="search-filter" type="text">
             </div>
-            <button class="button button--primary" id="inventory-filter" type="button">Filter</button>
-            <span class="is-hidden" id="filters-count"></span><span class="is-hidden" id="filters-count-label">
-            filters selected</span>
+            <div class="inventory-toolbar__primary-buttons">
+                <button class="button button--primary" id="inventory-filter" type="button">Filters</button>
+                <span class="is-hidden" id="filters-count"></span><span class="is-hidden"
+                                                                        id="filters-count-label"></span>
 
-            <button class="button button--primary" id="inventory-bulk" type="button" disabled>Bulk Edit (0)
-            </button>
-            <button class="button button--primary" id="inventory-add" type="button">Add</button>
+                <button class="button button--primary" id="inventory-bulk" type="button" disabled>Bulk Edit (0)
+                </button>
+                <button class="button button--primary" id="inventory-add" type="button">Add</button>
+            </div>
         </div>
 
         <!-- Filters: Category, Photos, Info, Room and Clear -->
@@ -80,6 +83,10 @@
                 <select class="select-control" id="room-filter">
                     <option value="">All</option>
                 </select>
+            </div>
+
+            <div class="inventory-toolbar__filter">
+                <button class="button button--primary" id="clear-filters" type="button" disabled>Clear Filters</button>
             </div>
         </div>
     </div>
