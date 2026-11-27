@@ -5,7 +5,6 @@ const ui = {
     filterButton: document.getElementById('inventory-filter'),
     toolbarFilters: document.getElementById('toolbar-filters'),
     filtersCount: document.getElementById('filters-count'),
-    filtersCountLabel: document.getElementById('filters-count-label'),
 
     categoryFilter: document.getElementById('category-filter'),
     photoFilter: document.getElementById('photo-filter'),
@@ -101,10 +100,9 @@ function updateFilterState() {
     });
     ui.filterButton.classList.toggle('is-active', count !== 0);
     ui.clearFilters.disabled = count === 0;
-    ui.filtersCount.innerText = String(count);
     ui.filtersCount.classList.toggle('is-hidden', count === 0);
-    ui.filtersCountLabel.innerText = count === 1 ? "filter selected" : "filters selected";
-    ui.filtersCountLabel.classList.toggle('is-hidden', count === 0);
+    ui.filtersCount.innerText = count === 1 ? String(count) + " filter set" : String(count) + " filters set";
+    ui.filtersCount.classList.toggle('is-hidden', count === 0);
 }
 
 function clearFilters() {

@@ -200,15 +200,19 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     gap: 12px;
 }
 .inventory-toolbar__primary-buttons {
-
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 8px;
+}
+.inventory-toolbar__primary-buttons #inventory-bulk {
+    grid-column: 3;
+    /*margin-left: auto;*/
 }
 .inventory-toolbar__search {
     display: grid;
     grid-template-columns: auto 1fr;
     align-self: stretch;
-    /*display: flex;*/
-    /*flex-direction: row;*/
-    /*align-items: stretch;*/
     gap: 10px;
 }
 
@@ -234,23 +238,29 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     .inventory-panel {
         margin: 0 12px 16px;
     }
-
+    .inventory-toolbar_primary {
+        display: grid;
+        grid-template-columns: auto auto;
+        gap: 12px;
+    }
+    .inventory-toolbar__search {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+    .inventory-toolbar__primary-buttons {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
     .inventory-toolbar__filters {
         display: grid;
-        grid-template-columns: repeat(5, auto) max-content;
+        grid-template-columns: repeat(7, auto) max-content;
         gap: 12px;
         align-items: center;
         justify-content: start;
     }
 
-    .inventory-toolbar__search {
-        flex-direction: row;
-        align-items: center;
-    }
-
-    .inventory-toolbar__search .input-control {
-        flex-grow: 1;
-    }
 }
 
 .select-control.is-active {
